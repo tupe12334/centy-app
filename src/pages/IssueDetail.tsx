@@ -92,7 +92,14 @@ export function IssueDetail() {
     } finally {
       setSaving(false)
     }
-  }, [projectPath, issueNumber, editTitle, editDescription, editStatus, editPriority])
+  }, [
+    projectPath,
+    issueNumber,
+    editTitle,
+    editDescription,
+    editStatus,
+    editPriority,
+  ])
 
   const handleDelete = useCallback(async () => {
     if (!projectPath || !issueNumber) return
@@ -182,7 +189,10 @@ export function IssueDetail() {
     return (
       <div className="issue-detail">
         <div className="error-message">{error}</div>
-        <Link to={`/issues?project=${encodeURIComponent(projectPath)}`} className="back-link">
+        <Link
+          to={`/issues?project=${encodeURIComponent(projectPath)}`}
+          className="back-link"
+        >
           Back to Issues
         </Link>
       </div>
@@ -193,7 +203,10 @@ export function IssueDetail() {
     return (
       <div className="issue-detail">
         <div className="error-message">Issue not found</div>
-        <Link to={`/issues?project=${encodeURIComponent(projectPath)}`} className="back-link">
+        <Link
+          to={`/issues?project=${encodeURIComponent(projectPath)}`}
+          className="back-link"
+        >
           Back to Issues
         </Link>
       </div>
@@ -321,10 +334,14 @@ export function IssueDetail() {
             <h1 className="issue-title">{issue.title}</h1>
 
             <div className="issue-metadata">
-              <span className={`status-badge ${getStatusClass(issue.metadata?.status || '')}`}>
+              <span
+                className={`status-badge ${getStatusClass(issue.metadata?.status || '')}`}
+              >
                 {issue.metadata?.status || 'unknown'}
               </span>
-              <span className={`priority-badge ${getPriorityClass(issue.metadata?.priority || '')}`}>
+              <span
+                className={`priority-badge ${getPriorityClass(issue.metadata?.priority || '')}`}
+              >
                 {issue.metadata?.priority || 'unknown'}
               </span>
               <span className="issue-date">
@@ -335,8 +352,7 @@ export function IssueDetail() {
               </span>
               {issue.metadata?.updatedAt && (
                 <span className="issue-date">
-                  Updated:{' '}
-                  {new Date(issue.metadata.updatedAt).toLocaleString()}
+                  Updated: {new Date(issue.metadata.updatedAt).toLocaleString()}
                 </span>
               )}
             </div>

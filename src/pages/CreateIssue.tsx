@@ -62,7 +62,9 @@ export function CreateIssue() {
         const response = await centyClient.createIssue(request)
 
         if (response.success) {
-          navigate(`/issues/${response.issueNumber}?project=${encodeURIComponent(projectPath.trim())}`)
+          navigate(
+            `/issues/${response.issueNumber}?project=${encodeURIComponent(projectPath.trim())}`
+          )
         } else {
           setError(response.error || 'Failed to create issue')
         }

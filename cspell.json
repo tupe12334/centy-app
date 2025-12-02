@@ -21,7 +21,9 @@
     "protobuf",
     "grpc",
     "codegenv",
-    "protoc"
+    "protoc",
+    "Ftest",
+    "Fpath"
   ],
   "ignorePaths": [
     "node_modules",

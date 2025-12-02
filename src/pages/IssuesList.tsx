@@ -228,7 +228,9 @@ export function IssuesList() {
                       </td>
                       <td className="issue-date">
                         {issue.metadata?.createdAt
-                          ? new Date(issue.metadata.createdAt).toLocaleDateString()
+                          ? new Date(
+                              issue.metadata.createdAt
+                            ).toLocaleDateString()
                           : '-'}
                       </td>
                     </tr>
