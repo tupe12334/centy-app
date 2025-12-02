@@ -15,14 +15,48 @@
   font-weight: 700;
 }
 
+.app-header h1 a {
+  color: white;
+  text-decoration: none;
+}
+
+.app-header h1 a:hover {
+  opacity: 0.9;
+}
+
 .app-header p {
   margin: 0.5rem 0 0;
   opacity: 0.9;
 }
 
+.app-nav {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.app-nav a {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.app-nav a:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.app-nav a.active {
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+}
+
 main {
   background: white;
   border-radius: 16px 16px 0 0;
-  min-height: calc(100vh - 120px);
+  min-height: calc(100vh - 180px);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
 }

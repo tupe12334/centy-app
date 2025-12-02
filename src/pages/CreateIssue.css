@@ -1,0 +1,104 @@
+.create-issue {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.create-issue h2 {
+  margin-bottom: 1.5rem;
+  color: #213547;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #213547;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #535bf2;
+  box-shadow: 0 0 0 3px rgba(83, 91, 242, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.field-error {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #ef4444;
+}
+
+.field-success {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #10b981;
+}
+
+.error-message {
+  background: #fef2f2;
+  color: #dc2626;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.actions button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.actions button.primary {
+  background: #535bf2;
+  color: white;
+}
+
+.actions button.primary:hover:not(:disabled) {
+  background: #4349d8;
+}
+
+.actions button.secondary {
+  background: #f4f4f5;
+  color: #213547;
+}
+
+.actions button.secondary:hover:not(:disabled) {
+  background: #e4e4e7;
+}
+
+.actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
