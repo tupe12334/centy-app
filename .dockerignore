@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+.git
+.gitignore
+.github
+.husky
+.claude
+.kiro
+*.md
+*.log
+.env*
+.DS_Store

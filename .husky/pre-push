@@ -1,0 +1,33 @@
+echo "Running pre-push checks..."
+
+echo "Checking linting..."
+pnpm lint || {
+  echo "Linting failed. Please fix errors before pushing."
+  exit 1
+}
+
+echo "Checking formatting..."
+pnpm format:check || {
+  echo "Formatting check failed. Run 'pnpm format' to fix."
+  exit 1
+}
+
+echo "Checking spelling..."
+pnpm spell || {
+  echo "Spell check failed. Please fix spelling errors."
+  exit 1
+}
+
+echo "Checking for unused code..."
+pnpm knip || {
+  echo "Knip found unused code. Please review and fix."
+  exit 1
+}
+
+echo "Running tests..."
+pnpm test --run || {
+  echo "Tests failed. Please fix failing tests before pushing."
+  exit 1
+}
+
+echo "All pre-push checks passed!"
