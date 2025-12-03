@@ -70,10 +70,12 @@ export const AssetUploader = forwardRef<
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Update assets when initialAssets changes
+  // Update assets when initialAssets changes (use JSON stringify for stable comparison)
+  const initialAssetsKey = JSON.stringify(initialAssets.map(a => a.id))
   useEffect(() => {
     setAssets(initialAssets)
-  }, [initialAssets])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialAssetsKey])
 
   // Validate file
   const validateFile = useCallback((file: File): string | null => {
