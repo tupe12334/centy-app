@@ -141,7 +141,7 @@ describe('DocDetail', () => {
     fireEvent.click(screen.getByText('Edit'))
 
     expect(screen.getByLabelText('Title:')).toBeInTheDocument()
-    expect(screen.getByLabelText(/Content/)).toBeInTheDocument()
+    expect(screen.getByText(/Content \(Markdown\)/)).toBeInTheDocument()
     expect(screen.getByText('Cancel')).toBeInTheDocument()
     expect(screen.getByText('Save')).toBeInTheDocument()
   })

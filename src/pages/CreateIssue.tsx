@@ -12,6 +12,7 @@ import {
   type AssetUploaderHandle,
   type PendingAsset,
 } from '../components/AssetUploader.tsx'
+import { MarkdownEditor } from '../components/MarkdownEditor.tsx'
 import './CreateIssue.css'
 
 export function CreateIssue() {
@@ -132,12 +133,11 @@ export function CreateIssue() {
 
         <div className="form-group">
           <label htmlFor="description">Description:</label>
-          <textarea
-            id="description"
+          <MarkdownEditor
             value={description}
-            onChange={e => setDescription(e.target.value)}
+            onChange={setDescription}
             placeholder="Describe the issue..."
-            rows={6}
+            minHeight={150}
           />
         </div>
 

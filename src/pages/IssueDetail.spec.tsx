@@ -174,7 +174,7 @@ describe('IssueDetail', () => {
     expect(screen.getByLabelText('Title:')).toBeInTheDocument()
     expect(screen.getByLabelText('Status:')).toBeInTheDocument()
     expect(screen.getByLabelText('Priority:')).toBeInTheDocument()
-    expect(screen.getByLabelText('Description:')).toBeInTheDocument()
+    expect(screen.getByText('Description:')).toBeInTheDocument()
   })
 
   it('should cancel edit and restore original values', async () => {

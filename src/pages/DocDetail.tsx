@@ -10,6 +10,7 @@ import {
 } from '../gen/centy_pb.ts'
 import { useProject } from '../context/ProjectContext.tsx'
 import { useCopyToClipboard } from '../hooks/useCopyToClipboard.ts'
+import { MarkdownEditor } from '../components/MarkdownEditor.tsx'
 import './DocDetail.css'
 
 export function DocDetail() {
@@ -264,11 +265,11 @@ export function DocDetail() {
 
             <div className="form-group">
               <label htmlFor="edit-content">Content (Markdown):</label>
-              <textarea
-                id="edit-content"
+              <MarkdownEditor
                 value={editContent}
-                onChange={e => setEditContent(e.target.value)}
-                rows={20}
+                onChange={setEditContent}
+                placeholder="Write your documentation in Markdown..."
+                minHeight={400}
               />
             </div>
           </div>

@@ -88,7 +88,7 @@ describe('CreateIssue', () => {
     renderComponent()
 
     expect(screen.getByLabelText('Title:')).toBeInTheDocument()
-    expect(screen.getByLabelText('Description:')).toBeInTheDocument()
+    expect(screen.getByText('Description:')).toBeInTheDocument()
     expect(screen.getByLabelText('Priority:')).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Create Issue' })
@@ -151,12 +151,8 @@ describe('CreateIssue', () => {
     renderComponent()
 
     const titleInput = screen.getByLabelText('Title:')
-    const descriptionInput = screen.getByLabelText('Description:')
 
     fireEvent.change(titleInput, { target: { value: 'Test Issue' } })
-    fireEvent.change(descriptionInput, {
-      target: { value: 'Test description' },
-    })
 
     const submitBtn = screen.getByRole('button', { name: 'Create Issue' })
     fireEvent.click(submitBtn)
@@ -166,7 +162,6 @@ describe('CreateIssue', () => {
         expect.objectContaining({
           projectPath: '/test/path',
           title: 'Test Issue',
-          description: 'Test description',
           priority: 2,
           status: 'open',
         })

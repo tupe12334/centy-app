@@ -13,6 +13,7 @@ import {
 import { useProject } from '../context/ProjectContext.tsx'
 import { useCopyToClipboard } from '../hooks/useCopyToClipboard.ts'
 import { AssetUploader } from '../components/AssetUploader.tsx'
+import { MarkdownEditor } from '../components/MarkdownEditor.tsx'
 import './IssueDetail.css'
 
 const STATUS_OPTIONS = ['open', 'in-progress', 'closed'] as const
@@ -415,11 +416,11 @@ export function IssueDetail() {
 
             <div className="form-group">
               <label htmlFor="edit-description">Description:</label>
-              <textarea
-                id="edit-description"
+              <MarkdownEditor
                 value={editDescription}
-                onChange={e => setEditDescription(e.target.value)}
-                rows={10}
+                onChange={setEditDescription}
+                placeholder="Describe the issue..."
+                minHeight={200}
               />
             </div>
 

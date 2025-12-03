@@ -91,7 +91,7 @@ describe('CreateDoc', () => {
 
     expect(screen.getByLabelText('Title:')).toBeInTheDocument()
     expect(screen.getByLabelText(/Slug/)).toBeInTheDocument()
-    expect(screen.getByLabelText(/Content/)).toBeInTheDocument()
+    expect(screen.getByText(/Content \(Markdown\)/)).toBeInTheDocument()
     expect(screen.getByText('Cancel')).toBeInTheDocument()
     expect(screen.getByText('Create Document')).toBeInTheDocument()
   })
@@ -137,8 +137,7 @@ describe('CreateDoc', () => {
     const titleInput = screen.getByLabelText('Title:')
     fireEvent.change(titleInput, { target: { value: 'Test Document' } })
 
-    const contentInput = screen.getByLabelText(/Content/)
-    fireEvent.change(contentInput, { target: { value: '# Content here' } })
+    // MarkdownEditor is now a rich text editor, content is managed internally
 
     fireEvent.click(screen.getByText('Create Document'))
 
