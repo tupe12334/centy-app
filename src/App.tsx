@@ -54,6 +54,14 @@ function App() {
           >
             Settings
           </Link>
+          <a
+            href="https://docs.centy.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="external-link"
+          >
+            Docs ↗
+          </a>
         </nav>
       </header>
       <main>

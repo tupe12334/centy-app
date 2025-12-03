@@ -2,6 +2,8 @@
 
 A React application built with Vite and TypeScript, deployed as a Docker image to `tupe12334/centy`.
 
+**[📚 Documentation](https://docs.centy.io)** | **[Report an Issue](https://github.com/tupe12334/centy-app/issues)**
+
 ## Prerequisites
 
 - Node.js >= 20.0.0
