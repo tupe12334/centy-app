@@ -11,6 +11,7 @@ import {
   type Asset,
 } from '../gen/centy_pb.ts'
 import { useProject } from '../context/ProjectContext.tsx'
+import { useCopyToClipboard } from '../hooks/useCopyToClipboard.ts'
 import { AssetUploader } from '../components/AssetUploader.tsx'
 import './IssueDetail.css'
 
@@ -20,6 +21,7 @@ export function IssueDetail() {
   const { issueNumber } = useParams<{ issueNumber: string }>()
   const navigate = useNavigate()
   const { projectPath } = useProject()
+  const { copyToClipboard } = useCopyToClipboard()
 
   const [issue, setIssue] = useState<Issue | null>(null)
   const [loading, setLoading] = useState(true)
@@ -359,7 +361,17 @@ export function IssueDetail() {
       )}
 
       <div className="issue-content">
-        <div className="issue-number-badge">#{issue.displayNumber}</div>
+        <button
+          type="button"
+          className="issue-number-badge"
+          onClick={() =>
+            issueNumber &&
+            copyToClipboard(issueNumber, `issue #${issue.displayNumber}`)
+          }
+          title="Click to copy UUID"
+        >
+          #{issue.displayNumber}
+        </button>
 
         {isEditing ? (
           <div className="edit-form">

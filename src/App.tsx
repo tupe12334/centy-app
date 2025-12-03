@@ -1,4 +1,5 @@
 import { Routes, Route, Link, useLocation } from 'react-router-dom'
+import { Toaster } from 'sonner'
 import { InitProject } from './components/InitProject.tsx'
 import { ProjectSelector } from './components/ProjectSelector.tsx'
 import { DaemonStatusIndicator } from './components/DaemonStatusIndicator.tsx'
@@ -18,6 +19,7 @@ function App() {
 
   return (
     <div className="app">
+      <Toaster position="bottom-right" richColors />
       <header className="app-header">
         <div className="header-top">
           <h1>

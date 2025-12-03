@@ -34,7 +34,12 @@
     "tsconfig",
     "tupe",
     "vitejs",
-    "vitest"
+    "vitest",
+    "lowlight",
+    "Lowlight",
+    "turndown",
+    "tiptap",
+    "Tiptap"
   ],
   "ignorePaths": [
     "node_modules",

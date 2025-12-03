@@ -144,10 +144,18 @@
   padding: var(--space-1) var(--space-3);
   background: var(--color-gray-100);
   color: var(--color-gray-600);
+  border: none;
   border-radius: var(--radius-md);
   font-size: 0.75rem;
   font-family: var(--font-mono);
   margin-bottom: var(--space-3);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.doc-detail .doc-slug-badge:hover {
+  background: var(--color-gray-200);
+  color: var(--color-gray-700);
 }
 
 .doc-detail .doc-title {

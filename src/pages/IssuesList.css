@@ -364,6 +364,29 @@ select.column-filter {
   color: white;
 }
 
+/* Issue Number Copy Button */
+.issue-number-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.issue-number-copy-btn:hover {
+  background: var(--color-primary);
+  color: white;
+}
+
 /* Issue Title */
 .issue-title a,
 .issue-title-link {

@@ -9,12 +9,14 @@ import {
   type Doc,
 } from '../gen/centy_pb.ts'
 import { useProject } from '../context/ProjectContext.tsx'
+import { useCopyToClipboard } from '../hooks/useCopyToClipboard.ts'
 import './DocDetail.css'
 
 export function DocDetail() {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
   const { projectPath } = useProject()
+  const { copyToClipboard } = useCopyToClipboard()
 
   const [doc, setDoc] = useState<Doc | null>(null)
   const [loading, setLoading] = useState(true)
@@ -272,7 +274,14 @@ export function DocDetail() {
           </div>
         ) : (
           <>
-            <div className="doc-slug-badge">{doc.slug}</div>
+            <button
+              type="button"
+              className="doc-slug-badge"
+              onClick={() => slug && copyToClipboard(slug, `doc "${slug}"`)}
+              title="Click to copy slug"
+            >
+              {doc.slug}
+            </button>
             <h1 className="doc-title">{doc.title}</h1>
 
             <div className="doc-metadata">

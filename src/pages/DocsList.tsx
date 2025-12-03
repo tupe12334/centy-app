@@ -9,10 +9,12 @@ import {
   type Doc,
 } from '../gen/centy_pb.ts'
 import { useProject } from '../context/ProjectContext.tsx'
+import { useCopyToClipboard } from '../hooks/useCopyToClipboard.ts'
 import './DocsList.css'
 
 export function DocsList() {
   const { projectPath, isInitialized, setIsInitialized } = useProject()
+  const { copyToClipboard } = useCopyToClipboard()
   const [docs, setDocs] = useState<Doc[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -152,9 +154,22 @@ export function DocsList() {
             <div className="docs-grid">
               {docs.map(doc => (
                 <div key={doc.slug} className="doc-card">
-                  <Link to={`/docs/${doc.slug}`} className="doc-card-link">
-                    <h3 className="doc-title">{doc.title}</h3>
-                    <p className="doc-slug">{doc.slug}</p>
+                  <div className="doc-card-content">
+                    <Link to={`/docs/${doc.slug}`} className="doc-card-link">
+                      <h3 className="doc-title">{doc.title}</h3>
+                    </Link>
+                    <button
+                      type="button"
+                      className="doc-slug-copy-btn"
+                      onClick={e => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        copyToClipboard(doc.slug, `doc "${doc.slug}"`)
+                      }}
+                      title="Click to copy slug"
+                    >
+                      {doc.slug}
+                    </button>
                     {doc.metadata && (
                       <div className="doc-meta">
                         <span className="doc-date">
@@ -167,7 +182,7 @@ export function DocsList() {
                         </span>
                       </div>
                     )}
-                  </Link>
+                  </div>
                   <button
                     className="doc-delete-btn"
                     onClick={e => {
