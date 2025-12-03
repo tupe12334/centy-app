@@ -1,5 +1,12 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import {
+  useFloating,
+  autoUpdate,
+  flip,
+  shift,
+  offset,
+} from '@floating-ui/react'
 import { centyClient } from '../api/client.ts'
 import { create } from '@bufbuild/protobuf'
 import { ListProjectsRequestSchema, type ProjectInfo } from '../gen/centy_pb.ts'
@@ -13,6 +20,13 @@ export function ProjectSelector() {
   const [error, setError] = useState<string | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [manualPath, setManualPath] = useState('')
+
+  const { refs, floatingStyles } = useFloating({
+    open: isOpen,
+    placement: 'bottom-start',
+    middleware: [offset(4), flip(), shift({ padding: 8 })],
+    whileElementsMounted: autoUpdate,
+  })
 
   const fetchProjects = useCallback(async () => {
     setLoading(true)
@@ -65,6 +79,7 @@ export function ProjectSelector() {
   return (
     <div className="project-selector-container">
       <button
+        ref={refs.setReference}
         className="project-selector-trigger"
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
@@ -76,7 +91,11 @@ export function ProjectSelector() {
       </button>
 
       {isOpen && (
-        <div className="project-selector-dropdown">
+        <div
+          ref={refs.setFloating}
+          style={floatingStyles}
+          className="project-selector-dropdown"
+        >
           <div className="project-selector-header">
             <h3>Select Project</h3>
             <button

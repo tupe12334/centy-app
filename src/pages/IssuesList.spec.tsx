@@ -17,6 +17,42 @@ vi.mock('../context/ProjectContext.tsx', () => ({
 
 import { centyClient } from '../api/client.ts'
 
+// Helper to create mock Issue data
+const createMockIssue = (
+  overrides: {
+    issueNumber?: string
+    displayNumber?: number
+    title?: string
+    description?: string
+    status?: string
+    priority?: number
+    priorityLabel?: string
+    hasMetadata?: boolean
+  } = {}
+) => ({
+  id: overrides.issueNumber || '0001',
+  displayNumber: overrides.displayNumber || 1,
+  issueNumber: overrides.issueNumber || '0001',
+  title: overrides.title || 'Test Issue',
+  description: overrides.description || 'Test description',
+  metadata:
+    overrides.hasMetadata === false
+      ? undefined
+      : {
+          displayNumber: overrides.displayNumber || 1,
+          status: overrides.status || 'open',
+          priority: overrides.priority || 2,
+          priorityLabel: overrides.priorityLabel || 'medium',
+          createdAt: '2024-01-15T10:00:00Z',
+          updatedAt: '2024-01-15T10:00:00Z',
+          customFields: {},
+          $typeName: 'centy.IssueMetadata' as const,
+          $unknown: undefined,
+        },
+  $typeName: 'centy.Issue' as const,
+  $unknown: undefined,
+})
+
 describe('IssuesList', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -96,40 +132,22 @@ describe('IssuesList', () => {
     const mockListIssues = vi.mocked(centyClient.listIssues)
     mockListIssues.mockResolvedValue({
       issues: [
-        {
+        createMockIssue({
           issueNumber: '0001',
+          displayNumber: 1,
           title: 'First Issue',
           description: 'Description 1',
-          metadata: {
-            status: 'open',
-            priority: 1,
-            priorityLabel: 'high',
-            createdAt: '2024-01-15T10:00:00Z',
-            updatedAt: '2024-01-15T10:00:00Z',
-            customFields: {},
-            $typeName: 'centy.IssueMetadata',
-            $unknown: undefined,
-          },
-          $typeName: 'centy.Issue',
-          $unknown: undefined,
-        },
-        {
+          status: 'open',
+          priority: 1,
+          priorityLabel: 'high',
+        }),
+        createMockIssue({
           issueNumber: '0002',
+          displayNumber: 2,
           title: 'Second Issue',
           description: 'Description 2',
-          metadata: {
-            status: 'in-progress',
-            priority: 2,
-            priorityLabel: 'medium',
-            createdAt: '2024-01-16T10:00:00Z',
-            updatedAt: '2024-01-16T10:00:00Z',
-            customFields: {},
-            $typeName: 'centy.IssueMetadata',
-            $unknown: undefined,
-          },
-          $typeName: 'centy.Issue',
-          $unknown: undefined,
-        },
+          status: 'in-progress',
+        }),
       ],
       totalCount: 2,
       $typeName: 'centy.ListIssuesResponse',
@@ -266,23 +284,11 @@ describe('IssuesList', () => {
     const mockListIssues = vi.mocked(centyClient.listIssues)
     mockListIssues.mockResolvedValue({
       issues: [
-        {
-          issueNumber: '0001',
-          title: 'Test Issue',
-          description: 'Description',
-          metadata: {
-            status: 'open',
-            priority: 1,
-            priorityLabel: 'high',
-            createdAt: '2024-01-15T10:00:00Z',
-            updatedAt: '2024-01-15T10:00:00Z',
-            customFields: {},
-            $typeName: 'centy.IssueMetadata',
-            $unknown: undefined,
-          },
-          $typeName: 'centy.Issue',
-          $unknown: undefined,
-        },
+        createMockIssue({
+          status: 'open',
+          priority: 1,
+          priorityLabel: 'high',
+        }),
       ],
       totalCount: 1,
       $typeName: 'centy.ListIssuesResponse',
@@ -365,23 +371,12 @@ describe('IssuesList', () => {
     const mockListIssues = vi.mocked(centyClient.listIssues)
     mockListIssues.mockResolvedValue({
       issues: [
-        {
-          issueNumber: '0001',
+        createMockIssue({
           title: 'Closed Issue',
-          description: 'Description',
-          metadata: {
-            status: 'closed',
-            priority: 3,
-            priorityLabel: 'low',
-            createdAt: '2024-01-15T10:00:00Z',
-            updatedAt: '2024-01-15T10:00:00Z',
-            customFields: {},
-            $typeName: 'centy.IssueMetadata',
-            $unknown: undefined,
-          },
-          $typeName: 'centy.Issue',
-          $unknown: undefined,
-        },
+          status: 'closed',
+          priority: 3,
+          priorityLabel: 'low',
+        }),
       ],
       totalCount: 1,
       $typeName: 'centy.ListIssuesResponse',
@@ -410,14 +405,11 @@ describe('IssuesList', () => {
     const mockListIssues = vi.mocked(centyClient.listIssues)
     mockListIssues.mockResolvedValue({
       issues: [
-        {
-          issueNumber: '0001',
+        createMockIssue({
           title: 'Issue Without Metadata',
           description: 'Description',
-          metadata: undefined,
-          $typeName: 'centy.Issue',
-          $unknown: undefined,
-        },
+          hasMetadata: false,
+        }),
       ],
       totalCount: 1,
       $typeName: 'centy.ListIssuesResponse',

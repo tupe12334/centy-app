@@ -39,11 +39,7 @@
 }
 
 .project-selector-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  min-width: 350px;
+  width: 350px;
   max-height: 400px;
   background: #2a2a2a;
   border: 1px solid #444;
