@@ -195,6 +195,30 @@
   color: #888;
 }
 
+.project-selector-actions {
+  padding: 12px 16px;
+  border-top: 1px solid #444;
+}
+
+.init-project-btn {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  background: #4ade80;
+  color: #1a1a1a;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.init-project-btn:hover {
+  background: #22c55e;
+}
+
 .project-selector-manual {
   padding: 12px 16px;
   border-top: 1px solid #444;

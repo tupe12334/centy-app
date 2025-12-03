@@ -20,9 +20,6 @@ function App() {
         </div>
         <p>Local-first issue and documentation tracker</p>
         <nav className="app-nav">
-          <Link to="/" className={location.pathname === '/' ? 'active' : ''}>
-            Init
-          </Link>
           <Link
             to="/issues"
             className={location.pathname.startsWith('/issues') ? 'active' : ''}

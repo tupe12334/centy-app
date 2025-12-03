@@ -53,7 +53,6 @@ describe('App', () => {
 
   it('should render navigation links', () => {
     renderWithRouter()
-    expect(screen.getByRole('link', { name: 'Init' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Issues' })).toBeInTheDocument()
   })
 })

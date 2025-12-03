@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { centyClient } from '../api/client.ts'
 import { create } from '@bufbuild/protobuf'
 import { ListProjectsRequestSchema, type ProjectInfo } from '../gen/centy_pb.ts'
@@ -134,6 +135,16 @@ export function ProjectSelector() {
               ))}
             </ul>
           )}
+
+          <div className="project-selector-actions">
+            <Link
+              to="/"
+              className="init-project-btn"
+              onClick={() => setIsOpen(false)}
+            >
+              ✨ Init Project
+            </Link>
+          </div>
 
           <div className="project-selector-manual">
             <form onSubmit={handleManualSubmit}>
