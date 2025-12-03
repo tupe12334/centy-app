@@ -30,6 +30,8 @@ const createMockConfig = () => ({
   customFields: [],
   defaults: {},
   version: '0.1.0',
+  stateColors: {},
+  priorityColors: {},
   $typeName: 'centy.Config' as const,
   $unknown: undefined,
 })
@@ -163,7 +165,7 @@ describe('Settings', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Version Management')).toBeInTheDocument()
-      expect(screen.getByText('Configuration')).toBeInTheDocument()
+      expect(screen.getByText('Issue States')).toBeInTheDocument()
       expect(screen.getByText('Manifest')).toBeInTheDocument()
     })
   })
@@ -187,9 +189,10 @@ describe('Settings', () => {
     renderComponent()
 
     await waitFor(() => {
-      expect(screen.getByText('Priority Levels:')).toBeInTheDocument()
-      expect(screen.getByText('3')).toBeInTheDocument()
-      expect(screen.getByText('Default State:')).toBeInTheDocument()
+      // Section headers
+      expect(screen.getByText('Priority Levels')).toBeInTheDocument()
+      expect(screen.getByText('Issue States')).toBeInTheDocument()
+      // State editor shows states and open should be visible in preview
       expect(screen.getByText('open')).toBeInTheDocument()
     })
   })
@@ -226,8 +229,10 @@ describe('Settings', () => {
     renderComponent()
 
     await waitFor(() => {
-      expect(screen.getByText('Custom Fields:')).toBeInTheDocument()
-      expect(screen.getByText(/assignee/)).toBeInTheDocument()
+      // Section header
+      expect(screen.getByText('Custom Fields')).toBeInTheDocument()
+      // Custom field name should appear in the list
+      expect(screen.getByText('assignee')).toBeInTheDocument()
     })
   })
 

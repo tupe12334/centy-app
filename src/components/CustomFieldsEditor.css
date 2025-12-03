@@ -1,0 +1,342 @@
+.custom-fields-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.custom-fields-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.custom-field-item {
+  background: white;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.custom-field-display {
+  padding: var(--space-3);
+}
+
+.custom-field-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.custom-field-move-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.custom-field-move-btn {
+  width: 24px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-gray-100);
+  border: none;
+  color: var(--color-gray-600);
+  font-size: 0.75rem;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.custom-field-move-btn:hover:not(:disabled) {
+  background: var(--color-gray-200);
+}
+
+.custom-field-move-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.custom-field-name {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+.custom-field-required {
+  color: var(--color-danger);
+  font-weight: bold;
+}
+
+.custom-field-type {
+  font-size: 0.75rem;
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-gray-100);
+  border-radius: var(--radius-full);
+  color: var(--color-gray-600);
+}
+
+.custom-field-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.custom-field-edit-btn {
+  padding: var(--space-1) var(--space-2);
+  background: none;
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  color: var(--color-gray-600);
+  cursor: pointer;
+}
+
+.custom-field-edit-btn:hover {
+  background: var(--color-gray-50);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.custom-field-remove-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--color-gray-400);
+  font-size: 1.25rem;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+}
+
+.custom-field-remove-btn:hover {
+  background: var(--color-danger);
+  color: white;
+}
+
+.custom-field-details {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+  padding-left: 62px;
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
+}
+
+.custom-field-details code {
+  font-family: var(--font-mono);
+  background: var(--color-gray-100);
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+}
+
+.custom-field-form {
+  padding: var(--space-4);
+  background: var(--color-gray-50);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.custom-field-form-row {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.custom-field-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+  min-width: 120px;
+}
+
+.custom-field-form-group label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-gray-600);
+  text-transform: uppercase;
+}
+
+.custom-field-form-checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.custom-field-form-checkbox label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-transform: none;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.custom-field-form-input {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+}
+
+.custom-field-form-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.custom-field-form-select {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  background: white;
+  cursor: pointer;
+}
+
+.custom-field-form-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.custom-field-enum-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.custom-field-enum-section > label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-gray-600);
+  text-transform: uppercase;
+}
+
+.custom-field-enum-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.custom-field-enum-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+}
+
+.custom-field-enum-tag button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.custom-field-enum-tag button:hover {
+  opacity: 1;
+}
+
+.custom-field-enum-add {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.custom-field-enum-add input {
+  flex: 1;
+}
+
+.custom-field-enum-add button {
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-gray-100);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.custom-field-enum-add button:hover:not(:disabled) {
+  background: var(--color-gray-200);
+}
+
+.custom-field-enum-add button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.custom-field-form-actions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+  margin-top: var(--space-2);
+}
+
+.custom-field-form-actions button {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.custom-field-form-actions button.secondary {
+  background: white;
+  border: 1px solid var(--color-gray-300);
+  color: var(--color-gray-700);
+}
+
+.custom-field-form-actions button.secondary:hover {
+  background: var(--color-gray-50);
+}
+
+.custom-field-form-actions button.primary {
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  color: white;
+}
+
+.custom-field-form-actions button.primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.custom-field-form-actions button.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.custom-field-add-btn {
+  padding: var(--space-3);
+  background: var(--color-gray-50);
+  border: 2px dashed var(--color-gray-300);
+  border-radius: var(--radius-lg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-600);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.custom-field-add-btn:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+  border-style: solid;
+}
+
+.custom-fields-empty {
+  color: var(--color-gray-500);
+  font-size: 0.875rem;
+  text-align: center;
+  padding: var(--space-4);
+}

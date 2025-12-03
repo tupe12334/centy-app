@@ -8,6 +8,7 @@ import {
   GetDaemonInfoRequestSchema,
   GetProjectVersionRequestSchema,
   UpdateVersionRequestSchema,
+  UpdateConfigRequestSchema,
   ShutdownRequestSchema,
   RestartRequestSchema,
   IsInitializedRequestSchema,
@@ -15,8 +16,15 @@ import {
   type Manifest,
   type DaemonInfo,
   type ProjectVersionInfo,
+  type CustomFieldDefinition,
+  type LlmConfig,
 } from '../gen/centy_pb.ts'
 import { useProject } from '../context/ProjectContext.tsx'
+import { StateListEditor } from '../components/StateListEditor.tsx'
+import { PriorityEditor } from '../components/PriorityEditor.tsx'
+import { CustomFieldsEditor } from '../components/CustomFieldsEditor.tsx'
+import { DefaultsEditor } from '../components/DefaultsEditor.tsx'
+import { LlmSettingsEditor } from '../components/LlmSettingsEditor.tsx'
 import './Settings.css'
 
 export function Settings() {
@@ -24,12 +32,14 @@ export function Settings() {
 
   // State
   const [config, setConfig] = useState<Config | null>(null)
+  const [originalConfig, setOriginalConfig] = useState<Config | null>(null)
   const [manifest, setManifest] = useState<Manifest | null>(null)
   const [daemonInfo, setDaemonInfo] = useState<DaemonInfo | null>(null)
   const [versionInfo, setVersionInfo] = useState<ProjectVersionInfo | null>(
     null
   )
   const [loading, setLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
@@ -42,6 +52,24 @@ export function Settings() {
   const [restarting, setRestarting] = useState(false)
   const [showShutdownConfirm, setShowShutdownConfirm] = useState(false)
   const [showRestartConfirm, setShowRestartConfirm] = useState(false)
+
+  // Dirty state detection
+  const isDirty =
+    config && originalConfig
+      ? JSON.stringify(config) !== JSON.stringify(originalConfig)
+      : false
+
+  // Unsaved changes warning
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [isDirty])
 
   const checkInitialized = useCallback(
     async (path: string) => {
@@ -86,6 +114,7 @@ export function Settings() {
       })
       const configResponse = await centyClient.getConfig(configRequest)
       setConfig(configResponse)
+      setOriginalConfig(structuredClone(configResponse))
 
       // Fetch manifest
       const manifestRequest = create(GetManifestRequestSchema, {
@@ -109,6 +138,42 @@ export function Settings() {
       setLoading(false)
     }
   }, [projectPath, isInitialized])
+
+  const handleSaveConfig = useCallback(async () => {
+    if (!projectPath || !config) return
+
+    setSaving(true)
+    setError(null)
+    setSuccess(null)
+
+    try {
+      const request = create(UpdateConfigRequestSchema, {
+        projectPath: projectPath.trim(),
+        config: config,
+      })
+      const response = await centyClient.updateConfig(request)
+
+      if (response.success && response.config) {
+        setSuccess('Configuration saved successfully')
+        setConfig(response.config)
+        setOriginalConfig(structuredClone(response.config))
+      } else {
+        setError(response.error || 'Failed to save configuration')
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to connect to daemon'
+      )
+    } finally {
+      setSaving(false)
+    }
+  }, [projectPath, config])
+
+  const handleResetConfig = useCallback(() => {
+    if (originalConfig) {
+      setConfig(structuredClone(originalConfig))
+    }
+  }, [originalConfig])
 
   const handleUpdateVersion = useCallback(async () => {
     if (!projectPath || !targetVersion) return
@@ -194,6 +259,15 @@ export function Settings() {
     }
   }, [])
 
+  // Config update helpers
+  const updateConfig = useCallback(
+    (updates: Partial<Config>) => {
+      if (!config) return
+      setConfig({ ...config, ...updates })
+    },
+    [config]
+  )
+
   useEffect(() => {
     fetchDaemonInfo()
   }, [fetchDaemonInfo])
@@ -213,7 +287,10 @@ export function Settings() {
 
   return (
     <div className="settings-page">
-      <h2>Settings</h2>
+      <div className="settings-header">
+        <h2>Settings</h2>
+        {isDirty && <span className="unsaved-indicator">Unsaved changes</span>}
+      </div>
 
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
@@ -391,49 +468,104 @@ export function Settings() {
                 </div>
               </section>
 
-              {/* Config Section */}
-              <section className="settings-section">
-                <h3>Configuration</h3>
-                <div className="settings-card">
-                  {config && (
-                    <div className="config-details">
-                      <div className="config-row">
-                        <span className="config-label">Priority Levels:</span>
-                        <span className="config-value">
-                          {config.priorityLevels}
-                        </span>
-                      </div>
-                      <div className="config-row">
-                        <span className="config-label">Default State:</span>
-                        <span className="config-value">
-                          {config.defaultState}
-                        </span>
-                      </div>
-                      <div className="config-row">
-                        <span className="config-label">Allowed States:</span>
-                        <span className="config-value">
-                          {config.allowedStates.join(', ')}
-                        </span>
-                      </div>
-                      {config.customFields.length > 0 && (
-                        <div className="config-row">
-                          <span className="config-label">Custom Fields:</span>
-                          <div className="custom-fields-list">
-                            {config.customFields.map((field, idx) => (
-                              <div key={idx} className="custom-field">
-                                <strong>{field.name}</strong> ({field.fieldType}
-                                ){field.required && ' *'}
-                                {field.defaultValue &&
-                                  ` = ${field.defaultValue}`}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+              {/* Editable Config Sections */}
+              {config && (
+                <>
+                  {/* Issue States */}
+                  <section className="settings-section">
+                    <h3>Issue States</h3>
+                    <div className="settings-card">
+                      <StateListEditor
+                        states={config.allowedStates}
+                        stateColors={config.stateColors}
+                        defaultState={config.defaultState}
+                        onStatesChange={states =>
+                          updateConfig({ allowedStates: states })
+                        }
+                        onColorsChange={colors =>
+                          updateConfig({ stateColors: colors })
+                        }
+                        onDefaultChange={defaultState =>
+                          updateConfig({ defaultState })
+                        }
+                      />
                     </div>
-                  )}
-                </div>
-              </section>
+                  </section>
+
+                  {/* Priority Levels */}
+                  <section className="settings-section">
+                    <h3>Priority Levels</h3>
+                    <div className="settings-card">
+                      <PriorityEditor
+                        levels={config.priorityLevels}
+                        colors={config.priorityColors}
+                        onLevelsChange={priorityLevels =>
+                          updateConfig({ priorityLevels })
+                        }
+                        onColorsChange={colors =>
+                          updateConfig({ priorityColors: colors })
+                        }
+                      />
+                    </div>
+                  </section>
+
+                  {/* Custom Fields */}
+                  <section className="settings-section">
+                    <h3>Custom Fields</h3>
+                    <div className="settings-card">
+                      <CustomFieldsEditor
+                        fields={config.customFields as CustomFieldDefinition[]}
+                        onChange={customFields =>
+                          updateConfig({ customFields })
+                        }
+                      />
+                    </div>
+                  </section>
+
+                  {/* Defaults */}
+                  <section className="settings-section">
+                    <h3>Default Values</h3>
+                    <div className="settings-card">
+                      <DefaultsEditor
+                        value={config.defaults}
+                        onChange={defaults => updateConfig({ defaults })}
+                        suggestedKeys={config.customFields.map(f => f.name)}
+                      />
+                    </div>
+                  </section>
+
+                  {/* LLM Settings */}
+                  <section className="settings-section">
+                    <h3>LLM Settings</h3>
+                    <div className="settings-card">
+                      <LlmSettingsEditor
+                        value={config.llm as LlmConfig | undefined}
+                        onChange={llm => updateConfig({ llm })}
+                      />
+                    </div>
+                  </section>
+
+                  {/* Save Actions */}
+                  <div className="settings-actions">
+                    <button
+                      type="button"
+                      onClick={handleResetConfig}
+                      disabled={!isDirty || saving}
+                      className="reset-btn"
+                    >
+                      Reset Changes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveConfig}
+                      disabled={!isDirty || saving}
+                      className="save-btn"
+                    >
+                      {saving ? 'Saving...' : 'Save Configuration'}
+                    </button>
+                  </div>
+                </>
+              )}
 
               {/* Manifest Section */}
               <section className="settings-section">

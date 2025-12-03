@@ -5,11 +5,38 @@
   padding: var(--space-8);
 }
 
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+}
+
 .settings-page h2 {
   font-size: 1.75rem;
   font-weight: 700;
-  margin-bottom: var(--space-6);
+  margin: 0;
   color: var(--color-gray-900);
+}
+
+.unsaved-indicator {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.unsaved-indicator::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--color-warning);
+  border-radius: 50%;
+  margin-right: var(--space-2);
 }
 
 /* Section */
@@ -350,6 +377,64 @@
   font-style: italic;
 }
 
+/* Settings Actions */
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-6);
+  position: sticky;
+  bottom: var(--space-4);
+  box-shadow: var(--shadow-lg);
+}
+
+.reset-btn {
+  padding: var(--space-3) var(--space-5);
+  background: white;
+  color: var(--color-gray-700);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.reset-btn:hover:not(:disabled) {
+  background: var(--color-gray-100);
+  border-color: var(--color-gray-400);
+}
+
+.reset-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.save-btn {
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.save-btn:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .settings-page .no-project-message,
 .settings-page .not-initialized-message {
   text-align: center;
@@ -401,5 +486,23 @@
 
   .config-label {
     min-width: unset;
+  }
+
+  .settings-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .settings-actions {
+    flex-direction: column;
+    position: static;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .reset-btn,
+  .save-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
