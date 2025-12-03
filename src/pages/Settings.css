@@ -1,0 +1,405 @@
+/* Settings Page */
+.settings-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--space-8);
+}
+
+.settings-page h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: var(--space-6);
+  color: var(--color-gray-900);
+}
+
+/* Section */
+.settings-section {
+  margin-bottom: var(--space-6);
+}
+
+.settings-section h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-gray-800);
+  margin-bottom: var(--space-3);
+}
+
+/* Settings Card */
+.settings-card {
+  background: white;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Info Grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.info-item.warning {
+  background: var(--color-warning-light);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.info-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-gray-500);
+}
+
+.info-value {
+  font-size: 1rem;
+  color: var(--color-gray-900);
+  font-weight: 500;
+}
+
+.info-value.status-equal {
+  color: var(--color-success);
+}
+
+.info-value.status-project_behind {
+  color: var(--color-warning-dark);
+}
+
+.info-value.status-project_ahead {
+  color: var(--color-danger);
+}
+
+/* Daemon Controls */
+.daemon-controls {
+  display: flex;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-gray-100);
+}
+
+.restart-btn {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.restart-btn:hover:not(:disabled) {
+  background: var(--color-warning);
+  color: white;
+}
+
+.shutdown-btn {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.shutdown-btn:hover:not(:disabled) {
+  background: var(--color-danger);
+  color: white;
+}
+
+/* Confirm Dialog */
+.confirm-dialog {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+}
+
+.confirm-dialog.danger {
+  background: var(--color-danger-light);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.confirm-dialog p {
+  color: var(--color-gray-700);
+  margin-bottom: var(--space-3);
+}
+
+.confirm-dialog.danger p {
+  color: var(--color-danger-dark);
+}
+
+.confirm-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.cancel-btn {
+  padding: var(--space-2) var(--space-4);
+  background: white;
+  color: var(--color-gray-700);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.cancel-btn:hover {
+  background: var(--color-gray-100);
+}
+
+.confirm-btn {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.confirm-btn:hover {
+  background: var(--color-primary-hover);
+}
+
+.confirm-danger-btn {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-danger);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.confirm-danger-btn:hover {
+  background: var(--color-danger-dark);
+}
+
+/* Version Update */
+.version-update {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-gray-100);
+}
+
+.version-update label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+}
+
+.version-update select {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  min-width: 150px;
+}
+
+.update-btn {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.update-btn:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.update-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Config Details */
+.config-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.config-row {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-gray-100);
+}
+
+.config-row:last-child {
+  border-bottom: none;
+}
+
+.config-label {
+  font-weight: 600;
+  color: var(--color-gray-600);
+  min-width: 150px;
+}
+
+.config-value {
+  color: var(--color-gray-900);
+}
+
+.custom-fields-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.custom-field {
+  font-size: 0.875rem;
+  color: var(--color-gray-700);
+}
+
+/* Manifest Details */
+.manifest-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.managed-files h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-700);
+  margin-bottom: var(--space-2);
+}
+
+.files-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 200px;
+  overflow-y: auto;
+  padding: var(--space-3);
+  background: var(--color-gray-50);
+  border-radius: var(--radius-md);
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: 0.8125rem;
+}
+
+.file-path {
+  font-family: var(--font-mono);
+  color: var(--color-gray-700);
+}
+
+.file-hash {
+  font-family: var(--font-mono);
+  color: var(--color-gray-400);
+}
+
+/* Messages */
+.settings-page .error-message {
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-6);
+  font-size: 0.9375rem;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.settings-page .success-message {
+  background: var(--color-success-light);
+  color: var(--color-success-dark);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-6);
+  font-size: 0.9375rem;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.settings-page .loading {
+  text-align: center;
+  padding: var(--space-12);
+  color: var(--color-gray-500);
+}
+
+.loading-inline {
+  color: var(--color-gray-500);
+  font-style: italic;
+}
+
+.settings-page .no-project-message,
+.settings-page .not-initialized-message {
+  text-align: center;
+  padding: var(--space-12);
+  background: var(--color-gray-50);
+  border: 2px dashed var(--color-gray-200);
+  border-radius: var(--radius-xl);
+}
+
+.settings-page .no-project-message p,
+.settings-page .not-initialized-message p {
+  color: var(--color-gray-500);
+  font-size: 1.0625rem;
+  margin-bottom: var(--space-4);
+}
+
+.settings-page .not-initialized-message a {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .settings-page {
+    padding: var(--space-5);
+  }
+
+  .settings-page h2 {
+    font-size: 1.5rem;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .daemon-controls {
+    flex-direction: column;
+  }
+
+  .version-update {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .config-row {
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .config-label {
+    min-width: unset;
+  }
+}

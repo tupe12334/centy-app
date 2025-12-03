@@ -6,7 +6,7 @@ import { createRef } from 'react'
 vi.mock('../api/client.ts', () => ({
   centyClient: {
     addAsset: vi.fn(),
-    removeAsset: vi.fn(),
+    deleteAsset: vi.fn(),
     getAsset: vi.fn(),
     listAssets: vi.fn(),
   },
@@ -17,17 +17,18 @@ import { centyClient } from '../api/client.ts'
 // Helper to create mock Asset data
 const createMockAsset = (
   overrides: {
-    id?: string
     filename?: string
     mimeType?: string
-    sizeBytes?: bigint
+    size?: bigint
+    hash?: string
+    isShared?: boolean
   } = {}
 ) => ({
-  id: overrides.id || 'asset-001',
-  issueId: 'issue-001',
   filename: overrides.filename || 'test-image.png',
+  hash: overrides.hash || 'abc123def456',
+  size: overrides.size || BigInt(1024),
   mimeType: overrides.mimeType || 'image/png',
-  sizeBytes: overrides.sizeBytes || BigInt(1024),
+  isShared: overrides.isShared || false,
   createdAt: '2024-01-15T10:00:00Z',
   $typeName: 'centy.Asset' as const,
   $unknown: undefined,
@@ -75,8 +76,10 @@ describe('AssetUploader', () => {
     it('should render with initial assets', () => {
       const mockAsset = createMockAsset({ filename: 'existing.png' })
       vi.mocked(centyClient.getAsset).mockResolvedValue({
+        success: true,
+        error: '',
         asset: mockAsset,
-        content: new Uint8Array([1, 2, 3]),
+        data: new Uint8Array([1, 2, 3]),
         $typeName: 'centy.GetAssetResponse',
         $unknown: undefined,
       })
@@ -305,6 +308,7 @@ describe('AssetUploader', () => {
         success: true,
         error: '',
         asset: mockAsset,
+        path: '',
         $typeName: 'centy.AddAssetResponse',
         $unknown: undefined,
       })
@@ -357,6 +361,7 @@ describe('AssetUploader', () => {
         success: true,
         error: '',
         asset: mockAsset,
+        path: '',
         $typeName: 'centy.AddAssetResponse',
         $unknown: undefined,
       })
@@ -400,6 +405,7 @@ describe('AssetUploader', () => {
         success: false,
         error: 'Upload failed',
         asset: undefined,
+        path: '',
         $typeName: 'centy.AddAssetResponse',
         $unknown: undefined,
       })
@@ -453,17 +459,21 @@ describe('AssetUploader', () => {
 
   describe('removing assets', () => {
     it('should remove saved asset', async () => {
-      const mockRemoveAsset = vi.mocked(centyClient.removeAsset)
-      mockRemoveAsset.mockResolvedValue({
+      const mockDeleteAsset = vi.mocked(centyClient.deleteAsset)
+      mockDeleteAsset.mockResolvedValue({
         success: true,
         error: '',
-        $typeName: 'centy.RemoveAssetResponse',
+        filename: '',
+        wasShared: false,
+        $typeName: 'centy.DeleteAssetResponse',
         $unknown: undefined,
       })
 
       vi.mocked(centyClient.getAsset).mockResolvedValue({
+        success: true,
+        error: '',
         asset: createMockAsset(),
-        content: new Uint8Array([1, 2, 3]),
+        data: new Uint8Array([1, 2, 3]),
         $typeName: 'centy.GetAssetResponse',
         $unknown: undefined,
       })
@@ -491,11 +501,11 @@ describe('AssetUploader', () => {
       fireEvent.click(removeBtn)
 
       await waitFor(() => {
-        expect(mockRemoveAsset).toHaveBeenCalledWith(
+        expect(mockDeleteAsset).toHaveBeenCalledWith(
           expect.objectContaining({
             projectPath: '/test/path',
             issueId: 'issue-001',
-            assetId: 'asset-001',
+            filename: 'to-remove.png',
           })
         )
       })
@@ -506,17 +516,21 @@ describe('AssetUploader', () => {
     })
 
     it('should handle remove failure', async () => {
-      const mockRemoveAsset = vi.mocked(centyClient.removeAsset)
-      mockRemoveAsset.mockResolvedValue({
+      const mockDeleteAsset = vi.mocked(centyClient.deleteAsset)
+      mockDeleteAsset.mockResolvedValue({
         success: false,
         error: 'Remove failed',
-        $typeName: 'centy.RemoveAssetResponse',
+        filename: '',
+        wasShared: false,
+        $typeName: 'centy.DeleteAssetResponse',
         $unknown: undefined,
       })
 
       vi.mocked(centyClient.getAsset).mockResolvedValue({
+        success: true,
+        error: '',
         asset: createMockAsset(),
-        content: new Uint8Array([1, 2, 3]),
+        data: new Uint8Array([1, 2, 3]),
         $typeName: 'centy.GetAssetResponse',
         $unknown: undefined,
       })
@@ -612,8 +626,10 @@ describe('AssetUploader', () => {
   describe('asset preview types', () => {
     it('should render PDF preview with icon', async () => {
       vi.mocked(centyClient.getAsset).mockResolvedValue({
+        success: true,
+        error: '',
         asset: createMockAsset({ mimeType: 'application/pdf' }),
-        content: new Uint8Array([1, 2, 3]),
+        data: new Uint8Array([1, 2, 3]),
         $typeName: 'centy.GetAssetResponse',
         $unknown: undefined,
       })
@@ -640,8 +656,10 @@ describe('AssetUploader', () => {
 
     it('should render video preview', async () => {
       vi.mocked(centyClient.getAsset).mockResolvedValue({
+        success: true,
+        error: '',
         asset: createMockAsset({ mimeType: 'video/mp4' }),
-        content: new Uint8Array([1, 2, 3]),
+        data: new Uint8Array([1, 2, 3]),
         $typeName: 'centy.GetAssetResponse',
         $unknown: undefined,
       })
@@ -758,12 +776,14 @@ describe('AssetUploader', () => {
 
   describe('handle remove network error', () => {
     it('should handle remove network error', async () => {
-      const mockRemoveAsset = vi.mocked(centyClient.removeAsset)
-      mockRemoveAsset.mockRejectedValue(new Error('Network error'))
+      const mockDeleteAsset = vi.mocked(centyClient.deleteAsset)
+      mockDeleteAsset.mockRejectedValue(new Error('Network error'))
 
       vi.mocked(centyClient.getAsset).mockResolvedValue({
+        success: true,
+        error: '',
         asset: createMockAsset(),
-        content: new Uint8Array([1, 2, 3]),
+        data: new Uint8Array([1, 2, 3]),
         $typeName: 'centy.GetAssetResponse',
         $unknown: undefined,
       })
@@ -795,14 +815,16 @@ describe('AssetUploader', () => {
   describe('initial assets update', () => {
     it('should update assets when initialAssets prop changes', async () => {
       vi.mocked(centyClient.getAsset).mockResolvedValue({
+        success: true,
+        error: '',
         asset: createMockAsset(),
-        content: new Uint8Array([1, 2, 3]),
+        data: new Uint8Array([1, 2, 3]),
         $typeName: 'centy.GetAssetResponse',
         $unknown: undefined,
       })
 
-      const asset1 = createMockAsset({ id: 'asset-1', filename: 'first.png' })
-      const asset2 = createMockAsset({ id: 'asset-2', filename: 'second.png' })
+      const asset1 = createMockAsset({ filename: 'first.png' })
+      const asset2 = createMockAsset({ filename: 'second.png' })
 
       const { rerender } = render(
         <AssetUploader
@@ -841,7 +863,8 @@ describe('AssetUploader', () => {
         .mockResolvedValueOnce({
           success: true,
           error: '',
-          asset: createMockAsset({ id: 'success-asset' }),
+          asset: createMockAsset({ filename: 'success-asset.png' }),
+          path: '',
           $typeName: 'centy.AddAssetResponse',
           $unknown: undefined,
         })
@@ -849,6 +872,7 @@ describe('AssetUploader', () => {
           success: false,
           error: 'Failed',
           asset: undefined,
+          path: '',
           $typeName: 'centy.AddAssetResponse',
           $unknown: undefined,
         })

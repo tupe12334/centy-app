@@ -1,0 +1,498 @@
+import { useState, useCallback, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { centyClient } from '../api/client.ts'
+import { create } from '@bufbuild/protobuf'
+import {
+  GetConfigRequestSchema,
+  GetManifestRequestSchema,
+  GetDaemonInfoRequestSchema,
+  GetProjectVersionRequestSchema,
+  UpdateVersionRequestSchema,
+  ShutdownRequestSchema,
+  RestartRequestSchema,
+  IsInitializedRequestSchema,
+  type Config,
+  type Manifest,
+  type DaemonInfo,
+  type ProjectVersionInfo,
+} from '../gen/centy_pb.ts'
+import { useProject } from '../context/ProjectContext.tsx'
+import './Settings.css'
+
+export function Settings() {
+  const { projectPath, isInitialized, setIsInitialized } = useProject()
+
+  // State
+  const [config, setConfig] = useState<Config | null>(null)
+  const [manifest, setManifest] = useState<Manifest | null>(null)
+  const [daemonInfo, setDaemonInfo] = useState<DaemonInfo | null>(null)
+  const [versionInfo, setVersionInfo] = useState<ProjectVersionInfo | null>(
+    null
+  )
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
+
+  // Update version state
+  const [targetVersion, setTargetVersion] = useState('')
+  const [updating, setUpdating] = useState(false)
+
+  // Daemon control state
+  const [shuttingDown, setShuttingDown] = useState(false)
+  const [restarting, setRestarting] = useState(false)
+  const [showShutdownConfirm, setShowShutdownConfirm] = useState(false)
+  const [showRestartConfirm, setShowRestartConfirm] = useState(false)
+
+  const checkInitialized = useCallback(
+    async (path: string) => {
+      if (!path.trim()) {
+        setIsInitialized(null)
+        return
+      }
+
+      try {
+        const request = create(IsInitializedRequestSchema, {
+          projectPath: path.trim(),
+        })
+        const response = await centyClient.isInitialized(request)
+        setIsInitialized(response.initialized)
+      } catch {
+        setIsInitialized(false)
+      }
+    },
+    [setIsInitialized]
+  )
+
+  const fetchDaemonInfo = useCallback(async () => {
+    try {
+      const request = create(GetDaemonInfoRequestSchema, {})
+      const response = await centyClient.getDaemonInfo(request)
+      setDaemonInfo(response)
+    } catch (err) {
+      console.error('Failed to fetch daemon info:', err)
+    }
+  }, [])
+
+  const fetchProjectData = useCallback(async () => {
+    if (!projectPath.trim() || isInitialized !== true) return
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      // Fetch config
+      const configRequest = create(GetConfigRequestSchema, {
+        projectPath: projectPath.trim(),
+      })
+      const configResponse = await centyClient.getConfig(configRequest)
+      setConfig(configResponse)
+
+      // Fetch manifest
+      const manifestRequest = create(GetManifestRequestSchema, {
+        projectPath: projectPath.trim(),
+      })
+      const manifestResponse = await centyClient.getManifest(manifestRequest)
+      setManifest(manifestResponse)
+
+      // Fetch version info
+      const versionRequest = create(GetProjectVersionRequestSchema, {
+        projectPath: projectPath.trim(),
+      })
+      const versionResponse =
+        await centyClient.getProjectVersion(versionRequest)
+      setVersionInfo(versionResponse)
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to connect to daemon'
+      )
+    } finally {
+      setLoading(false)
+    }
+  }, [projectPath, isInitialized])
+
+  const handleUpdateVersion = useCallback(async () => {
+    if (!projectPath || !targetVersion) return
+
+    setUpdating(true)
+    setError(null)
+    setSuccess(null)
+
+    try {
+      const request = create(UpdateVersionRequestSchema, {
+        projectPath,
+        targetVersion,
+      })
+      const response = await centyClient.updateVersion(request)
+
+      if (response.success) {
+        setSuccess(
+          `Updated from ${response.fromVersion} to ${response.toVersion}. Migrations applied: ${response.migrationsApplied.join(', ') || 'none'}`
+        )
+        setTargetVersion('')
+        // Refresh version info
+        const versionRequest = create(GetProjectVersionRequestSchema, {
+          projectPath,
+        })
+        const versionResponse =
+          await centyClient.getProjectVersion(versionRequest)
+        setVersionInfo(versionResponse)
+      } else {
+        setError(response.error || 'Failed to update version')
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to connect to daemon'
+      )
+    } finally {
+      setUpdating(false)
+    }
+  }, [projectPath, targetVersion])
+
+  const handleShutdown = useCallback(async () => {
+    setShuttingDown(true)
+    setError(null)
+
+    try {
+      const request = create(ShutdownRequestSchema, {})
+      const response = await centyClient.shutdown(request)
+
+      if (response.success) {
+        setSuccess(response.message || 'Daemon is shutting down...')
+      } else {
+        setError('Failed to shutdown daemon')
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to connect to daemon'
+      )
+    } finally {
+      setShuttingDown(false)
+      setShowShutdownConfirm(false)
+    }
+  }, [])
+
+  const handleRestart = useCallback(async () => {
+    setRestarting(true)
+    setError(null)
+
+    try {
+      const request = create(RestartRequestSchema, {})
+      const response = await centyClient.restart(request)
+
+      if (response.success) {
+        setSuccess(response.message || 'Daemon is restarting...')
+      } else {
+        setError('Failed to restart daemon')
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to connect to daemon'
+      )
+    } finally {
+      setRestarting(false)
+      setShowRestartConfirm(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchDaemonInfo()
+  }, [fetchDaemonInfo])
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      checkInitialized(projectPath)
+    }, 300)
+    return () => clearTimeout(timeoutId)
+  }, [projectPath, checkInitialized])
+
+  useEffect(() => {
+    if (isInitialized === true) {
+      fetchProjectData()
+    }
+  }, [isInitialized, fetchProjectData])
+
+  return (
+    <div className="settings-page">
+      <h2>Settings</h2>
+
+      {error && <div className="error-message">{error}</div>}
+      {success && <div className="success-message">{success}</div>}
+
+      {/* Daemon Info Section - Always shown */}
+      <section className="settings-section">
+        <h3>Daemon Information</h3>
+        <div className="settings-card">
+          {daemonInfo ? (
+            <div className="info-grid">
+              <div className="info-item">
+                <span className="info-label">Version</span>
+                <span className="info-value">{daemonInfo.version}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Available Versions</span>
+                <span className="info-value">
+                  {daemonInfo.availableVersions.length > 0
+                    ? daemonInfo.availableVersions.join(', ')
+                    : 'None'}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="loading-inline">Loading daemon info...</div>
+          )}
+
+          <div className="daemon-controls">
+            <button
+              onClick={() => setShowRestartConfirm(true)}
+              className="restart-btn"
+              disabled={restarting}
+            >
+              {restarting ? 'Restarting...' : 'Restart Daemon'}
+            </button>
+            <button
+              onClick={() => setShowShutdownConfirm(true)}
+              className="shutdown-btn"
+              disabled={shuttingDown}
+            >
+              {shuttingDown ? 'Shutting down...' : 'Shutdown Daemon'}
+            </button>
+          </div>
+
+          {showRestartConfirm && (
+            <div className="confirm-dialog">
+              <p>Are you sure you want to restart the daemon?</p>
+              <div className="confirm-actions">
+                <button
+                  onClick={() => setShowRestartConfirm(false)}
+                  className="cancel-btn"
+                >
+                  Cancel
+                </button>
+                <button onClick={handleRestart} className="confirm-btn">
+                  Yes, Restart
+                </button>
+              </div>
+            </div>
+          )}
+
+          {showShutdownConfirm && (
+            <div className="confirm-dialog danger">
+              <p>
+                Are you sure you want to shutdown the daemon? You will need to
+                manually restart it.
+              </p>
+              <div className="confirm-actions">
+                <button
+                  onClick={() => setShowShutdownConfirm(false)}
+                  className="cancel-btn"
+                >
+                  Cancel
+                </button>
+                <button onClick={handleShutdown} className="confirm-danger-btn">
+                  Yes, Shutdown
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {!projectPath && (
+        <div className="no-project-message">
+          <p>Select a project from the header to view project settings</p>
+        </div>
+      )}
+
+      {projectPath && isInitialized === false && (
+        <div className="not-initialized-message">
+          <p>Centy is not initialized in this directory</p>
+          <Link to="/">Initialize Project</Link>
+        </div>
+      )}
+
+      {projectPath && isInitialized === true && (
+        <>
+          {loading ? (
+            <div className="loading">Loading project settings...</div>
+          ) : (
+            <>
+              {/* Version Section */}
+              <section className="settings-section">
+                <h3>Version Management</h3>
+                <div className="settings-card">
+                  {versionInfo && (
+                    <>
+                      <div className="info-grid">
+                        <div className="info-item">
+                          <span className="info-label">Project Version</span>
+                          <span className="info-value">
+                            {versionInfo.projectVersion}
+                          </span>
+                        </div>
+                        <div className="info-item">
+                          <span className="info-label">Daemon Version</span>
+                          <span className="info-value">
+                            {versionInfo.daemonVersion}
+                          </span>
+                        </div>
+                        <div className="info-item">
+                          <span className="info-label">Status</span>
+                          <span
+                            className={`info-value status-${versionInfo.comparison}`}
+                          >
+                            {versionInfo.comparison === 'equal'
+                              ? 'Up to date'
+                              : versionInfo.comparison === 'project_behind'
+                                ? 'Update available'
+                                : 'Project ahead of daemon'}
+                          </span>
+                        </div>
+                        {versionInfo.degradedMode && (
+                          <div className="info-item warning">
+                            <span className="info-label">Warning</span>
+                            <span className="info-value">
+                              Running in degraded mode (project version ahead of
+                              daemon)
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {versionInfo.comparison === 'project_behind' &&
+                        daemonInfo?.availableVersions &&
+                        daemonInfo.availableVersions.length > 0 && (
+                          <div className="version-update">
+                            <label htmlFor="target-version">
+                              Update to version:
+                            </label>
+                            <select
+                              id="target-version"
+                              value={targetVersion}
+                              onChange={e => setTargetVersion(e.target.value)}
+                            >
+                              <option value="">Select version...</option>
+                              {daemonInfo.availableVersions.map(v => (
+                                <option key={v} value={v}>
+                                  {v}
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              onClick={handleUpdateVersion}
+                              disabled={!targetVersion || updating}
+                              className="update-btn"
+                            >
+                              {updating ? 'Updating...' : 'Update'}
+                            </button>
+                          </div>
+                        )}
+                    </>
+                  )}
+                </div>
+              </section>
+
+              {/* Config Section */}
+              <section className="settings-section">
+                <h3>Configuration</h3>
+                <div className="settings-card">
+                  {config && (
+                    <div className="config-details">
+                      <div className="config-row">
+                        <span className="config-label">Priority Levels:</span>
+                        <span className="config-value">
+                          {config.priorityLevels}
+                        </span>
+                      </div>
+                      <div className="config-row">
+                        <span className="config-label">Default State:</span>
+                        <span className="config-value">
+                          {config.defaultState}
+                        </span>
+                      </div>
+                      <div className="config-row">
+                        <span className="config-label">Allowed States:</span>
+                        <span className="config-value">
+                          {config.allowedStates.join(', ')}
+                        </span>
+                      </div>
+                      {config.customFields.length > 0 && (
+                        <div className="config-row">
+                          <span className="config-label">Custom Fields:</span>
+                          <div className="custom-fields-list">
+                            {config.customFields.map((field, idx) => (
+                              <div key={idx} className="custom-field">
+                                <strong>{field.name}</strong> ({field.fieldType}
+                                ){field.required && ' *'}
+                                {field.defaultValue &&
+                                  ` = ${field.defaultValue}`}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {/* Manifest Section */}
+              <section className="settings-section">
+                <h3>Manifest</h3>
+                <div className="settings-card">
+                  {manifest && (
+                    <div className="manifest-details">
+                      <div className="info-grid">
+                        <div className="info-item">
+                          <span className="info-label">Schema Version</span>
+                          <span className="info-value">
+                            {manifest.schemaVersion}
+                          </span>
+                        </div>
+                        <div className="info-item">
+                          <span className="info-label">Centy Version</span>
+                          <span className="info-value">
+                            {manifest.centyVersion}
+                          </span>
+                        </div>
+                        <div className="info-item">
+                          <span className="info-label">Created</span>
+                          <span className="info-value">
+                            {manifest.createdAt
+                              ? new Date(manifest.createdAt).toLocaleString()
+                              : '-'}
+                          </span>
+                        </div>
+                        <div className="info-item">
+                          <span className="info-label">Updated</span>
+                          <span className="info-value">
+                            {manifest.updatedAt
+                              ? new Date(manifest.updatedAt).toLocaleString()
+                              : '-'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="managed-files">
+                        <h4>Managed Files ({manifest.managedFiles.length})</h4>
+                        <div className="files-list">
+                          {manifest.managedFiles.map((file, idx) => (
+                            <div key={idx} className="file-item">
+                              <span className="file-path">{file.path}</span>
+                              <span className="file-hash">
+                                {file.hash?.slice(0, 8)}...
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
+            </>
+          )}
+        </>
+      )}
+    </div>
+  )
+}

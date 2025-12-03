@@ -80,6 +80,7 @@ describe('IssueDetail', () => {
     // Mock listAssets to return empty array
     vi.mocked(centyClient.listAssets).mockResolvedValue({
       assets: [],
+      totalCount: 0,
       $typeName: 'centy.ListAssetsResponse' as const,
       $unknown: undefined,
     })

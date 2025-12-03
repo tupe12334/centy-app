@@ -1,0 +1,131 @@
+/* Create Doc Page */
+.create-doc {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--space-8);
+}
+
+.create-doc h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: var(--space-6);
+  color: var(--color-gray-900);
+}
+
+/* Form */
+.create-doc form {
+  background: white;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Form Groups */
+.create-doc .form-group {
+  margin-bottom: var(--space-5);
+}
+
+.create-doc .form-group label {
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+.create-doc .form-group textarea {
+  min-height: 300px;
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+}
+
+/* Error Message */
+.create-doc .error-message {
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-5);
+  font-size: 0.9375rem;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Actions */
+.create-doc .actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-gray-200);
+}
+
+.create-doc .actions button {
+  padding: var(--space-3) var(--space-6);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: var(--radius-lg);
+}
+
+.create-doc .actions button.primary {
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
+}
+
+.create-doc .actions button.primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  box-shadow: 0 4px 8px rgba(99, 102, 241, 0.4);
+  transform: translateY(-1px);
+}
+
+.create-doc .actions button.secondary {
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+}
+
+.create-doc .actions button.secondary:hover:not(:disabled) {
+  background: var(--color-gray-200);
+}
+
+/* No Project / Not Initialized Messages */
+.create-doc .no-project-message,
+.create-doc .not-initialized-message {
+  text-align: center;
+  padding: var(--space-12);
+  background: var(--color-gray-50);
+  border: 2px dashed var(--color-gray-200);
+  border-radius: var(--radius-xl);
+}
+
+.create-doc .no-project-message p,
+.create-doc .not-initialized-message p {
+  color: var(--color-gray-500);
+  font-size: 1.0625rem;
+  margin-bottom: var(--space-4);
+}
+
+.create-doc .not-initialized-message a {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .create-doc {
+    padding: var(--space-5);
+  }
+
+  .create-doc h2 {
+    font-size: 1.5rem;
+  }
+
+  .create-doc form {
+    padding: var(--space-4);
+  }
+
+  .create-doc .actions {
+    flex-direction: column-reverse;
+  }
+
+  .create-doc .actions button {
+    width: 100%;
+  }
+}

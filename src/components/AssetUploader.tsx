@@ -10,7 +10,7 @@ import { centyClient } from '../api/client.ts'
 import { create } from '@bufbuild/protobuf'
 import {
   AddAssetRequestSchema,
-  RemoveAssetRequestSchema,
+  DeleteAssetRequestSchema,
   GetAssetRequestSchema,
   type Asset,
 } from '../gen/centy_pb.ts'
@@ -71,7 +71,7 @@ export const AssetUploader = forwardRef<
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Update assets when initialAssets changes (use JSON stringify for stable comparison)
-  const initialAssetsKey = JSON.stringify(initialAssets.map(a => a.id))
+  const initialAssetsKey = JSON.stringify(initialAssets.map(a => a.filename))
   useEffect(() => {
     setAssets(initialAssets)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -97,7 +97,7 @@ export const AssetUploader = forwardRef<
           projectPath,
           issueId: targetIssueId,
           filename: pending.file.name,
-          content: new Uint8Array(arrayBuffer),
+          data: new Uint8Array(arrayBuffer),
         })
 
         const response = await centyClient.addAsset(request)
@@ -215,20 +215,20 @@ export const AssetUploader = forwardRef<
 
   // Remove asset from server
   const removeAsset = useCallback(
-    async (assetId: string) => {
+    async (filename: string) => {
       if (!issueId) return
 
       try {
-        const request = create(RemoveAssetRequestSchema, {
+        const request = create(DeleteAssetRequestSchema, {
           projectPath,
           issueId,
-          assetId,
+          filename,
         })
-        const response = await centyClient.removeAsset(request)
+        const response = await centyClient.deleteAsset(request)
 
         if (response.success) {
           setAssets(prev => {
-            const updated = prev.filter(a => a.id !== assetId)
+            const updated = prev.filter(a => a.filename !== filename)
             onAssetsChange?.(updated)
             return updated
           })
@@ -331,11 +331,11 @@ export const AssetUploader = forwardRef<
           {/* Existing Assets */}
           {assets.map(asset => (
             <AssetPreviewItem
-              key={asset.id}
+              key={asset.filename}
               asset={asset}
               projectPath={projectPath}
               issueId={issueId!}
-              onRemove={() => removeAsset(asset.id)}
+              onRemove={() => removeAsset(asset.filename)}
             />
           ))}
 
@@ -382,12 +382,12 @@ function AssetPreviewItem({
           const request = create(GetAssetRequestSchema, {
             projectPath,
             issueId,
-            assetId: asset.id,
+            filename: asset.filename,
           })
           const response = await centyClient.getAsset(request)
-          if (mounted && response.content) {
+          if (mounted && response.data) {
             // Create a new Uint8Array copy for Blob compatibility
-            const bytes = new Uint8Array(response.content)
+            const bytes = new Uint8Array(response.data)
             const blob = new Blob([bytes], { type: asset.mimeType })
             setPreviewUrl(URL.createObjectURL(blob))
           }

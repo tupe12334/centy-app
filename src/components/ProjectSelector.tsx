@@ -9,7 +9,11 @@ import {
 } from '@floating-ui/react'
 import { centyClient } from '../api/client.ts'
 import { create } from '@bufbuild/protobuf'
-import { ListProjectsRequestSchema, type ProjectInfo } from '../gen/centy_pb.ts'
+import {
+  ListProjectsRequestSchema,
+  RegisterProjectRequestSchema,
+  type ProjectInfo,
+} from '../gen/centy_pb.ts'
 import { useProject, useArchivedProjects } from '../context/ProjectContext.tsx'
 import './ProjectSelector.css'
 
@@ -58,11 +62,34 @@ export function ProjectSelector() {
     setIsOpen(false)
   }
 
-  const handleManualSubmit = (e: React.FormEvent) => {
+  const handleManualSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (manualPath.trim()) {
-      setProjectPath(manualPath.trim())
-      setIsInitialized(null) // Will be checked by the page
+      const path = manualPath.trim()
+      try {
+        // Register the project with the daemon
+        const request = create(RegisterProjectRequestSchema, {
+          projectPath: path,
+        })
+        const response = await centyClient.registerProject(request)
+        if (response.success && response.project) {
+          setProjectPath(path)
+          setIsInitialized(response.project.initialized)
+          // Add to projects list if not already there
+          setProjects(prev => {
+            if (prev.some(p => p.path === path)) return prev
+            return [...prev, response.project!]
+          })
+        } else {
+          // Still set the path even if registration fails
+          setProjectPath(path)
+          setIsInitialized(null)
+        }
+      } catch {
+        // Fallback: set path without registration
+        setProjectPath(path)
+        setIsInitialized(null)
+      }
       setManualPath('')
       setIsOpen(false)
     }

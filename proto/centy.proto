@@ -60,6 +60,23 @@ service CentyDaemon {
   // Delete a doc
   rpc DeleteDoc(DeleteDocRequest) returns (DeleteDocResponse);
 
+  // ============ Asset RPCs ============
+
+  // Add an asset to an issue or as a shared asset
+  rpc AddAsset(AddAssetRequest) returns (AddAssetResponse);
+
+  // List assets for an issue (optionally including shared assets)
+  rpc ListAssets(ListAssetsRequest) returns (ListAssetsResponse);
+
+  // Get a specific asset's data
+  rpc GetAsset(GetAssetRequest) returns (GetAssetResponse);
+
+  // Delete an asset
+  rpc DeleteAsset(DeleteAssetRequest) returns (DeleteAssetResponse);
+
+  // List all shared assets
+  rpc ListSharedAssets(ListSharedAssetsRequest) returns (ListAssetsResponse);
+
   // ============ Project Registry RPCs ============
 
   // List all tracked projects
@@ -74,19 +91,24 @@ service CentyDaemon {
   // Get info about a specific project
   rpc GetProjectInfo(GetProjectInfoRequest) returns (GetProjectInfoResponse);
 
-  // ============ Asset RPCs ============
+  // ============ Version RPCs ============
 
-  // Add an asset to an issue
-  rpc AddAsset(AddAssetRequest) returns (AddAssetResponse);
+  // Get daemon version info
+  rpc GetDaemonInfo(GetDaemonInfoRequest) returns (DaemonInfo);
 
-  // Remove an asset from an issue
-  rpc RemoveAsset(RemoveAssetRequest) returns (RemoveAssetResponse);
+  // Get project version info and comparison with daemon
+  rpc GetProjectVersion(GetProjectVersionRequest) returns (ProjectVersionInfo);
 
-  // List all assets for an issue
-  rpc ListAssets(ListAssetsRequest) returns (ListAssetsResponse);
+  // Update project to target version (runs migrations)
+  rpc UpdateVersion(UpdateVersionRequest) returns (UpdateVersionResponse);
 
-  // Get asset content for download/preview
-  rpc GetAsset(GetAssetRequest) returns (GetAssetResponse);
+  // ============ Daemon Control RPCs ============
+
+  // Shutdown the daemon gracefully
+  rpc Shutdown(ShutdownRequest) returns (ShutdownResponse);
+
+  // Restart the daemon
+  rpc Restart(RestartRequest) returns (RestartResponse);
 }
 
 // ============ Init Messages ============
@@ -273,62 +295,6 @@ message DeleteIssueResponse {
   Manifest manifest = 3;          // Updated manifest after deletion
 }
 
-// ============ Asset Messages ============
-
-// Asset represents a file attached to an issue
-message Asset {
-  string id = 1;                  // UUID for the asset
-  string issue_id = 2;            // The issue this asset belongs to
-  string filename = 3;            // Original filename
-  string mime_type = 4;           // MIME type (e.g., "image/png")
-  int64 size_bytes = 5;           // File size in bytes
-  string created_at = 6;          // ISO timestamp
-}
-
-message AddAssetRequest {
-  string project_path = 1;
-  string issue_id = 2;            // UUID or legacy number
-  string filename = 3;            // Original filename
-  bytes content = 4;              // File content as bytes
-}
-
-message AddAssetResponse {
-  bool success = 1;
-  string error = 2;
-  Asset asset = 3;                // The created asset
-}
-
-message RemoveAssetRequest {
-  string project_path = 1;
-  string issue_id = 2;
-  string asset_id = 3;            // UUID of the asset to remove
-}
-
-message RemoveAssetResponse {
-  bool success = 1;
-  string error = 2;
-}
-
-message ListAssetsRequest {
-  string project_path = 1;
-  string issue_id = 2;
-}
-
-message ListAssetsResponse {
-  repeated Asset assets = 1;
-}
-
-message GetAssetRequest {
-  string project_path = 1;
-  string issue_id = 2;
-  string asset_id = 3;
-}
-
-message GetAssetResponse {
-  Asset asset = 1;
-  bytes content = 2;              // File content for download/preview
-}
-
 // ============ Manifest Messages ============
 
 message GetManifestRequest {
@@ -376,6 +342,7 @@ message Config {
   int32 priority_levels = 3;      // Number of priority levels (default: 3)
   repeated string allowed_states = 4;  // Allowed status values (default: ["open", "in-progress", "closed"])
   string default_state = 5;            // Default state for new issues (default: "open")
+  string version = 6;                  // Project version (semver, empty = daemon default)
 }
 
 message CustomFieldDefinition {
@@ -470,6 +437,78 @@ message DeleteDocResponse {
   Manifest manifest = 3;
 }
 
+// ============ Asset Messages ============
+
+// Asset represents file metadata
+message Asset {
+  string filename = 1;            // Original filename
+  string hash = 2;                // SHA-256 hash
+  uint64 size = 3;                // File size in bytes
+  string mime_type = 4;           // MIME type (e.g., "image/png")
+  bool is_shared = 5;             // Whether this is a shared asset
+  string created_at = 6;          // ISO timestamp
+}
+
+message AddAssetRequest {
+  string project_path = 1;
+  string issue_id = 2;            // Issue ID (required for issue-specific assets)
+  string filename = 3;            // Filename to save as
+  bytes data = 4;                 // Binary file data
+  bool is_shared = 5;             // If true, store as shared asset (default: false)
+}
+
+message AddAssetResponse {
+  bool success = 1;
+  string error = 2;
+  Asset asset = 3;                // The created asset info
+  string path = 4;                // Full path to the asset file
+  Manifest manifest = 5;
+}
+
+message ListAssetsRequest {
+  string project_path = 1;
+  string issue_id = 2;            // Issue ID to list assets for
+  bool include_shared = 3;        // Include shared assets in result (default: false)
+}
+
+message ListAssetsResponse {
+  repeated Asset assets = 1;
+  int32 total_count = 2;
+}
+
+message GetAssetRequest {
+  string project_path = 1;
+  string issue_id = 2;            // Issue ID (required for issue-specific assets)
+  string filename = 3;            // Asset filename
+  bool is_shared = 4;             // Whether to look for a shared asset
+}
+
+message GetAssetResponse {
+  bool success = 1;
+  string error = 2;
+  bytes data = 3;                 // Binary file data
+  Asset asset = 4;                // Asset metadata
+}
+
+message DeleteAssetRequest {
+  string project_path = 1;
+  string issue_id = 2;            // Issue ID (required for issue-specific assets)
+  string filename = 3;            // Asset filename
+  bool is_shared = 4;             // Whether to delete a shared asset
+}
+
+message DeleteAssetResponse {
+  bool success = 1;
+  string error = 2;
+  string filename = 3;            // Deleted filename
+  bool was_shared = 4;            // Whether it was a shared asset
+  Manifest manifest = 5;
+}
+
+message ListSharedAssetsRequest {
+  string project_path = 1;
+}
+
 // ============ Project Registry Messages ============
 
 // Returned by API (enriched with live data from disk)
@@ -518,4 +557,59 @@ message GetProjectInfoRequest {
 message GetProjectInfoResponse {
   bool found = 1;
   ProjectInfo project = 2;
+}
+
+// ============ Version Messages ============
+
+message GetDaemonInfoRequest {}
+
+message DaemonInfo {
+  string version = 1;                    // Current daemon version (e.g., "0.1.0")
+  repeated string available_versions = 2; // All versions we can migrate to
+}
+
+message GetProjectVersionRequest {
+  string project_path = 1;
+}
+
+message ProjectVersionInfo {
+  string project_version = 1;            // Version from config (or default)
+  string daemon_version = 2;             // Current daemon version
+  string comparison = 3;                 // "equal", "project_behind", "project_ahead"
+  bool degraded_mode = 4;                // True if project > daemon
+}
+
+message UpdateVersionRequest {
+  string project_path = 1;
+  string target_version = 2;             // Target version to migrate to
+}
+
+message UpdateVersionResponse {
+  bool success = 1;
+  string error = 2;
+  string from_version = 3;
+  string to_version = 4;
+  repeated string migrations_applied = 5;
+}
+
+// ============ Daemon Control Messages ============
+
+message ShutdownRequest {
+  // Optional delay in seconds before shutdown (default: 0)
+  uint32 delay_seconds = 1;
+}
+
+message ShutdownResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message RestartRequest {
+  // Optional delay in seconds before restart (default: 0)
+  uint32 delay_seconds = 1;
+}
+
+message RestartResponse {
+  bool success = 1;
+  string message = 2;
 }
