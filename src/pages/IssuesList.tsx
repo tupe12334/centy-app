@@ -16,7 +16,7 @@ export function IssuesList() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState('')
-  const [priorityFilter, setPriorityFilter] = useState('')
+  const [priorityFilter, setPriorityFilter] = useState(0) // 0 = all, 1 = high, 2 = medium, 3 = low
 
   const checkInitialized = useCallback(
     async (path: string) => {
@@ -48,7 +48,7 @@ export function IssuesList() {
       const request = create(ListIssuesRequestSchema, {
         projectPath: projectPath.trim(),
         status: statusFilter,
-        priority: priorityFilter,
+        priority: priorityFilter, // 0 = all
       })
       const response = await centyClient.listIssues(request)
       setIssues(response.issues)
@@ -74,15 +74,24 @@ export function IssuesList() {
     }
   }, [isInitialized, fetchIssues])
 
-  const getPriorityClass = (priority: string) => {
-    switch (priority) {
+  const getPriorityClass = (priorityLabel: string) => {
+    switch (priorityLabel.toLowerCase()) {
       case 'high':
+      case 'critical':
         return 'priority-high'
       case 'medium':
+      case 'normal':
         return 'priority-medium'
       case 'low':
         return 'priority-low'
       default:
+        // Handle P1, P2, etc. format
+        if (priorityLabel.startsWith('P') || priorityLabel.startsWith('p')) {
+          const num = parseInt(priorityLabel.slice(1))
+          if (num === 1) return 'priority-high'
+          if (num === 2) return 'priority-medium'
+          return 'priority-low'
+        }
         return ''
     }
   }
@@ -144,12 +153,12 @@ export function IssuesList() {
               <select
                 id="priority-filter"
                 value={priorityFilter}
-                onChange={e => setPriorityFilter(e.target.value)}
+                onChange={e => setPriorityFilter(Number(e.target.value))}
               >
-                <option value="">All</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
+                <option value={0}>All</option>
+                <option value={1}>High</option>
+                <option value={2}>Medium</option>
+                <option value={3}>Low</option>
               </select>
             </div>
 
@@ -205,9 +214,9 @@ export function IssuesList() {
                       </td>
                       <td>
                         <span
-                          className={`priority-badge ${getPriorityClass(issue.metadata?.priority || '')}`}
+                          className={`priority-badge ${getPriorityClass(issue.metadata?.priorityLabel || '')}`}
                         >
-                          {issue.metadata?.priority || 'unknown'}
+                          {issue.metadata?.priorityLabel || 'unknown'}
                         </span>
                       </td>
                       <td className="issue-date">

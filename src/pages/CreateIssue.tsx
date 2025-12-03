@@ -14,7 +14,7 @@ export function CreateIssue() {
   const { projectPath, isInitialized, setIsInitialized } = useProject()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [priority, setPriority] = useState('medium')
+  const [priority, setPriority] = useState(2) // 1=high, 2=medium, 3=low
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -135,11 +135,11 @@ export function CreateIssue() {
           <select
             id="priority"
             value={priority}
-            onChange={e => setPriority(e.target.value)}
+            onChange={e => setPriority(Number(e.target.value))}
           >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
+            <option value={1}>High</option>
+            <option value={2}>Medium</option>
+            <option value={3}>Low</option>
           </select>
         </div>
 

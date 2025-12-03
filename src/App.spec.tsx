@@ -55,8 +55,5 @@ describe('App', () => {
     renderWithRouter()
     expect(screen.getByRole('link', { name: 'Init' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Issues' })).toBeInTheDocument()
-    expect(
-      screen.getByRole('link', { name: 'Create Issue' })
-    ).toBeInTheDocument()
   })
 })

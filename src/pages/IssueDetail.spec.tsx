@@ -86,7 +86,8 @@ describe('IssueDetail', () => {
       description: 'Test issue description',
       metadata: {
         status: 'open',
-        priority: 'high',
+        priority: 1,
+        priorityLabel: 'high',
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T12:00:00Z',
         customFields: {},
@@ -127,7 +128,8 @@ describe('IssueDetail', () => {
       description: 'Test description',
       metadata: {
         status: 'open',
-        priority: 'medium',
+        priority: 2,
+        priorityLabel: 'medium',
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T10:00:00Z',
         customFields: {},
@@ -161,7 +163,8 @@ describe('IssueDetail', () => {
       description: 'Original description',
       metadata: {
         status: 'open',
-        priority: 'medium',
+        priority: 2,
+        priorityLabel: 'medium',
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T10:00:00Z',
         customFields: {},
@@ -200,7 +203,8 @@ describe('IssueDetail', () => {
       description: 'Original description',
       metadata: {
         status: 'open',
-        priority: 'medium',
+        priority: 2,
+        priorityLabel: 'medium',
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T10:00:00Z',
         customFields: {},
@@ -220,7 +224,8 @@ describe('IssueDetail', () => {
         description: 'Updated description',
         metadata: {
           status: 'in-progress',
-          priority: 'high',
+          priority: 1,
+          priorityLabel: 'high',
           createdAt: '2024-01-15T10:00:00Z',
           updatedAt: '2024-01-15T14:00:00Z',
           customFields: {},
@@ -273,7 +278,8 @@ describe('IssueDetail', () => {
       description: 'Test description',
       metadata: {
         status: 'open',
-        priority: 'medium',
+        priority: 2,
+        priorityLabel: 'medium',
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T10:00:00Z',
         customFields: {},
@@ -309,7 +315,8 @@ describe('IssueDetail', () => {
       description: 'Test description',
       metadata: {
         status: 'open',
-        priority: 'medium',
+        priority: 2,
+        priorityLabel: 'medium',
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T10:00:00Z',
         customFields: {},
@@ -360,7 +367,8 @@ describe('IssueDetail', () => {
       description: 'Test description',
       metadata: {
         status: 'open',
-        priority: 'medium',
+        priority: 2,
+        priorityLabel: 'medium',
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T10:00:00Z',
         customFields: {},
@@ -400,7 +408,8 @@ describe('IssueDetail', () => {
       description: '',
       metadata: {
         status: 'open',
-        priority: 'medium',
+        priority: 2,
+        priorityLabel: 'medium',
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T10:00:00Z',
         customFields: {},
@@ -428,7 +437,8 @@ describe('IssueDetail', () => {
       description: 'Original description',
       metadata: {
         status: 'open',
-        priority: 'medium',
+        priority: 2,
+        priorityLabel: 'medium',
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T10:00:00Z',
         customFields: {},
@@ -475,7 +485,8 @@ describe('IssueDetail', () => {
       description: 'Original description',
       metadata: {
         status: 'open',
-        priority: 'medium',
+        priority: 2,
+        priorityLabel: 'medium',
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T10:00:00Z',
         customFields: {},
@@ -515,7 +526,8 @@ describe('IssueDetail', () => {
       description: 'Test description',
       metadata: {
         status: 'open',
-        priority: 'medium',
+        priority: 2,
+        priorityLabel: 'medium',
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T10:00:00Z',
         customFields: {},
@@ -561,7 +573,8 @@ describe('IssueDetail', () => {
       description: 'Test description',
       metadata: {
         status: 'open',
-        priority: 'medium',
+        priority: 2,
+        priorityLabel: 'medium',
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T10:00:00Z',
         customFields: {},
@@ -612,7 +625,8 @@ describe('IssueDetail', () => {
       description: 'Description',
       metadata: {
         status: 'in-progress',
-        priority: 'low',
+        priority: 3,
+        priorityLabel: 'low',
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T10:00:00Z',
         customFields: {},
@@ -642,7 +656,8 @@ describe('IssueDetail', () => {
       description: 'Description',
       metadata: {
         status: 'closed',
-        priority: 'medium',
+        priority: 2,
+        priorityLabel: 'medium',
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T10:00:00Z',
         customFields: {},
@@ -690,7 +705,8 @@ describe('IssueDetail', () => {
       description: 'Original description',
       metadata: {
         status: 'open',
-        priority: 'medium',
+        priority: 2,
+        priorityLabel: 'medium',
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T10:00:00Z',
         customFields: {},
@@ -737,7 +753,8 @@ describe('IssueDetail', () => {
       description: 'Test description',
       metadata: {
         status: 'open',
-        priority: 'medium',
+        priority: 2,
+        priorityLabel: 'medium',
         createdAt: '2024-01-15T10:00:00Z',
         updatedAt: '2024-01-15T10:00:00Z',
         customFields: {},

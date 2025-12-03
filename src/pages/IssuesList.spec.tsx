@@ -102,7 +102,8 @@ describe('IssuesList', () => {
           description: 'Description 1',
           metadata: {
             status: 'open',
-            priority: 'high',
+            priority: 1,
+            priorityLabel: 'high',
             createdAt: '2024-01-15T10:00:00Z',
             updatedAt: '2024-01-15T10:00:00Z',
             customFields: {},
@@ -118,7 +119,8 @@ describe('IssuesList', () => {
           description: 'Description 2',
           metadata: {
             status: 'in-progress',
-            priority: 'medium',
+            priority: 2,
+            priorityLabel: 'medium',
             createdAt: '2024-01-16T10:00:00Z',
             updatedAt: '2024-01-16T10:00:00Z',
             customFields: {},
@@ -270,7 +272,8 @@ describe('IssuesList', () => {
           description: 'Description',
           metadata: {
             status: 'open',
-            priority: 'high',
+            priority: 1,
+            priorityLabel: 'high',
             createdAt: '2024-01-15T10:00:00Z',
             updatedAt: '2024-01-15T10:00:00Z',
             customFields: {},
@@ -327,12 +330,12 @@ describe('IssuesList', () => {
     })
 
     const priorityFilter = screen.getByLabelText('Priority:')
-    fireEvent.change(priorityFilter, { target: { value: 'high' } })
+    fireEvent.change(priorityFilter, { target: { value: '1' } }) // 1 = high
 
     await waitFor(() => {
       expect(mockListIssues).toHaveBeenCalledWith(
         expect.objectContaining({
-          priority: 'high',
+          priority: 1,
         })
       )
     })
@@ -368,7 +371,8 @@ describe('IssuesList', () => {
           description: 'Description',
           metadata: {
             status: 'closed',
-            priority: 'low',
+            priority: 3,
+            priorityLabel: 'low',
             createdAt: '2024-01-15T10:00:00Z',
             updatedAt: '2024-01-15T10:00:00Z',
             customFields: {},

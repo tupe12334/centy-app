@@ -25,15 +25,9 @@ function App() {
           </Link>
           <Link
             to="/issues"
-            className={location.pathname === '/issues' ? 'active' : ''}
+            className={location.pathname.startsWith('/issues') ? 'active' : ''}
           >
             Issues
-          </Link>
-          <Link
-            to="/issues/new"
-            className={location.pathname === '/issues/new' ? 'active' : ''}
-          >
-            Create Issue
           </Link>
         </nav>
       </header>

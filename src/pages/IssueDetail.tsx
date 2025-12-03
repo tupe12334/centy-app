@@ -23,7 +23,7 @@ export function IssueDetail() {
   const [editTitle, setEditTitle] = useState('')
   const [editDescription, setEditDescription] = useState('')
   const [editStatus, setEditStatus] = useState('')
-  const [editPriority, setEditPriority] = useState('')
+  const [editPriority, setEditPriority] = useState(0) // 0 = no change, 1 = high, 2 = medium, 3 = low
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -48,7 +48,7 @@ export function IssueDetail() {
       setEditTitle(response.title)
       setEditDescription(response.description)
       setEditStatus(response.metadata?.status || 'open')
-      setEditPriority(response.metadata?.priority || 'medium')
+      setEditPriority(response.metadata?.priority || 2)
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Failed to connect to daemon'
@@ -136,19 +136,28 @@ export function IssueDetail() {
       setEditTitle(issue.title)
       setEditDescription(issue.description)
       setEditStatus(issue.metadata?.status || 'open')
-      setEditPriority(issue.metadata?.priority || 'medium')
+      setEditPriority(issue.metadata?.priority || 2)
     }
   }
 
-  const getPriorityClass = (priority: string) => {
-    switch (priority) {
+  const getPriorityClass = (priorityLabel: string) => {
+    switch (priorityLabel.toLowerCase()) {
       case 'high':
+      case 'critical':
         return 'priority-high'
       case 'medium':
+      case 'normal':
         return 'priority-medium'
       case 'low':
         return 'priority-low'
       default:
+        // Handle P1, P2, etc. format
+        if (priorityLabel.startsWith('P') || priorityLabel.startsWith('p')) {
+          const num = parseInt(priorityLabel.slice(1))
+          if (num === 1) return 'priority-high'
+          if (num === 2) return 'priority-medium'
+          return 'priority-low'
+        }
         return ''
     }
   }
@@ -301,11 +310,11 @@ export function IssueDetail() {
                 <select
                   id="edit-priority"
                   value={editPriority}
-                  onChange={e => setEditPriority(e.target.value)}
+                  onChange={e => setEditPriority(Number(e.target.value))}
                 >
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
+                  <option value={1}>High</option>
+                  <option value={2}>Medium</option>
+                  <option value={3}>Low</option>
                 </select>
               </div>
             </div>
@@ -331,9 +340,9 @@ export function IssueDetail() {
                 {issue.metadata?.status || 'unknown'}
               </span>
               <span
-                className={`priority-badge ${getPriorityClass(issue.metadata?.priority || '')}`}
+                className={`priority-badge ${getPriorityClass(issue.metadata?.priorityLabel || '')}`}
               >
-                {issue.metadata?.priority || 'unknown'}
+                {issue.metadata?.priorityLabel || 'unknown'}
               </span>
               <span className="issue-date">
                 Created:{' '}

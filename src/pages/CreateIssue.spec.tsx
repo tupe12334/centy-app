@@ -165,7 +165,7 @@ describe('CreateIssue', () => {
           projectPath: '/test/path',
           title: 'Test Issue',
           description: 'Test description',
-          priority: 'medium',
+          priority: 2,
           status: 'open',
         })
       )
@@ -257,10 +257,10 @@ describe('CreateIssue', () => {
     renderComponent()
 
     const prioritySelect = screen.getByLabelText('Priority:')
-    expect(prioritySelect).toHaveValue('medium')
+    expect(prioritySelect).toHaveValue('2') // medium = 2
 
-    fireEvent.change(prioritySelect, { target: { value: 'high' } })
-    expect(prioritySelect).toHaveValue('high')
+    fireEvent.change(prioritySelect, { target: { value: '1' } })
+    expect(prioritySelect).toHaveValue('1') // high = 1
   })
 
   it('should use default error message when createIssue returns empty error', async () => {
