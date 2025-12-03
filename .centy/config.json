@@ -1,0 +1,15 @@
+{
+  "version": "0.1.0",
+  "priorityLevels": 3,
+  "customFields": [],
+  "defaults": {},
+  "allowedStates": ["open", "in-progress", "closed"],
+  "defaultState": "open",
+  "stateColors": {},
+  "priorityColors": {},
+  "llm": {
+    "autoCloseOnComplete": true,
+    "updateStatusOnStart": true,
+    "allowDirectEdits": false
+  }
+}
