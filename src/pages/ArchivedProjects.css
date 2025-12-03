@@ -1,0 +1,211 @@
+/* Archived Projects Page */
+.archived-projects {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--space-8);
+}
+
+/* Header */
+.archived-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+}
+
+.archived-header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-gray-900);
+}
+
+.back-link {
+  color: var(--color-primary);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.back-link:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+/* Error Message */
+.archived-projects .error-message {
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-6);
+  font-size: 0.9375rem;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Loading */
+.archived-projects .loading {
+  text-align: center;
+  padding: var(--space-12);
+  color: var(--color-gray-500);
+}
+
+/* Empty State */
+.archived-projects .empty-state {
+  text-align: center;
+  padding: var(--space-12);
+  background: var(--color-gray-50);
+  border: 2px dashed var(--color-gray-200);
+  border-radius: var(--radius-xl);
+}
+
+.archived-projects .empty-state p {
+  color: var(--color-gray-500);
+  font-size: 1.0625rem;
+  margin-bottom: var(--space-2);
+}
+
+.archived-projects .empty-state .hint {
+  font-size: 0.875rem;
+  color: var(--color-gray-400);
+}
+
+/* Archived List */
+.archived-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: white;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.archived-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-gray-100);
+  gap: var(--space-4);
+}
+
+.archived-item:last-child {
+  border-bottom: none;
+}
+
+.archived-item.stale {
+  background: var(--color-gray-50);
+}
+
+.archived-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  flex: 1;
+}
+
+.archived-item-name {
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+.archived-item-path {
+  font-size: 0.875rem;
+  color: var(--color-gray-500);
+  font-family: var(--font-mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.archived-item-stats {
+  display: flex;
+  gap: var(--space-4);
+  font-size: 0.8125rem;
+  color: var(--color-gray-500);
+}
+
+.not-initialized-badge,
+.stale-badge {
+  font-size: 0.75rem;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+}
+
+.not-initialized-badge {
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
+}
+
+.stale-badge {
+  background: var(--color-gray-100);
+  color: var(--color-gray-600);
+}
+
+.archived-item-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.restore-btn {
+  padding: var(--space-2) var(--space-4);
+  background: white;
+  color: var(--color-gray-700);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.restore-btn:hover {
+  background: var(--color-gray-100);
+  border-color: var(--color-gray-400);
+}
+
+.restore-select-btn {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.restore-select-btn:hover {
+  background: var(--color-primary-hover);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .archived-projects {
+    padding: var(--space-5);
+  }
+
+  .archived-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+  }
+
+  .archived-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .archived-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+
+  .archived-item-actions {
+    justify-content: flex-end;
+  }
+}

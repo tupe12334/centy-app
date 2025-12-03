@@ -10,11 +10,12 @@ import {
 import { centyClient } from '../api/client.ts'
 import { create } from '@bufbuild/protobuf'
 import { ListProjectsRequestSchema, type ProjectInfo } from '../gen/centy_pb.ts'
-import { useProject } from '../context/ProjectContext.tsx'
+import { useProject, useArchivedProjects } from '../context/ProjectContext.tsx'
 import './ProjectSelector.css'
 
 export function ProjectSelector() {
   const { projectPath, setProjectPath, setIsInitialized } = useProject()
+  const { isArchived, archiveProject } = useArchivedProjects()
   const [projects, setProjects] = useState<ProjectInfo[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -76,6 +77,22 @@ export function ProjectSelector() {
     return parts[parts.length - 1] || projectPath
   }
 
+  const handleArchiveProject = (
+    e: React.MouseEvent,
+    projectToArchive: ProjectInfo
+  ) => {
+    e.stopPropagation() // Prevent selecting the project
+    archiveProject(projectToArchive.path)
+    // If archiving the currently selected project, clear selection
+    if (projectToArchive.path === projectPath) {
+      setProjectPath('')
+      setIsInitialized(null)
+    }
+  }
+
+  // Filter out archived projects
+  const visibleProjects = projects.filter(p => !isArchived(p.path))
+
   return (
     <div className="project-selector-container">
       <button
@@ -112,7 +129,7 @@ export function ProjectSelector() {
 
           {loading ? (
             <div className="project-selector-loading">Loading projects...</div>
-          ) : projects.length === 0 ? (
+          ) : visibleProjects.length === 0 ? (
             <div className="project-selector-empty">
               <p>No tracked projects found</p>
               <p className="hint">
@@ -121,7 +138,7 @@ export function ProjectSelector() {
             </div>
           ) : (
             <ul className="project-list" role="listbox">
-              {projects.map(project => (
+              {visibleProjects.map(project => (
                 <li
                   key={project.path}
                   role="option"
@@ -136,6 +153,13 @@ export function ProjectSelector() {
                         Not initialized
                       </span>
                     )}
+                    <button
+                      className="archive-btn"
+                      onClick={e => handleArchiveProject(e, project)}
+                      title="Archive project"
+                    >
+                      Archive
+                    </button>
                   </div>
                   <div className="project-item-details">
                     <span className="project-item-path" title={project.path}>
@@ -162,6 +186,13 @@ export function ProjectSelector() {
               onClick={() => setIsOpen(false)}
             >
               ✨ Init Project
+            </Link>
+            <Link
+              to="/archived"
+              className="view-archived-link"
+              onClick={() => setIsOpen(false)}
+            >
+              View Archived Projects
             </Link>
           </div>
 

@@ -264,3 +264,44 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Archive button */
+.archive-btn {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid #555;
+  color: #888;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.archive-btn:hover {
+  background: #4a3a2d;
+  border-color: #fbbf24;
+  color: #fbbf24;
+}
+
+/* View Archived link */
+.view-archived-link {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  margin-top: 8px;
+  background: transparent;
+  color: #888;
+  border: 1px solid #444;
+  border-radius: 6px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 0.9em;
+  transition: all 0.2s;
+}
+
+.view-archived-link:hover {
+  background: #333;
+  color: #fff;
+  border-color: #555;
+}

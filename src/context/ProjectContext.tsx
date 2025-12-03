@@ -16,6 +16,19 @@ interface ProjectContextType {
 const ProjectContext = createContext<ProjectContextType | null>(null)
 
 const STORAGE_KEY = 'centy-project-path'
+const ARCHIVED_STORAGE_KEY = 'centy-archived-projects'
+
+function getArchivedProjects(): string[] {
+  if (typeof window === 'undefined') return []
+  const stored = localStorage.getItem(ARCHIVED_STORAGE_KEY)
+  return stored ? JSON.parse(stored) : []
+}
+
+function setArchivedProjectsStorage(paths: string[]): void {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(ARCHIVED_STORAGE_KEY, JSON.stringify(paths))
+  }
+}
 
 export function ProjectProvider({ children }: { children: ReactNode }) {
   const [projectPath, setProjectPathState] = useState(() => {
@@ -54,4 +67,36 @@ export function useProject() {
     throw new Error('useProject must be used within a ProjectProvider')
   }
   return context
+}
+
+export function useArchivedProjects() {
+  const [archivedPaths, setArchivedPathsState] = useState<string[]>(() =>
+    getArchivedProjects()
+  )
+
+  const archiveProject = useCallback((path: string) => {
+    setArchivedPathsState(prev => {
+      if (prev.includes(path)) return prev
+      const updated = [...prev, path]
+      setArchivedProjectsStorage(updated)
+      return updated
+    })
+  }, [])
+
+  const unarchiveProject = useCallback((path: string) => {
+    setArchivedPathsState(prev => {
+      const updated = prev.filter(p => p !== path)
+      setArchivedProjectsStorage(updated)
+      return updated
+    })
+  }, [])
+
+  const isArchived = useCallback(
+    (path: string) => {
+      return archivedPaths.includes(path)
+    },
+    [archivedPaths]
+  )
+
+  return { archivedPaths, archiveProject, unarchiveProject, isArchived }
 }

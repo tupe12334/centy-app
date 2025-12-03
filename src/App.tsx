@@ -4,6 +4,7 @@ import { ProjectSelector } from './components/ProjectSelector.tsx'
 import { CreateIssue } from './pages/CreateIssue.tsx'
 import { IssuesList } from './pages/IssuesList.tsx'
 import { IssueDetail } from './pages/IssueDetail.tsx'
+import { ArchivedProjects } from './pages/ArchivedProjects.tsx'
 import './App.css'
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
           <Route path="/issues" element={<IssuesList />} />
           <Route path="/issues/new" element={<CreateIssue />} />
           <Route path="/issues/:issueNumber" element={<IssueDetail />} />
+          <Route path="/archived" element={<ArchivedProjects />} />
         </Routes>
       </main>
     </div>

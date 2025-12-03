@@ -10,8 +10,10 @@ vi.mock('../api/client.ts', () => ({
 }))
 
 const mockUseProject = vi.fn()
+const mockUseArchivedProjects = vi.fn()
 vi.mock('../context/ProjectContext.tsx', () => ({
   useProject: () => mockUseProject(),
+  useArchivedProjects: () => mockUseArchivedProjects(),
 }))
 
 import { centyClient } from '../api/client.ts'
@@ -56,6 +58,12 @@ describe('ProjectSelector', () => {
       setProjectPath: mockSetProjectPath,
       isInitialized: null,
       setIsInitialized: mockSetIsInitialized,
+    })
+    mockUseArchivedProjects.mockReturnValue({
+      archivedPaths: [],
+      archiveProject: vi.fn(),
+      unarchiveProject: vi.fn(),
+      isArchived: () => false,
     })
   })
 
