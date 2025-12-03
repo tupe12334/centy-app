@@ -18,6 +18,7 @@ vi.mock('../api/client.ts', () => ({
     getIssue: vi.fn(),
     updateIssue: vi.fn(),
     deleteIssue: vi.fn(),
+    listAssets: vi.fn().mockResolvedValue({ assets: [] }),
   },
 }))
 
@@ -76,6 +77,8 @@ describe('IssueDetail', () => {
       isInitialized: true,
       setIsInitialized: vi.fn(),
     })
+    // Mock listAssets to return empty array
+    vi.mocked(centyClient.listAssets).mockResolvedValue({ assets: [] })
   })
 
   const renderComponent = (issueNumber: string) => {

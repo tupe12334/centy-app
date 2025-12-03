@@ -30,7 +30,8 @@
     "codegenv",
     "protoc",
     "Ftest",
-    "Fpath"
+    "Fpath",
+    "msdownload"
   ],
   "ignorePaths": [
     "node_modules",
