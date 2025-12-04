@@ -1,0 +1,3 @@
+# Bigger project selector
+
+We want to have a higher project selector that will be around the height of the screen and adjustable so if only one project doesn't all the screen, etc...
