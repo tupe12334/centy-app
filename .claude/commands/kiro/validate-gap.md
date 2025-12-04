@@ -7,13 +7,14 @@ argument-hint: <feature-name>
 # Implementation Gap Validation
 
 <background_information>
+
 - **Mission**: Analyze the gap between requirements and existing codebase to inform implementation strategy
 - **Success Criteria**:
   - Comprehensive understanding of existing codebase patterns and components
   - Clear identification of missing capabilities and integration challenges
   - Multiple viable implementation approaches evaluated
   - Technical research needs identified for design phase
-</background_information>
+    </background_information>
 
 <instructions>
 ## Core Task
@@ -45,19 +46,22 @@ Analyze implementation gap for feature **$1** based on approved requirements and
    - Flag areas requiring further research
 
 ## Important Constraints
+
 - **Information over Decisions**: Provide analysis and options, not final implementation choices
 - **Multiple Options**: Present viable alternatives when applicable
 - **Thorough Investigation**: Use tools to deeply understand existing codebase
 - **Explicit Gaps**: Clearly flag areas needing research or investigation
-</instructions>
+  </instructions>
 
 ## Tool Guidance
+
 - **Read first**: Load all context (spec, steering, rules) before analysis
 - **Grep extensively**: Search codebase for patterns, conventions, and integration points
 - **WebSearch/WebFetch**: Research external dependencies and best practices when needed
 - **Write last**: Generate analysis only after complete investigation
 
 ## Output Description
+
 Provide output in the language specified in spec.json with:
 
 1. **Analysis Summary**: Brief overview (3-5 bullets) of scope, challenges, and recommendations
@@ -65,6 +69,7 @@ Provide output in the language specified in spec.json with:
 3. **Next Steps**: Guide user on proceeding to design phase
 
 **Format Requirements**:
+
 - Use Markdown headings for clarity
 - Keep summary concise (under 300 words)
 - Detailed analysis follows gap-analysis.md output guidelines
@@ -72,6 +77,7 @@ Provide output in the language specified in spec.json with:
 ## Safety & Fallback
 
 ### Error Scenarios
+
 - **Missing Requirements**: If requirements.md doesn't exist, stop with message: "Run `/kiro:spec-requirements $1` first to generate requirements"
 - **Requirements Not Approved**: If requirements not approved, warn user but proceed (gap analysis can inform requirement revisions)
 - **Empty Steering Directory**: Warn user that project context is missing and may affect analysis quality
@@ -81,6 +87,7 @@ Provide output in the language specified in spec.json with:
 ### Next Phase: Design Generation
 
 **If Gap Analysis Complete**:
+
 - Review gap analysis insights
 - Run `/kiro:spec-design $1` to create technical design document
 - Or `/kiro:spec-design $1 -y` to auto-approve requirements and proceed directly
