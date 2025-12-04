@@ -1,7 +1,17 @@
 {
   "$schema": "https://unpkg.com/knip@latest/schema.json",
-  "entry": ["src/main.tsx"],
-  "project": ["src/**/*.{ts,tsx}"],
+  "entry": [
+    "app/**/*.{ts,tsx}",
+    "components/**/*.{ts,tsx}",
+    "lib/**/*.{ts,tsx}",
+    "hooks/**/*.{ts,tsx}"
+  ],
+  "project": [
+    "app/**/*.{ts,tsx}",
+    "components/**/*.{ts,tsx}",
+    "lib/**/*.{ts,tsx}",
+    "hooks/**/*.{ts,tsx}"
+  ],
   "ignore": [
     "**/*.spec.ts",
     "**/*.spec.tsx",
@@ -9,10 +19,17 @@
     "**/*.test.tsx",
     "dist/**",
     "coverage/**",
-    "src/gen/**",
-    "src/types/**/*.d.ts"
+    "gen/**",
+    "types/**/*.d.ts",
+    "__tests__/**"
   ],
-  "ignoreDependencies": ["@bufbuild/protoc-gen-es", "@cspell/dict-he"],
+  "ignoreDependencies": [
+    "@bufbuild/protoc-gen-es",
+    "@cspell/dict-he",
+    "@opennextjs/cloudflare",
+    "wrangler",
+    "eslint-config-next"
+  ],
   "ignoreExportsUsedInFile": true,
   "ignoreWorkspaces": []
 }
