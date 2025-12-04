@@ -1,0 +1,7 @@
+# Static routes - serve directly (more specific routes first)
+/issues/new/* /issues/new/index.html 200
+/docs/new/* /docs/new/index.html 200
+
+# Dynamic routes - rewrite to placeholder pages for CSR
+/issues/* /issues/_/index.html 200
+/docs/* /docs/_/index.html 200
