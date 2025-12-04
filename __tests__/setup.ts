@@ -1,5 +1,4 @@
 import '@testing-library/jest-dom'
-import type React from 'react'
 import { vi } from 'vitest'
 
 // Mock next/navigation
@@ -17,22 +16,7 @@ vi.mock('next/navigation', () => ({
   useParams: () => ({}),
 }))
 
-// Mock next/link
+// Mock next/link - use a simple passthrough component
 vi.mock('next/link', () => ({
-  default: ({
-    children,
-    href,
-    ...props
-  }: {
-    children: React.ReactNode
-    href: string
-  }) => {
-    return {
-      $$typeof: Symbol.for('react.element'),
-      type: 'a',
-      props: { href, ...props, children },
-      key: null,
-      ref: null,
-    }
-  },
+  default: vi.fn(({ children }) => children),
 }))
