@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
+import { open } from '@tauri-apps/plugin-dialog'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -28,28 +29,25 @@ export function InitProject() {
   const [supportsDirectoryPicker, setSupportsDirectoryPicker] = useState(false)
 
   useEffect(() => {
+    // Check if running in Tauri (which supports full path directory picking)
     setSupportsDirectoryPicker(
-      typeof window !== 'undefined' && 'showDirectoryPicker' in window
+      typeof window !== 'undefined' && '__TAURI__' in window
     )
   }, [])
 
   const handleSelectFolder = useCallback(async () => {
-    if ('showDirectoryPicker' in window) {
-      try {
-        const dirHandle = await (
-          window as unknown as {
-            showDirectoryPicker: () => Promise<FileSystemDirectoryHandle>
-          }
-        ).showDirectoryPicker()
-        // Note: File System Access API doesn't give us the full path for security
-        // We'll use the directory name as a hint
-        setProjectPath(dirHandle.name)
-      } catch (err) {
-        // User cancelled or API not supported
-        if ((err as Error).name !== 'AbortError') {
-          console.error('Failed to select folder:', err)
-        }
+    try {
+      const selected = await open({
+        directory: true,
+        multiple: false,
+        title: 'Select Project Folder',
+      })
+      if (selected) {
+        setProjectPath(selected as string)
       }
+    } catch (err) {
+      // User cancelled or error occurred
+      console.error('Failed to select folder:', err)
     }
   }, [])
 
