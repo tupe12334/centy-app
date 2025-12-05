@@ -27,6 +27,7 @@ import { PriorityEditor } from '@/components/settings/PriorityEditor'
 import { CustomFieldsEditor } from '@/components/settings/CustomFieldsEditor'
 import { DefaultsEditor } from '@/components/settings/DefaultsEditor'
 import { LlmSettingsEditor } from '@/components/settings/LlmSettingsEditor'
+import { DaemonSettings } from '@/components/settings/DaemonSettings'
 
 export function Settings() {
   const { projectPath, isInitialized, setIsInitialized } = useProject()
@@ -361,6 +362,13 @@ export function Settings() {
               </div>
             </div>
           )}
+        </div>
+      </section>
+
+      <section className="settings-section">
+        <h3>Daemon Connection</h3>
+        <div className="settings-card">
+          <DaemonSettings />
         </div>
       </section>
 
