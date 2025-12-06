@@ -31,6 +31,35 @@
   text-decoration: underline;
 }
 
+.archived-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.remove-all-btn {
+  padding: var(--space-2) var(--space-4);
+  background: white;
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.remove-all-btn:hover {
+  background: var(--color-danger);
+  color: white;
+}
+
+.remove-all-confirm {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 /* Error Message */
 .archived-projects .error-message {
   background: var(--color-danger-light);
@@ -262,6 +291,15 @@
 
   .archived-header h2 {
     font-size: 1.5rem;
+  }
+
+  .archived-header-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .remove-all-confirm {
+    flex-wrap: wrap;
   }
 
   .archived-item {

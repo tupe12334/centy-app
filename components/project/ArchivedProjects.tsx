@@ -25,6 +25,8 @@ export function ArchivedProjects() {
   const [error, setError] = useState<string | null>(null)
   const [removingPath, setRemovingPath] = useState<string | null>(null)
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null)
+  const [confirmRemoveAll, setConfirmRemoveAll] = useState(false)
+  const [removingAll, setRemovingAll] = useState(false)
 
   const fetchProjects = useCallback(async () => {
     setLoading(true)
@@ -90,13 +92,81 @@ export function ArchivedProjects() {
     setConfirmRemove(null)
   }
 
+  const handleRemoveAll = async () => {
+    setRemovingAll(true)
+    setError(null)
+    try {
+      // Remove all projects tracked by daemon
+      for (const project of archivedProjects) {
+        const request = create(UntrackProjectRequestSchema, {
+          projectPath: project.path,
+        })
+        const response = await centyClient.untrackProject(request)
+        if (!response.success && response.error) {
+          setError(response.error)
+          setRemovingAll(false)
+          setConfirmRemoveAll(false)
+          return
+        }
+        removeArchivedProject(project.path)
+      }
+      // Remove all stale paths
+      for (const path of archivedPathsNotInDaemon) {
+        removeArchivedProject(path)
+      }
+      setAllProjects(prev => prev.filter(p => !archivedPaths.includes(p.path)))
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to remove all projects'
+      )
+    } finally {
+      setRemovingAll(false)
+      setConfirmRemoveAll(false)
+    }
+  }
+
+  const hasArchivedProjects =
+    archivedProjects.length > 0 || archivedPathsNotInDaemon.length > 0
+
   return (
     <div className="archived-projects">
       <div className="archived-header">
         <h2>Archived Projects</h2>
-        <Link href="/issues" className="back-link">
-          Back to Issues
-        </Link>
+        <div className="archived-header-actions">
+          {hasArchivedProjects && !loading && (
+            <>
+              {confirmRemoveAll ? (
+                <div className="remove-all-confirm">
+                  <span className="confirm-text">Remove all permanently?</span>
+                  <button
+                    className="confirm-yes-btn"
+                    onClick={handleRemoveAll}
+                    disabled={removingAll}
+                  >
+                    {removingAll ? 'Removing...' : 'Yes'}
+                  </button>
+                  <button
+                    className="confirm-no-btn"
+                    onClick={() => setConfirmRemoveAll(false)}
+                    disabled={removingAll}
+                  >
+                    No
+                  </button>
+                </div>
+              ) : (
+                <button
+                  className="remove-all-btn"
+                  onClick={() => setConfirmRemoveAll(true)}
+                >
+                  Remove all
+                </button>
+              )}
+            </>
+          )}
+          <Link href="/issues" className="back-link">
+            Back to Issues
+          </Link>
+        </div>
       </div>
 
       {error && <div className="error-message">{error}</div>}
