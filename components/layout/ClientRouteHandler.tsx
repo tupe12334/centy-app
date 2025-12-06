@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation'
 import { ReactNode, useMemo } from 'react'
 import { IssueDetail } from '@/components/issues/IssueDetail'
 import { DocDetail } from '@/components/docs/DocDetail'
+import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation'
 
 interface ClientRouteHandlerProps {
   children: ReactNode
@@ -11,6 +12,7 @@ interface ClientRouteHandlerProps {
 
 export function ClientRouteHandler({ children }: ClientRouteHandlerProps) {
   const pathname = usePathname()
+  useKeyboardNavigation()
 
   const routeContent = useMemo(() => {
     const pathParts = pathname.split('/').filter(Boolean)
