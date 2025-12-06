@@ -37,6 +37,12 @@ export function Header() {
           Assets
         </Link>
         <Link
+          href="/project/config"
+          className={pathname === '/project/config' ? 'active' : ''}
+        >
+          Project Config
+        </Link>
+        <Link
           href="/settings"
           className={pathname === '/settings' ? 'active' : ''}
         >
