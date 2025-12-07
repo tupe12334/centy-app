@@ -67,7 +67,7 @@ export function InitProject() {
         console.error('Failed to select folder:', err)
       }
     }
-  }, [isTauri, hasWebDirectoryPicker, projectPath])
+  }, [isTauri, hasWebDirectoryPicker])
 
   const handleQuickInit = useCallback(async () => {
     if (!projectPath.trim()) return
