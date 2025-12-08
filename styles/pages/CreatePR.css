@@ -1,0 +1,150 @@
+/* Create Pull Request Page */
+.create-pr {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--space-8);
+}
+
+.create-pr h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: var(--space-6);
+  color: var(--color-gray-900);
+}
+
+/* No Project / Not Initialized Messages */
+.create-pr .no-project-message,
+.create-pr .not-initialized-message {
+  text-align: center;
+  padding: var(--space-12);
+  background: var(--color-gray-50);
+  border: 2px dashed var(--color-gray-200);
+  border-radius: var(--radius-xl);
+}
+
+.create-pr .no-project-message p,
+.create-pr .not-initialized-message p {
+  color: var(--color-gray-500);
+  font-size: 1.0625rem;
+  margin-bottom: var(--space-4);
+}
+
+.create-pr .not-initialized-message a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.create-pr .not-initialized-message a:hover {
+  text-decoration: underline;
+}
+
+/* Form */
+.create-pr form {
+  background: white;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Form Groups */
+.create-pr .form-group {
+  margin-bottom: var(--space-5);
+}
+
+.create-pr .form-group label {
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+.create-pr .form-group textarea {
+  min-height: 160px;
+}
+
+/* Form Row for side-by-side fields */
+.create-pr .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+/* Error Message */
+.create-pr .error-message {
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-5);
+  font-size: 0.9375rem;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Actions */
+.create-pr .actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-gray-200);
+}
+
+.create-pr .actions button {
+  padding: var(--space-3) var(--space-6);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: var(--radius-lg);
+}
+
+.create-pr .actions button.primary {
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
+}
+
+.create-pr .actions button.primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  box-shadow: 0 4px 8px rgba(99, 102, 241, 0.4);
+  transform: translateY(-1px);
+}
+
+.create-pr .actions button.secondary {
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+}
+
+.create-pr .actions button.secondary:hover:not(:disabled) {
+  background: var(--color-gray-200);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .create-pr {
+    padding: var(--space-5);
+  }
+
+  .create-pr h2 {
+    font-size: 1.5rem;
+  }
+
+  .create-pr form {
+    padding: var(--space-4);
+  }
+
+  .create-pr .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .create-pr .actions {
+    flex-direction: column-reverse;
+  }
+
+  .create-pr .actions button {
+    width: 100%;
+  }
+}

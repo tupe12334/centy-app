@@ -1,0 +1,383 @@
+/* Pull Requests List Page */
+.prs-list {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-8);
+}
+
+/* Header */
+.prs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+}
+
+.prs-header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-gray-900);
+}
+
+.prs-header .header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.prs-list .create-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-primary);
+  color: white;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
+  transition: all var(--transition-fast);
+}
+
+.prs-list .create-btn:hover {
+  background: var(--color-primary-hover);
+  color: white;
+  box-shadow: 0 4px 8px rgba(99, 102, 241, 0.4);
+  transform: translateY(-1px);
+}
+
+.prs-list .refresh-btn {
+  margin-left: auto;
+  padding: var(--space-2) var(--space-4);
+  background: white;
+  color: var(--color-gray-700);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.prs-list .refresh-btn:hover:not(:disabled) {
+  background: var(--color-gray-100);
+  border-color: var(--color-gray-400);
+}
+
+/* Error Message */
+.prs-list .error-message {
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-6);
+  font-size: 0.9375rem;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Loading */
+.prs-list .loading {
+  text-align: center;
+  padding: var(--space-12);
+  color: var(--color-gray-500);
+}
+
+/* Empty State */
+.prs-list .empty-state {
+  text-align: center;
+  padding: var(--space-12);
+  background: var(--color-gray-50);
+  border: 2px dashed var(--color-gray-200);
+  border-radius: var(--radius-xl);
+}
+
+.prs-list .empty-state p {
+  color: var(--color-gray-500);
+  font-size: 1.0625rem;
+  margin-bottom: var(--space-4);
+}
+
+.prs-list .empty-state a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.prs-list .empty-state a:hover {
+  text-decoration: underline;
+}
+
+/* No Project / Not Initialized Messages */
+.prs-list .no-project-message,
+.prs-list .not-initialized-message {
+  text-align: center;
+  padding: var(--space-12);
+  background: var(--color-gray-50);
+  border: 2px dashed var(--color-gray-200);
+  border-radius: var(--radius-xl);
+}
+
+.prs-list .no-project-message p,
+.prs-list .not-initialized-message p {
+  color: var(--color-gray-500);
+  font-size: 1.0625rem;
+  margin-bottom: var(--space-4);
+}
+
+.prs-list .not-initialized-message a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.prs-list .not-initialized-message a:hover {
+  text-decoration: underline;
+}
+
+/* PRs Table */
+.prs-table {
+  overflow-x: auto;
+  background: white;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.prs-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.prs-table th {
+  padding: var(--space-3);
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-gray-500);
+  background: var(--color-gray-50);
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+/* Table Header Content */
+.prs-table .th-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Sort Button */
+.prs-table .sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: none;
+  border: none;
+  padding: var(--space-1) 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-gray-500);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.prs-table .sort-btn:hover {
+  color: var(--color-gray-700);
+}
+
+.prs-table .sort-btn.sorted {
+  color: var(--color-primary);
+}
+
+.prs-table .sort-indicator {
+  font-size: 0.625rem;
+  line-height: 1;
+}
+
+/* Column Filter Input & Select */
+.prs-table .column-filter {
+  width: 100%;
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.75rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-sm);
+  background: white;
+  color: var(--color-gray-700);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.prs-table .column-filter::placeholder {
+  color: var(--color-gray-400);
+}
+
+.prs-table .column-filter:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.prs-table td {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-gray-100);
+  vertical-align: middle;
+}
+
+.prs-table tbody tr {
+  transition: background var(--transition-fast);
+}
+
+.prs-table tbody tr:hover {
+  background: var(--color-gray-50);
+}
+
+.prs-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* PR Number Copy Button */
+.pr-number-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pr-number-copy-btn:hover {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* PR Title */
+.pr-title-link {
+  color: var(--color-gray-900);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.pr-title-link:hover {
+  color: var(--color-primary);
+}
+
+/* PR Date */
+.pr-date-text {
+  color: var(--color-gray-500);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+/* Branch Name */
+.branch-name {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  background: var(--color-gray-100);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--color-gray-700);
+}
+
+/* Status & Priority Badges */
+.prs-list .status-badge,
+.prs-list .priority-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+/* PR Status Colors */
+.prs-list .status-draft {
+  background: var(--color-gray-100);
+  color: var(--color-gray-600);
+}
+
+.prs-list .status-open {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.prs-list .status-merged {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.prs-list .status-closed {
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+}
+
+/* Priority Colors */
+.prs-list .priority-high {
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+}
+
+.prs-list .priority-medium {
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
+}
+
+.prs-list .priority-low {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .prs-list {
+    padding: var(--space-5);
+  }
+
+  .prs-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+  }
+
+  .prs-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .prs-list .create-btn {
+    justify-content: center;
+  }
+
+  /* Hide source and target branch on mobile */
+  .prs-table th:nth-child(5),
+  .prs-table td:nth-child(5),
+  .prs-table th:nth-child(6),
+  .prs-table td:nth-child(6) {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .prs-table th:nth-child(4),
+  .prs-table td:nth-child(4) {
+    display: none;
+  }
+}

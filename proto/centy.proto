@@ -97,6 +97,26 @@ service CentyDaemon {
   // Set project favorite status
   rpc SetProjectFavorite(SetProjectFavoriteRequest) returns (SetProjectFavoriteResponse);
 
+  // ============ Pull Request RPCs ============
+
+  // Create a new pull request
+  rpc CreatePr(CreatePrRequest) returns (CreatePrResponse);
+
+  // Get a single PR by ID (UUID)
+  rpc GetPr(GetPrRequest) returns (PullRequest);
+
+  // Get a single PR by display number (human-readable number like 1, 2, 3)
+  rpc GetPrByDisplayNumber(GetPrByDisplayNumberRequest) returns (PullRequest);
+
+  // List all PRs with optional filtering
+  rpc ListPrs(ListPrsRequest) returns (ListPrsResponse);
+
+  // Update an existing PR
+  rpc UpdatePr(UpdatePrRequest) returns (UpdatePrResponse);
+
+  // Delete a PR
+  rpc DeletePr(DeletePrRequest) returns (DeletePrResponse);
+
   // ============ Version RPCs ============
 
   // Get daemon version info
@@ -301,6 +321,113 @@ message DeleteIssueResponse {
   Manifest manifest = 3;          // Updated manifest after deletion
 }
 
+// ============ Pull Request Messages ============
+
+message CreatePrRequest {
+  string project_path = 1;
+  string title = 2;
+  string description = 3;
+  string source_branch = 4;       // Source branch (auto-detected if empty)
+  string target_branch = 5;       // Target branch (default: main)
+  repeated string linked_issues = 6;  // Issue IDs to link
+  repeated string reviewers = 7;      // Reviewer names
+  int32 priority = 8;             // 1 = highest priority, 0 = use default
+  string status = 9;              // "draft" or "open" (default: "draft")
+  map<string, string> custom_fields = 10;
+  string template = 11;           // Optional template name
+}
+
+message CreatePrResponse {
+  bool success = 1;
+  string error = 2;
+  string id = 3;                  // The created PR ID (UUID)
+  uint32 display_number = 4;      // Human-readable display number (1, 2, 3...)
+  repeated string created_files = 5;
+  Manifest manifest = 6;
+  string detected_source_branch = 7;  // The auto-detected source branch
+}
+
+message PullRequest {
+  string id = 1;                  // UUID-based PR ID
+  uint32 display_number = 2;      // Human-readable display number
+  string title = 3;
+  string description = 4;
+  PrMetadata metadata = 5;
+}
+
+message PrMetadata {
+  uint32 display_number = 1;
+  string status = 2;              // "draft", "open", "merged", "closed"
+  string source_branch = 3;
+  string target_branch = 4;
+  repeated string linked_issues = 5;
+  repeated string reviewers = 6;
+  int32 priority = 7;
+  string priority_label = 8;      // Human-readable label (e.g., "high", "P1")
+  string created_at = 9;          // ISO timestamp
+  string updated_at = 10;         // ISO timestamp
+  string merged_at = 11;          // ISO timestamp (empty if not merged)
+  string closed_at = 12;          // ISO timestamp (empty if not closed)
+  map<string, string> custom_fields = 13;
+}
+
+message GetPrRequest {
+  string project_path = 1;
+  string pr_id = 2;               // UUID
+}
+
+message GetPrByDisplayNumberRequest {
+  string project_path = 1;
+  uint32 display_number = 2;      // Human-readable number (1, 2, 3...)
+}
+
+message ListPrsRequest {
+  string project_path = 1;
+  string status = 2;              // Filter by status (empty = all)
+  string source_branch = 3;       // Filter by source branch
+  string target_branch = 4;       // Filter by target branch
+  int32 priority = 5;             // Filter by priority (0 = all)
+}
+
+message ListPrsResponse {
+  repeated PullRequest prs = 1;
+  int32 total_count = 2;
+}
+
+message UpdatePrRequest {
+  string project_path = 1;
+  string pr_id = 2;               // UUID
+
+  // Fields to update (empty string = don't update)
+  string title = 3;
+  string description = 4;
+  string status = 5;
+  string source_branch = 6;
+  string target_branch = 7;
+  repeated string linked_issues = 8;
+  repeated string reviewers = 9;
+  int32 priority = 10;            // 0 = don't update
+  map<string, string> custom_fields = 11;
+}
+
+message UpdatePrResponse {
+  bool success = 1;
+  string error = 2;
+  PullRequest pr = 3;             // The updated PR
+  Manifest manifest = 4;
+}
+
+message DeletePrRequest {
+  string project_path = 1;
+  string pr_id = 2;               // UUID
+}
+
+message DeletePrResponse {
+  bool success = 1;
+  string error = 2;
+  Manifest manifest = 3;
+}
+
 // ============ Manifest Messages ============
 
 message GetManifestRequest {
@@ -468,10 +595,11 @@ message Asset {
 
 message AddAssetRequest {
   string project_path = 1;
-  string issue_id = 2;            // Issue ID (required for issue-specific assets)
+  string issue_id = 2;            // Issue ID (for issue-specific assets)
   string filename = 3;            // Filename to save as
   bytes data = 4;                 // Binary file data
   bool is_shared = 5;             // If true, store as shared asset (default: false)
+  string pr_id = 6;               // PR ID (for PR-specific assets)
 }
 
 message AddAssetResponse {
@@ -486,6 +614,7 @@ message ListAssetsRequest {
   string project_path = 1;
   string issue_id = 2;            // Issue ID to list assets for
   bool include_shared = 3;        // Include shared assets in result (default: false)
+  string pr_id = 4;               // PR ID to list assets for
 }
 
 message ListAssetsResponse {
@@ -495,9 +624,10 @@ message ListAssetsResponse {
 
 message GetAssetRequest {
   string project_path = 1;
-  string issue_id = 2;            // Issue ID (required for issue-specific assets)
+  string issue_id = 2;            // Issue ID (for issue-specific assets)
   string filename = 3;            // Asset filename
   bool is_shared = 4;             // Whether to look for a shared asset
+  string pr_id = 5;               // PR ID (for PR-specific assets)
 }
 
 message GetAssetResponse {
@@ -509,9 +639,10 @@ message GetAssetResponse {
 
 message DeleteAssetRequest {
   string project_path = 1;
-  string issue_id = 2;            // Issue ID (required for issue-specific assets)
+  string issue_id = 2;            // Issue ID (for issue-specific assets)
   string filename = 3;            // Asset filename
   bool is_shared = 4;             // Whether to delete a shared asset
+  string pr_id = 5;               // PR ID (for PR-specific assets)
 }
 
 message DeleteAssetResponse {

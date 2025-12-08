@@ -28,6 +28,12 @@ export function Header() {
           Issues
         </Link>
         <Link
+          href="/pull-requests"
+          className={pathname.startsWith('/pull-requests') ? 'active' : ''}
+        >
+          Pull Requests
+        </Link>
+        <Link
           href="/docs"
           className={pathname.startsWith('/docs') ? 'active' : ''}
         >
