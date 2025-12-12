@@ -13,6 +13,7 @@ import {
 import { useProject } from '@/components/providers/ProjectProvider'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { useLastSeenIssues } from '@/hooks/useLastSeenIssues'
+import { useIssueTableSettings } from '@/hooks/useIssueTableSettings'
 import {
   useReactTable,
   getCoreRowModel,
@@ -20,8 +21,6 @@ import {
   getFilteredRowModel,
   flexRender,
   createColumnHelper,
-  type SortingState,
-  type ColumnFiltersState,
 } from '@tanstack/react-table'
 import {
   MultiSelect,
@@ -102,13 +101,9 @@ export function IssuesList() {
   const [showDuplicateModal, setShowDuplicateModal] = useState(false)
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null)
 
-  // TanStack Table state - default sort by createdAt descending (newest first)
-  const [sorting, setSorting] = useState<SortingState>([
-    { id: 'createdAt', desc: true },
-  ])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([
-    { id: 'status', value: ['open', 'in-progress'] },
-  ])
+  // TanStack Table state - persisted per-project
+  const { sorting, setSorting, columnFilters, setColumnFilters } =
+    useIssueTableSettings()
 
   const columns = useMemo(
     () => [
