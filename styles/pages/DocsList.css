@@ -49,9 +49,9 @@
 
 .docs-header .refresh-btn {
   padding: var(--space-2) var(--space-4);
-  background: white;
+  background: var(--color-bg-card);
   color: var(--color-gray-700);
-  border: 1px solid var(--color-gray-300);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
   font-weight: 500;
 }
@@ -71,8 +71,8 @@
 /* Doc Card */
 .doc-card {
   position: relative;
-  background: white;
-  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-fast);

@@ -43,8 +43,8 @@
 
 /* Form */
 .create-pr form {
-  background: white;
-  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
   box-shadow: var(--shadow-sm);

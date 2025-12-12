@@ -51,6 +51,7 @@
 .delete-btn,
 .move-btn,
 .duplicate-btn,
+.ai-plan-btn,
 .cancel-btn,
 .save-btn,
 .confirm-delete-btn {
@@ -79,6 +80,24 @@
 .move-btn:hover,
 .duplicate-btn:hover {
   background: var(--color-gray-200);
+}
+
+.ai-plan-btn {
+  background: linear-gradient(135deg, var(--color-primary), #8b5cf6);
+  color: white;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
+}
+
+.ai-plan-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--color-primary-hover), #7c3aed);
+  box-shadow: 0 4px 8px rgba(99, 102, 241, 0.4);
+  transform: translateY(-1px);
+}
+
+.ai-plan-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .delete-btn {
@@ -188,8 +207,8 @@
 
 /* Issue Content Card */
 .issue-content {
-  background: white;
-  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
   box-shadow: var(--shadow-sm);
@@ -277,8 +296,8 @@
 }
 
 .priority-low {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--color-priority-low-bg);
+  color: var(--color-priority-low-text);
 }
 
 /* Inline Status Selector */
@@ -333,8 +352,8 @@
   left: 0;
   z-index: 50;
   min-width: 140px;
-  background: white;
-  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   list-style: none;

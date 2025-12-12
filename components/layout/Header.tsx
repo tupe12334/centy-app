@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { DaemonStatusIndicator } from '@/components/shared/DaemonStatusIndicator'
+import { ThemeToggle } from '@/components/shared/ThemeToggle'
 import { ProjectSelector } from '@/components/project/ProjectSelector'
 
 export function Header() {
@@ -15,6 +16,7 @@ export function Header() {
           <Link href="/">Centy</Link>
         </h1>
         <div className="header-controls">
+          <ThemeToggle />
           <DaemonStatusIndicator />
           <ProjectSelector />
         </div>

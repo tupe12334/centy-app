@@ -56,7 +56,7 @@
 
 .doc-detail .delete-btn {
   padding: var(--space-2) var(--space-4);
-  background: white;
+  background: var(--color-bg-card);
   color: var(--color-danger);
   border: 1px solid var(--color-danger);
   border-radius: var(--radius-md);
@@ -72,9 +72,9 @@
 
 .doc-detail .cancel-btn {
   padding: var(--space-2) var(--space-4);
-  background: white;
+  background: var(--color-bg-card);
   color: var(--color-gray-700);
-  border: 1px solid var(--color-gray-300);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
   font-weight: 500;
   font-size: 0.875rem;
@@ -88,9 +88,9 @@
 .doc-detail .move-btn,
 .doc-detail .duplicate-btn {
   padding: var(--space-2) var(--space-4);
-  background: white;
+  background: var(--color-bg-card);
   color: var(--color-gray-700);
-  border: 1px solid var(--color-gray-300);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
   font-weight: 500;
   font-size: 0.875rem;
