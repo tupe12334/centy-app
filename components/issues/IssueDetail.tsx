@@ -18,6 +18,7 @@ import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { useLastSeenIssues } from '@/hooks/useLastSeenIssues'
 import { AssetUploader } from '@/components/assets/AssetUploader'
 import { TextEditor } from '@/components/shared/TextEditor'
+import { LinkSection } from '@/components/shared/LinkSection'
 import { useSaveShortcut } from '@/hooks/useSaveShortcut'
 
 const STATUS_OPTIONS = ['open', 'in-progress', 'closed'] as const
@@ -540,6 +541,12 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
                 <p className="no-assets">No attachments</p>
               )}
             </div>
+
+            <LinkSection
+              entityId={issue.id}
+              entityType="issue"
+              editable={true}
+            />
           </>
         )}
       </div>

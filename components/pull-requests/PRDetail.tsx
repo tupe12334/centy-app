@@ -17,6 +17,7 @@ import { useProject } from '@/components/providers/ProjectProvider'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { AssetUploader } from '@/components/assets/AssetUploader'
 import { TextEditor } from '@/components/shared/TextEditor'
+import { LinkSection } from '@/components/shared/LinkSection'
 import '@/styles/pages/PRDetail.css'
 
 const STATUS_OPTIONS = ['draft', 'open', 'merged', 'closed'] as const
@@ -558,22 +559,6 @@ export function PRDetail({ prNumber }: PRDetailProps) {
               )}
             </div>
 
-            {pr.metadata?.linkedIssues &&
-              pr.metadata.linkedIssues.length > 0 && (
-                <div className="pr-linked-issues">
-                  <span className="linked-label">Linked Issues:</span>
-                  {pr.metadata.linkedIssues.map((issueId, index) => (
-                    <Link
-                      key={index}
-                      href={`/issues/${issueId}`}
-                      className="linked-issue"
-                    >
-                      #{issueId}
-                    </Link>
-                  ))}
-                </div>
-              )}
-
             {pr.metadata?.reviewers && pr.metadata.reviewers.length > 0 && (
               <div className="pr-reviewers">
                 <span className="reviewers-label">Reviewers:</span>
@@ -608,6 +593,8 @@ export function PRDetail({ prNumber }: PRDetailProps) {
                 <p className="no-assets">No attachments</p>
               )}
             </div>
+
+            <LinkSection entityId={pr.id} entityType="pr" editable={true} />
           </>
         )}
       </div>

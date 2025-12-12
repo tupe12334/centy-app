@@ -22,6 +22,9 @@ service CentyDaemon {
   // Get a single issue by display number (human-readable number like 1, 2, 3)
   rpc GetIssueByDisplayNumber(GetIssueByDisplayNumberRequest) returns (Issue);
 
+  // Get issues by UUID across all tracked projects (global search)
+  rpc GetIssuesByUuid(GetIssuesByUuidRequest) returns (GetIssuesByUuidResponse);
+
   // List all issues with optional filtering
   rpc ListIssues(ListIssuesRequest) returns (ListIssuesResponse);
 
@@ -53,6 +56,9 @@ service CentyDaemon {
 
   // Get a single doc by slug
   rpc GetDoc(GetDocRequest) returns (Doc);
+
+  // Get docs by slug across all tracked projects (global search)
+  rpc GetDocsBySlug(GetDocsBySlugRequest) returns (GetDocsBySlugResponse);
 
   // List all docs
   rpc ListDocs(ListDocsRequest) returns (ListDocsResponse);
@@ -97,25 +103,8 @@ service CentyDaemon {
   // Set project favorite status
   rpc SetProjectFavorite(SetProjectFavoriteRequest) returns (SetProjectFavoriteResponse);
 
-  // ============ Pull Request RPCs ============
-
-  // Create a new pull request
-  rpc CreatePr(CreatePrRequest) returns (CreatePrResponse);
-
-  // Get a single PR by ID (UUID)
-  rpc GetPr(GetPrRequest) returns (PullRequest);
-
-  // Get a single PR by display number (human-readable number like 1, 2, 3)
-  rpc GetPrByDisplayNumber(GetPrByDisplayNumberRequest) returns (PullRequest);
-
-  // List all PRs with optional filtering
-  rpc ListPrs(ListPrsRequest) returns (ListPrsResponse);
-
-  // Update an existing PR
-  rpc UpdatePr(UpdatePrRequest) returns (UpdatePrResponse);
-
-  // Delete a PR
-  rpc DeletePr(DeletePrRequest) returns (DeletePrResponse);
+  // Set project archived status
+  rpc SetProjectArchived(SetProjectArchivedRequest) returns (SetProjectArchivedResponse);
 
   // ============ Version RPCs ============
 
@@ -128,6 +117,32 @@ service CentyDaemon {
   // Update project to target version (runs migrations)
   rpc UpdateVersion(UpdateVersionRequest) returns (UpdateVersionResponse);
 
+  // ============ PR RPCs ============
+
+  // Create a new pull request
+  rpc CreatePr(CreatePrRequest) returns (CreatePrResponse);
+
+  // Get a single PR by ID (UUID)
+  rpc GetPr(GetPrRequest) returns (PullRequest);
+
+  // Get a single PR by display number (human-readable number like 1, 2, 3)
+  rpc GetPrByDisplayNumber(GetPrByDisplayNumberRequest) returns (PullRequest);
+
+  // Get PRs by UUID across all tracked projects (global search)
+  rpc GetPrsByUuid(GetPrsByUuidRequest) returns (GetPrsByUuidResponse);
+
+  // List all PRs with optional filtering
+  rpc ListPrs(ListPrsRequest) returns (ListPrsResponse);
+
+  // Update an existing PR
+  rpc UpdatePr(UpdatePrRequest) returns (UpdatePrResponse);
+
+  // Delete a PR
+  rpc DeletePr(DeletePrRequest) returns (DeletePrResponse);
+
+  // Get the next PR number
+  rpc GetNextPrNumber(GetNextPrNumberRequest) returns (GetNextPrNumberResponse);
+
   // ============ Daemon Control RPCs ============
 
   // Shutdown the daemon gracefully
@@ -135,6 +150,60 @@ service CentyDaemon {
 
   // Restart the daemon
   rpc Restart(RestartRequest) returns (RestartResponse);
+
+  // ============ Features RPCs ============
+
+  // Get the status of the features system
+  rpc GetFeatureStatus(GetFeatureStatusRequest) returns (GetFeatureStatusResponse);
+
+  // List all uncompacted issues
+  rpc ListUncompactedIssues(ListUncompactedIssuesRequest) returns (ListUncompactedIssuesResponse);
+
+  // Get the instruction.md content
+  rpc GetInstruction(GetInstructionRequest) returns (GetInstructionResponse);
+
+  // Get the current compact.md content
+  rpc GetCompact(GetCompactRequest) returns (GetCompactResponse);
+
+  // Update the compact.md content
+  rpc UpdateCompact(UpdateCompactRequest) returns (UpdateCompactResponse);
+
+  // Save a new migration file
+  rpc SaveMigration(SaveMigrationRequest) returns (SaveMigrationResponse);
+
+  // Mark multiple issues as compacted
+  rpc MarkIssuesCompacted(MarkIssuesCompactedRequest) returns (MarkIssuesCompactedResponse);
+
+  // ============ LLM Agent RPCs ============
+
+  // Spawn an LLM agent to work on an issue
+  rpc SpawnAgent(SpawnAgentRequest) returns (SpawnAgentResponse);
+
+  // Get current LLM work session for a project
+  rpc GetLlmWork(GetLlmWorkRequest) returns (GetLlmWorkResponse);
+
+  // Clear the active LLM work tracking
+  rpc ClearLlmWork(ClearLlmWorkRequest) returns (ClearLlmWorkResponse);
+
+  // Get local LLM configuration (config.local.json)
+  rpc GetLocalLlmConfig(GetLocalLlmConfigRequest) returns (GetLocalLlmConfigResponse);
+
+  // Update local LLM configuration
+  rpc UpdateLocalLlmConfig(UpdateLocalLlmConfigRequest) returns (UpdateLocalLlmConfigResponse);
+
+  // ============ Link RPCs ============
+
+  // Create a link between two entities (bidirectional)
+  rpc CreateLink(CreateLinkRequest) returns (CreateLinkResponse);
+
+  // Delete a link between two entities (bidirectional)
+  rpc DeleteLink(DeleteLinkRequest) returns (DeleteLinkResponse);
+
+  // List all links for an entity
+  rpc ListLinks(ListLinksRequest) returns (ListLinksResponse);
+
+  // Get all available link types (builtin + custom)
+  rpc GetAvailableLinkTypes(GetAvailableLinkTypesRequest) returns (GetAvailableLinkTypesResponse);
 }
 
 // ============ Init Messages ============
@@ -266,6 +335,8 @@ message IssueMetadata {
   string updated_at = 5;          // ISO timestamp
   map<string, string> custom_fields = 6;
   string priority_label = 7;      // Human-readable label (e.g., "high", "P1")
+  bool compacted = 8;             // Whether issue has been compacted into features
+  string compacted_at = 9;        // ISO timestamp when compacted (empty if not)
 }
 
 message GetIssueRequest {
@@ -276,6 +347,25 @@ message GetIssueRequest {
 message GetIssueByDisplayNumberRequest {
   string project_path = 1;
   uint32 display_number = 2;      // Human-readable number (1, 2, 3...)
+}
+
+// ============ Global Issue Search Messages ============
+
+message GetIssuesByUuidRequest {
+  string uuid = 1;                // The UUID to search for (must be valid UUID format)
+}
+
+// An issue with its source project path
+message IssueWithProject {
+  Issue issue = 1;
+  string project_path = 2;        // Absolute path to the project where this issue was found
+  string project_name = 3;        // Human-readable project name (directory name)
+}
+
+message GetIssuesByUuidResponse {
+  repeated IssueWithProject issues = 1;
+  int32 total_count = 2;
+  repeated string errors = 3;     // Non-fatal errors (e.g., projects that couldn't be accessed)
 }
 
 message ListIssuesRequest {
@@ -321,113 +411,6 @@ message DeleteIssueResponse {
   Manifest manifest = 3;          // Updated manifest after deletion
 }
 
-// ============ Pull Request Messages ============
-
-message CreatePrRequest {
-  string project_path = 1;
-  string title = 2;
-  string description = 3;
-  string source_branch = 4;       // Source branch (auto-detected if empty)
-  string target_branch = 5;       // Target branch (default: main)
-  repeated string linked_issues = 6;  // Issue IDs to link
-  repeated string reviewers = 7;      // Reviewer names
-  int32 priority = 8;             // 1 = highest priority, 0 = use default
-  string status = 9;              // "draft" or "open" (default: "draft")
-  map<string, string> custom_fields = 10;
-  string template = 11;           // Optional template name
-}
-
-message CreatePrResponse {
-  bool success = 1;
-  string error = 2;
-  string id = 3;                  // The created PR ID (UUID)
-  uint32 display_number = 4;      // Human-readable display number (1, 2, 3...)
-  repeated string created_files = 5;
-  Manifest manifest = 6;
-  string detected_source_branch = 7;  // The auto-detected source branch
-}
-
-message PullRequest {
-  string id = 1;                  // UUID-based PR ID
-  uint32 display_number = 2;      // Human-readable display number
-  string title = 3;
-  string description = 4;
-  PrMetadata metadata = 5;
-}
-
-message PrMetadata {
-  uint32 display_number = 1;
-  string status = 2;              // "draft", "open", "merged", "closed"
-  string source_branch = 3;
-  string target_branch = 4;
-  repeated string linked_issues = 5;
-  repeated string reviewers = 6;
-  int32 priority = 7;
-  string priority_label = 8;      // Human-readable label (e.g., "high", "P1")
-  string created_at = 9;          // ISO timestamp
-  string updated_at = 10;         // ISO timestamp
-  string merged_at = 11;          // ISO timestamp (empty if not merged)
-  string closed_at = 12;          // ISO timestamp (empty if not closed)
-  map<string, string> custom_fields = 13;
-}
-
-message GetPrRequest {
-  string project_path = 1;
-  string pr_id = 2;               // UUID
-}
-
-message GetPrByDisplayNumberRequest {
-  string project_path = 1;
-  uint32 display_number = 2;      // Human-readable number (1, 2, 3...)
-}
-
-message ListPrsRequest {
-  string project_path = 1;
-  string status = 2;              // Filter by status (empty = all)
-  string source_branch = 3;       // Filter by source branch
-  string target_branch = 4;       // Filter by target branch
-  int32 priority = 5;             // Filter by priority (0 = all)
-}
-
-message ListPrsResponse {
-  repeated PullRequest prs = 1;
-  int32 total_count = 2;
-}
-
-message UpdatePrRequest {
-  string project_path = 1;
-  string pr_id = 2;               // UUID
-
-  // Fields to update (empty string = don't update)
-  string title = 3;
-  string description = 4;
-  string status = 5;
-  string source_branch = 6;
-  string target_branch = 7;
-  repeated string linked_issues = 8;
-  repeated string reviewers = 9;
-  int32 priority = 10;            // 0 = don't update
-  map<string, string> custom_fields = 11;
-}
-
-message UpdatePrResponse {
-  bool success = 1;
-  string error = 2;
-  PullRequest pr = 3;             // The updated PR
-  Manifest manifest = 4;
-}
-
-message DeletePrRequest {
-  string project_path = 1;
-  string pr_id = 2;               // UUID
-}
-
-message DeletePrResponse {
-  bool success = 1;
-  string error = 2;
-  Manifest manifest = 3;
-}
-
 // ============ Manifest Messages ============
 
 message GetManifestRequest {
@@ -470,6 +453,7 @@ message Config {
   map<string, string> state_colors = 7;     // State name → hex color (e.g., "open" → "#10b981")
   map<string, string> priority_colors = 8;  // Priority level → hex color (e.g., "1" → "#ef4444")
   LlmConfig llm = 9;                        // LLM-related settings
+  repeated LinkTypeDefinition custom_link_types = 10;  // Custom link types (in addition to built-in)
 }
 
 message CustomFieldDefinition {
@@ -484,6 +468,13 @@ message LlmConfig {
   bool auto_close_on_complete = 1;    // Auto-close issues when marked complete by LLM
   bool update_status_on_start = 2;    // Update status to in-progress when LLM starts work
   bool allow_direct_edits = 3;        // Allow LLM to directly edit issue files
+}
+
+// Custom link type definition (for custom relationship types)
+message LinkTypeDefinition {
+  string name = 1;                    // Link type name (e.g., "depends-on")
+  string inverse = 2;                 // Inverse link type (e.g., "dependency-of")
+  string description = 3;             // Optional description
 }
 
 message UpdateConfigRequest {
@@ -529,6 +520,25 @@ message CreateDocResponse {
 message GetDocRequest {
   string project_path = 1;
   string slug = 2;                // e.g., "getting-started"
+}
+
+// ============ Global Doc Search Messages ============
+
+message GetDocsBySlugRequest {
+  string slug = 1;                    // The slug to search for (kebab-case)
+}
+
+// A doc with its source project path
+message DocWithProject {
+  Doc doc = 1;
+  string project_path = 2;            // Absolute path to the project where this doc was found
+  string project_name = 3;            // Human-readable project name (directory name)
+}
+
+message GetDocsBySlugResponse {
+  repeated DocWithProject docs = 1;
+  int32 total_count = 2;
+  repeated string errors = 3;         // Non-fatal errors (e.g., projects that couldn't be accessed)
 }
 
 message ListDocsRequest {
@@ -595,7 +605,7 @@ message Asset {
 
 message AddAssetRequest {
   string project_path = 1;
-  string issue_id = 2;            // Issue ID (for issue-specific assets)
+  string issue_id = 2;            // Issue ID (required for issue-specific assets)
   string filename = 3;            // Filename to save as
   bytes data = 4;                 // Binary file data
   bool is_shared = 5;             // If true, store as shared asset (default: false)
@@ -624,7 +634,7 @@ message ListAssetsResponse {
 
 message GetAssetRequest {
   string project_path = 1;
-  string issue_id = 2;            // Issue ID (for issue-specific assets)
+  string issue_id = 2;            // Issue ID (required for issue-specific assets)
   string filename = 3;            // Asset filename
   bool is_shared = 4;             // Whether to look for a shared asset
   string pr_id = 5;               // PR ID (for PR-specific assets)
@@ -639,7 +649,7 @@ message GetAssetResponse {
 
 message DeleteAssetRequest {
   string project_path = 1;
-  string issue_id = 2;            // Issue ID (for issue-specific assets)
+  string issue_id = 2;            // Issue ID (required for issue-specific assets)
   string filename = 3;            // Asset filename
   bool is_shared = 4;             // Whether to delete a shared asset
   string pr_id = 5;               // PR ID (for PR-specific assets)
@@ -661,7 +671,7 @@ message ListSharedAssetsRequest {
 
 // Returned by API (enriched with live data from disk)
 message ProjectInfo {
-  string path = 1;                // Absolute path to project
+  string path = 1;                // Absolute path to project (use this for API calls)
   string first_accessed = 2;      // ISO timestamp
   string last_accessed = 3;       // ISO timestamp
   uint32 issue_count = 4;         // Fetched live from .centy/issues/
@@ -669,10 +679,14 @@ message ProjectInfo {
   bool initialized = 6;           // Fetched live (manifest exists)
   string name = 7;                // Fetched live (directory name)
   bool is_favorite = 8;           // User-marked favorite status
+  bool is_archived = 9;           // User-marked archived status
+  string display_path = 10;       // Human-readable path with ~/ for home dir (use for display only)
 }
 
 message ListProjectsRequest {
   bool include_stale = 1;         // Include projects where path no longer exists
+  bool include_uninitialized = 2; // Include projects without .centy manifest
+  bool include_archived = 3;      // Include archived projects (default: false)
 }
 
 message ListProjectsResponse {
@@ -714,6 +728,17 @@ message SetProjectFavoriteRequest {
 }
 
 message SetProjectFavoriteResponse {
+  bool success = 1;
+  string error = 2;
+  ProjectInfo project = 3;        // The updated project info
+}
+
+message SetProjectArchivedRequest {
+  string project_path = 1;
+  bool is_archived = 2;
+}
+
+message SetProjectArchivedResponse {
   bool success = 1;
   string error = 2;
   ProjectInfo project = 3;        // The updated project info
@@ -773,4 +798,416 @@ message RestartRequest {
 message RestartResponse {
   bool success = 1;
   string message = 2;
+}
+
+// ============ PR Messages ============
+
+message CreatePrRequest {
+  string project_path = 1;
+  string title = 2;
+  string description = 3;
+  string source_branch = 4;         // Source branch name (auto-detected if empty)
+  string target_branch = 5;         // Target branch name (default: "main")
+  reserved 6;                       // Removed: linked_issues (use Link system instead)
+  repeated string reviewers = 7;     // Reviewer usernames/identifiers
+  int32 priority = 8;               // 1 = highest priority, 0 = use default
+  string status = 9;                // default: "draft"
+  map<string, string> custom_fields = 10;
+  string template = 11;             // Optional template name (without .md extension)
+}
+
+message CreatePrResponse {
+  bool success = 1;
+  string error = 2;
+
+  // The created PR ID (UUID)
+  string id = 3;
+
+  // Human-readable display number (1, 2, 3...)
+  uint32 display_number = 4;
+
+  // Paths to created files
+  repeated string created_files = 5;
+
+  // The updated manifest
+  Manifest manifest = 6;
+
+  // Git info
+  string detected_source_branch = 7;  // The source branch that was used
+}
+
+message GetNextPrNumberRequest {
+  string project_path = 1;
+}
+
+message GetNextPrNumberResponse {
+  uint32 next_number = 1;
+}
+
+// PullRequest represents a full PR with all its data
+message PullRequest {
+  // UUID-based PR ID (folder name)
+  string id = 1;
+
+  // Human-readable display number (1, 2, 3...)
+  uint32 display_number = 2;
+
+  string title = 3;
+  string description = 4;
+  PrMetadata metadata = 5;
+}
+
+message PrMetadata {
+  // Human-readable display number (1, 2, 3...)
+  uint32 display_number = 1;
+  string status = 2;                  // e.g., "draft", "open", "merged", "closed"
+  string source_branch = 3;
+  string target_branch = 4;
+  reserved 5;                         // Removed: linked_issues (use Link system instead)
+  repeated string reviewers = 6;
+  int32 priority = 7;                 // 1 = highest priority, N = lowest
+  string priority_label = 8;          // Human-readable label (e.g., "high", "P1")
+  string created_at = 9;              // ISO timestamp
+  string updated_at = 10;             // ISO timestamp
+  string merged_at = 11;              // ISO timestamp (empty if not merged)
+  string closed_at = 12;              // ISO timestamp (empty if not closed)
+  map<string, string> custom_fields = 13;
+}
+
+message GetPrRequest {
+  string project_path = 1;
+  string pr_id = 2;                   // UUID
+}
+
+message GetPrByDisplayNumberRequest {
+  string project_path = 1;
+  uint32 display_number = 2;          // Human-readable number (1, 2, 3...)
+}
+
+// ============ Global PR Search Messages ============
+
+message GetPrsByUuidRequest {
+  string uuid = 1;                    // The UUID to search for (must be valid UUID format)
+}
+
+// A PR with its source project path
+message PrWithProject {
+  PullRequest pr = 1;
+  string project_path = 2;            // Absolute path to the project where this PR was found
+  string project_name = 3;            // Human-readable project name (directory name)
+}
+
+message GetPrsByUuidResponse {
+  repeated PrWithProject prs = 1;
+  int32 total_count = 2;
+  repeated string errors = 3;         // Non-fatal errors (e.g., projects that couldn't be accessed)
+}
+
+message ListPrsRequest {
+  string project_path = 1;
+
+  // Optional filters
+  string status = 2;                  // Filter by status (empty = all)
+  string source_branch = 3;           // Filter by source branch (empty = all)
+  string target_branch = 4;           // Filter by target branch (empty = all)
+  int32 priority = 5;                 // Filter by priority (0 = all)
+}
+
+message ListPrsResponse {
+  repeated PullRequest prs = 1;
+  int32 total_count = 2;
+}
+
+message UpdatePrRequest {
+  string project_path = 1;
+  string pr_id = 2;                   // UUID or display number
+
+  // Fields to update (empty string = don't update, 0 = don't update priority)
+  string title = 3;
+  string description = 4;
+  string status = 5;
+  string source_branch = 6;
+  string target_branch = 7;
+  reserved 8;                         // Removed: linked_issues (use Link system instead)
+  repeated string reviewers = 9;
+  int32 priority = 10;                // 0 = don't update, otherwise 1-N
+  map<string, string> custom_fields = 11;
+}
+
+message UpdatePrResponse {
+  bool success = 1;
+  string error = 2;
+  PullRequest pr = 3;                 // The updated PR
+  Manifest manifest = 4;
+}
+
+message DeletePrRequest {
+  string project_path = 1;
+  string pr_id = 2;                   // UUID or display number
+}
+
+message DeletePrResponse {
+  bool success = 1;
+  string error = 2;
+  Manifest manifest = 3;              // Updated manifest after deletion
+}
+
+// ============ Features Messages ============
+
+message GetFeatureStatusRequest {
+  string project_path = 1;
+}
+
+message GetFeatureStatusResponse {
+  bool initialized = 1;               // features/ folder exists
+  bool has_compact = 2;               // compact.md exists
+  bool has_instruction = 3;           // instruction.md exists
+  uint32 migration_count = 4;         // Number of migration files
+  uint32 uncompacted_count = 5;       // Number of uncompacted issues
+}
+
+message ListUncompactedIssuesRequest {
+  string project_path = 1;
+}
+
+message ListUncompactedIssuesResponse {
+  repeated Issue issues = 1;
+  int32 total_count = 2;
+}
+
+message GetInstructionRequest {
+  string project_path = 1;
+}
+
+message GetInstructionResponse {
+  string content = 1;                 // instruction.md content
+}
+
+message GetCompactRequest {
+  string project_path = 1;
+}
+
+message GetCompactResponse {
+  bool exists = 1;                    // Whether compact.md exists
+  string content = 2;                 // compact.md content (empty if not exists)
+}
+
+message UpdateCompactRequest {
+  string project_path = 1;
+  string content = 2;                 // New compact.md content
+}
+
+message UpdateCompactResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+message SaveMigrationRequest {
+  string project_path = 1;
+  string content = 2;                 // Migration file content (markdown with YAML frontmatter)
+}
+
+message SaveMigrationResponse {
+  bool success = 1;
+  string error = 2;
+  string filename = 3;                // Created migration filename (e.g., "2025-12-06T19-30-00.md")
+  string path = 4;                    // Full relative path to migration file
+}
+
+message MarkIssuesCompactedRequest {
+  string project_path = 1;
+  repeated string issue_ids = 2;      // UUIDs of issues to mark as compacted
+}
+
+message MarkIssuesCompactedResponse {
+  bool success = 1;
+  string error = 2;
+  uint32 marked_count = 3;            // Number of issues successfully marked
+}
+
+// ============ LLM Agent Messages ============
+
+// Predefined agent types
+enum AgentType {
+  AGENT_TYPE_UNSPECIFIED = 0;
+  AGENT_TYPE_CLAUDE = 1;
+  AGENT_TYPE_GEMINI = 2;
+  AGENT_TYPE_CODEX = 3;
+  AGENT_TYPE_OPENCODE = 4;
+  AGENT_TYPE_CUSTOM = 5;
+}
+
+// Action types for LLM agents
+enum LlmAction {
+  LLM_ACTION_UNSPECIFIED = 0;
+  LLM_ACTION_PLAN = 1;
+  LLM_ACTION_IMPLEMENT = 2;
+}
+
+// Agent configuration (stored in config.local.json)
+message AgentConfig {
+  AgentType agent_type = 1;
+  string name = 2;                      // Display name (e.g., "claude", "my-agent")
+  string command = 3;                   // CLI command (e.g., "claude", "/path/to/agent")
+  repeated string default_args = 4;     // Default arguments for the CLI
+  string plan_template = 5;             // Template name for "plan" action
+  string implement_template = 6;        // Template name for "implement" action
+}
+
+// Local LLM configuration (config.local.json - not version controlled)
+message LocalLlmConfig {
+  string default_agent = 1;             // Name of default agent to use
+  repeated AgentConfig agents = 2;      // Available agents
+  map<string, string> env_vars = 3;     // Environment variables for agents
+}
+
+// Request to spawn an LLM agent
+message SpawnAgentRequest {
+  string project_path = 1;
+  string issue_id = 2;                  // UUID or display number of issue to work on
+  LlmAction action = 3;                 // "plan" or "implement"
+  string agent_name = 4;                // Agent to use (empty = default)
+  repeated string extra_args = 5;       // Additional CLI arguments
+}
+
+message SpawnAgentResponse {
+  bool success = 1;
+  string error = 2;
+  string agent_name = 3;                // Which agent was spawned
+  string issue_id = 4;                  // Resolved issue UUID
+  uint32 display_number = 5;            // Issue display number
+  string prompt_preview = 6;            // First 500 chars of generated prompt
+}
+
+// Get active LLM work for a project
+message GetLlmWorkRequest {
+  string project_path = 1;
+}
+
+message LlmWorkSession {
+  string issue_id = 1;
+  uint32 display_number = 2;
+  string issue_title = 3;
+  string agent_name = 4;
+  LlmAction action = 5;
+  string started_at = 6;                // ISO timestamp
+  uint32 pid = 7;                       // Process ID (0 if unknown/exited)
+}
+
+message GetLlmWorkResponse {
+  bool has_active_work = 1;
+  LlmWorkSession session = 2;           // Current session (if any)
+}
+
+// Clear active work tracking
+message ClearLlmWorkRequest {
+  string project_path = 1;
+}
+
+message ClearLlmWorkResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+// Get local LLM config
+message GetLocalLlmConfigRequest {
+  string project_path = 1;              // Empty = global config only
+}
+
+message GetLocalLlmConfigResponse {
+  LocalLlmConfig config = 1;
+  bool has_project_config = 2;
+  bool has_global_config = 3;
+}
+
+// Update local LLM config
+message UpdateLocalLlmConfigRequest {
+  string project_path = 1;              // Empty = update global config
+  LocalLlmConfig config = 2;
+}
+
+message UpdateLocalLlmConfigResponse {
+  bool success = 1;
+  string error = 2;
+  LocalLlmConfig config = 3;
+}
+
+// ============ Link Messages ============
+
+// Target entity type for links
+enum LinkTargetType {
+  LINK_TARGET_TYPE_UNSPECIFIED = 0;
+  LINK_TARGET_TYPE_ISSUE = 1;
+  LINK_TARGET_TYPE_DOC = 2;
+  LINK_TARGET_TYPE_PR = 3;
+}
+
+// A link between two entities
+message Link {
+  string target_id = 1;               // Target entity ID (UUID for issues/PRs, slug for docs)
+  LinkTargetType target_type = 2;     // Type of the target entity
+  string link_type = 3;               // Relationship type (e.g., "blocks", "parent-of")
+  string created_at = 4;              // ISO timestamp when link was created
+}
+
+// Create a link between two entities (bidirectional - also creates inverse)
+message CreateLinkRequest {
+  string project_path = 1;
+  string source_id = 2;               // Source entity ID
+  LinkTargetType source_type = 3;     // Source entity type
+  string target_id = 4;               // Target entity ID
+  LinkTargetType target_type = 5;     // Target entity type
+  string link_type = 6;               // Link type (e.g., "blocks")
+}
+
+message CreateLinkResponse {
+  bool success = 1;
+  string error = 2;
+  Link created_link = 3;              // The forward link that was created
+  Link inverse_link = 4;              // The inverse link that was created
+}
+
+// Delete a link between two entities (also deletes inverse)
+message DeleteLinkRequest {
+  string project_path = 1;
+  string source_id = 2;               // Source entity ID
+  LinkTargetType source_type = 3;     // Source entity type
+  string target_id = 4;               // Target entity ID
+  LinkTargetType target_type = 5;     // Target entity type
+  string link_type = 6;               // Optional: specific link type to delete (empty = all links between entities)
+}
+
+message DeleteLinkResponse {
+  bool success = 1;
+  string error = 2;
+  uint32 deleted_count = 3;           // Number of links deleted (including inverse)
+}
+
+// List all links for an entity
+message ListLinksRequest {
+  string project_path = 1;
+  string entity_id = 2;               // Entity ID to list links for
+  LinkTargetType entity_type = 3;     // Entity type
+}
+
+message ListLinksResponse {
+  repeated Link links = 1;
+  int32 total_count = 2;
+}
+
+// Get all available link types (builtin + custom)
+message GetAvailableLinkTypesRequest {
+  string project_path = 1;
+}
+
+// Information about a link type
+message LinkTypeInfo {
+  string name = 1;                    // Link type name (e.g., "blocks")
+  string inverse = 2;                 // Inverse link type (e.g., "blocked-by")
+  string description = 3;             // Optional description
+  bool is_builtin = 4;                // Whether this is a built-in type
+}
+
+message GetAvailableLinkTypesResponse {
+  repeated LinkTypeInfo link_types = 1;
 }

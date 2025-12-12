@@ -1,0 +1,426 @@
+/* Link Section Component */
+.link-section {
+  margin-top: var(--space-6);
+}
+
+.link-section h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-700);
+  margin: 0;
+}
+
+.link-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.link-add-btn {
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  background: transparent;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.link-add-btn:hover {
+  background: var(--color-primary);
+  color: white;
+}
+
+.link-section-loading,
+.link-section-empty {
+  font-size: 0.8125rem;
+  color: var(--color-gray-500);
+  padding: var(--space-2) 0;
+}
+
+.link-section-error {
+  font-size: 0.8125rem;
+  color: var(--color-danger);
+  padding: var(--space-2);
+  background: var(--color-danger-light);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-2);
+}
+
+.link-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.link-group {
+  background: var(--color-gray-50);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+
+.link-group-header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-gray-600);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  margin-bottom: var(--space-2);
+}
+
+.link-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.link-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-1) var(--space-2);
+  background: white;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.link-item:hover {
+  background: var(--color-gray-100);
+}
+
+.link-item-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  color: var(--color-gray-700);
+  font-size: 0.8125rem;
+  flex: 1;
+}
+
+.link-item-link:hover {
+  color: var(--color-primary);
+}
+
+.link-type-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.link-type-issue {
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
+}
+
+.link-type-doc {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+.link-type-pr {
+  background: var(--color-success-light);
+  color: var(--color-success-dark);
+}
+
+.link-target-id {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.link-delete-btn {
+  padding: var(--space-1);
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--color-gray-400);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  line-height: 1;
+}
+
+.link-delete-btn:hover {
+  color: var(--color-danger);
+  background: var(--color-danger-light);
+}
+
+.link-delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Add Link Modal */
+.link-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.link-modal {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.link-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.link-modal-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+  margin: 0;
+}
+
+.link-modal-close {
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.875rem;
+  color: var(--color-gray-500);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.link-modal-close:hover {
+  color: var(--color-gray-700);
+  background: var(--color-gray-100);
+}
+
+.link-modal-body {
+  padding: var(--space-4);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.link-modal-error {
+  font-size: 0.8125rem;
+  color: var(--color-danger);
+  padding: var(--space-2);
+  background: var(--color-danger-light);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-3);
+}
+
+.link-modal-field {
+  margin-bottom: var(--space-4);
+}
+
+.link-modal-field label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+  margin-bottom: var(--space-1);
+}
+
+.link-modal-select,
+.link-modal-input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.875rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  background: white;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.link-modal-select:focus,
+.link-modal-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.link-modal-tabs {
+  display: flex;
+  gap: var(--space-1);
+  background: var(--color-gray-100);
+  padding: var(--space-1);
+  border-radius: var(--radius-md);
+}
+
+.link-modal-tab {
+  flex: 1;
+  padding: var(--space-2);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-gray-600);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.link-modal-tab:hover {
+  color: var(--color-gray-900);
+}
+
+.link-modal-tab.active {
+  background: white;
+  color: var(--color-gray-900);
+  box-shadow: var(--shadow-sm);
+}
+
+.link-modal-results {
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.link-modal-loading,
+.link-modal-empty {
+  padding: var(--space-4);
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--color-gray-500);
+}
+
+.link-modal-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.link-modal-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.link-modal-item:hover {
+  background: var(--color-gray-50);
+}
+
+.link-modal-item.selected {
+  background: var(--color-primary-light);
+}
+
+.link-modal-item-label {
+  font-size: 0.8125rem;
+  color: var(--color-gray-700);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.link-modal-preview {
+  background: var(--color-gray-50);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.link-preview-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+
+.link-preview-item:last-child {
+  margin-bottom: 0;
+}
+
+.link-preview-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--color-gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.link-preview-text {
+  font-size: 0.8125rem;
+  color: var(--color-gray-700);
+}
+
+.link-preview-text strong {
+  color: var(--color-primary);
+}
+
+.link-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-gray-200);
+}
+
+.link-modal-cancel {
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+  background: white;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.link-modal-cancel:hover {
+  background: var(--color-gray-50);
+  border-color: var(--color-gray-300);
+}
+
+.link-modal-submit {
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.link-modal-submit:hover {
+  background: var(--color-primary-hover);
+}
+
+.link-modal-submit:disabled {
+  background: var(--color-gray-300);
+  cursor: not-allowed;
+}

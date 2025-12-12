@@ -14,6 +14,7 @@ import {
 import { useProject } from '@/components/providers/ProjectProvider'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { TextEditor } from '@/components/shared/TextEditor'
+import { LinkSection } from '@/components/shared/LinkSection'
 
 interface DocDetailProps {
   slug: string
@@ -311,6 +312,8 @@ export function DocDetail({ slug }: DocDetailProps) {
                 <p className="no-content">No content</p>
               )}
             </div>
+
+            <LinkSection entityId={doc.slug} entityType="doc" editable={true} />
           </>
         )}
       </div>
