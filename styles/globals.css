@@ -206,8 +206,8 @@ body {
   font-family: var(--font-sans);
   font-size: 1rem;
   line-height: 1.6;
-  color: var(--color-gray-800);
-  background-color: var(--color-gray-50);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-surface);
 }
 
 /* Typography */
@@ -289,7 +289,7 @@ select {
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-lg);
   background-color: var(--color-bg-input);
-  color: var(--color-gray-800);
+  color: var(--color-text-primary);
   transition: all var(--transition-fast);
   width: 100%;
 }

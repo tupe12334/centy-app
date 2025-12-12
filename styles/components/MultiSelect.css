@@ -12,10 +12,10 @@
   width: 100%;
   padding: var(--space-1) var(--space-2);
   font-size: 0.75rem;
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-sm);
-  background: white;
-  color: var(--color-gray-700);
+  background: var(--color-bg-input);
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition:
     border-color var(--transition-fast),
@@ -39,7 +39,7 @@
 }
 
 .multi-select-trigger.has-value {
-  color: var(--color-gray-900);
+  color: var(--color-text-primary);
 }
 
 .multi-select-text {
@@ -56,8 +56,8 @@
 }
 
 .multi-select-dropdown {
-  background: white;
-  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
   padding: var(--space-1);
@@ -75,12 +75,12 @@
   cursor: pointer;
   border-radius: var(--radius-sm);
   font-size: 0.8125rem;
-  color: var(--color-gray-700);
+  color: var(--color-text-primary);
   transition: background var(--transition-fast);
 }
 
 .multi-select-option:hover {
-  background: var(--color-gray-50);
+  background: var(--color-gray-100);
 }
 
 .multi-select-option input[type='checkbox'] {
@@ -96,11 +96,11 @@
 
 .multi-select-option.select-all {
   font-weight: 600;
-  color: var(--color-gray-900);
+  color: var(--color-text-primary);
 }
 
 .multi-select-divider {
   height: 1px;
-  background: var(--color-gray-100);
+  background: var(--color-border-default);
   margin: var(--space-1) 0;
 }
