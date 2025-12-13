@@ -14,11 +14,7 @@ import { useProject } from '@/components/providers/ProjectProvider'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { useLastSeenIssues } from '@/hooks/useLastSeenIssues'
 import { useIssueTableSettings } from '@/hooks/useIssueTableSettings'
-import {
-  useConfig,
-  getIssueStateOptions,
-  getStateClass,
-} from '@/hooks/useConfig'
+import { useStateManager } from '@/lib/state'
 import {
   useReactTable,
   getCoreRowModel,
@@ -71,7 +67,7 @@ const getPriorityClass = (priorityLabel: string) => {
 export function IssuesList() {
   const router = useRouter()
   const { projectPath, isInitialized, setIsInitialized } = useProject()
-  const { config } = useConfig()
+  const stateManager = useStateManager()
   const [issues, setIssues] = useState<Issue[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -95,11 +91,11 @@ export function IssuesList() {
   // Convert config states to MultiSelect options format
   const statusOptions: MultiSelectOption[] = useMemo(
     () =>
-      getIssueStateOptions(config).map(opt => ({
+      stateManager.getStateOptions().map(opt => ({
         value: opt.value,
         label: opt.label,
       })),
-    [config]
+    [stateManager]
   )
 
   const columns = useMemo(
@@ -150,7 +146,9 @@ export function IssuesList() {
         cell: info => {
           const status = info.getValue()
           return (
-            <span className={`status-badge ${getStateClass(status, config)}`}>
+            <span
+              className={`status-badge ${stateManager.getStateClass(status)}`}
+            >
               {status}
             </span>
           )
@@ -251,7 +249,7 @@ export function IssuesList() {
         },
       }),
     ],
-    [lastSeenMap, config]
+    [lastSeenMap, stateManager]
   )
 
   const table = useReactTable({

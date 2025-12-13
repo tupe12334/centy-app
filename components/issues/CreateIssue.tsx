@@ -17,17 +17,21 @@ import {
 } from '@/components/assets/AssetUploader'
 import { TextEditor } from '@/components/shared/TextEditor'
 import { useSaveShortcut } from '@/hooks/useSaveShortcut'
+import { useStateManager } from '@/lib/state'
 
 export function CreateIssue() {
   const router = useRouter()
   const { projectPath, isInitialized, setIsInitialized } = useProject()
+  const stateManager = useStateManager()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState(2)
+  const [status, setStatus] = useState(() => stateManager.getDefaultState())
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pendingAssets, setPendingAssets] = useState<PendingAsset[]>([])
   const assetUploaderRef = useRef<AssetUploaderHandle>(null)
+  const stateOptions = stateManager.getStateOptions()
 
   const checkInitialized = useCallback(
     async (path: string) => {
@@ -70,7 +74,7 @@ export function CreateIssue() {
           title: title.trim(),
           description: description.trim(),
           priority,
-          status: 'open',
+          status,
         })
         const response = await centyClient.createIssue(request)
 
@@ -90,7 +94,7 @@ export function CreateIssue() {
         setLoading(false)
       }
     },
-    [projectPath, title, description, priority, pendingAssets, router]
+    [projectPath, title, description, priority, status, pendingAssets, router]
   )
 
   const handleKeyboardSave = useCallback(() => {
@@ -166,6 +170,21 @@ export function CreateIssue() {
             <option value={1}>High</option>
             <option value={2}>Medium</option>
             <option value={3}>Low</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="status">Status:</label>
+          <select
+            id="status"
+            value={status}
+            onChange={e => setStatus(e.target.value)}
+          >
+            {stateOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
         </div>
 

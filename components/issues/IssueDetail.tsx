@@ -20,11 +20,7 @@ import {
 import { useProject } from '@/components/providers/ProjectProvider'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { useLastSeenIssues } from '@/hooks/useLastSeenIssues'
-import {
-  useConfig,
-  getIssueStateOptions,
-  getStateClass,
-} from '@/hooks/useConfig'
+import { useStateManager } from '@/lib/state'
 import { AssetUploader } from '@/components/assets/AssetUploader'
 import { TextEditor } from '@/components/shared/TextEditor'
 import { LinkSection } from '@/components/shared/LinkSection'
@@ -42,8 +38,8 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
   const { projectPath } = useProject()
   const { copyToClipboard } = useCopyToClipboard()
   const { recordLastSeen } = useLastSeenIssues()
-  const { config } = useConfig()
-  const stateOptions = getIssueStateOptions(config)
+  const stateManager = useStateManager()
+  const stateOptions = stateManager.getStateOptions()
 
   const [issue, setIssue] = useState<Issue | null>(null)
   const [loading, setLoading] = useState(true)
@@ -558,7 +554,7 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
             <div className="issue-metadata">
               <div className="status-selector" ref={statusDropdownRef}>
                 <button
-                  className={`status-badge status-badge-clickable ${getStateClass(issue.metadata?.status || '', config)} ${updatingStatus ? 'updating' : ''}`}
+                  className={`status-badge status-badge-clickable ${stateManager.getStateClass(issue.metadata?.status || '')} ${updatingStatus ? 'updating' : ''}`}
                   onClick={() => setShowStatusDropdown(!showStatusDropdown)}
                   disabled={updatingStatus}
                   aria-label="Change status"
@@ -583,7 +579,7 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
                         key={option.value}
                         role="option"
                         aria-selected={option.value === issue.metadata?.status}
-                        className={`status-option ${getStateClass(option.value, config)} ${option.value === issue.metadata?.status ? 'selected' : ''}`}
+                        className={`status-option ${stateManager.getStateClass(option.value)} ${option.value === issue.metadata?.status ? 'selected' : ''}`}
                         onClick={() => handleStatusChange(option.value)}
                       >
                         {option.label}

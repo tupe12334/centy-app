@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ColorPicker } from '@/components/shared/ColorPicker'
+import { StateManager } from '@/lib/state'
 
 interface StateListEditorProps {
   states: string[]
@@ -12,11 +13,7 @@ interface StateListEditorProps {
   onDefaultChange: (defaultState: string) => void
 }
 
-const DEFAULT_STATE_COLORS: Record<string, string> = {
-  open: '#10b981',
-  'in-progress': '#f59e0b',
-  closed: '#6b7280',
-}
+const DEFAULT_STATE_COLORS = StateManager.getDefaultColors()
 
 export function StateListEditor({
   states,

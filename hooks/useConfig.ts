@@ -17,6 +17,14 @@ const configCache = new Map<
   }
 >()
 
+// Default cache for server-side rendering - must be a constant to avoid infinite loops
+const DEFAULT_CACHE = {
+  config: null,
+  loading: false,
+  error: null,
+  listeners: new Set<() => void>(),
+}
+
 function getOrCreateCache(projectPath: string) {
   if (!configCache.has(projectPath)) {
     configCache.set(projectPath, {
@@ -75,12 +83,7 @@ export function useConfig() {
   const cache = useSyncExternalStore(
     useCallback(listener => subscribe(projectPath, listener), [projectPath]),
     useCallback(() => getOrCreateCache(projectPath), [projectPath]),
-    () => ({
-      config: null,
-      loading: false,
-      error: null,
-      listeners: new Set<() => void>(),
-    })
+    () => DEFAULT_CACHE
   )
 
   const reload = useCallback(async () => {
@@ -105,66 +108,5 @@ export function useConfig() {
     loading: cache.loading,
     error: cache.error,
     reload,
-  }
-}
-
-// Default issue states when config has none
-const DEFAULT_ISSUE_STATES = ['open', 'in-progress', 'closed']
-
-export interface StateOption {
-  value: string
-  label: string
-  color?: string
-}
-
-/**
- * Get issue state options from config.
- * Returns default states if config has no allowedStates defined.
- */
-export function getIssueStateOptions(config: Config | null): StateOption[] {
-  const states =
-    config?.allowedStates && config.allowedStates.length > 0
-      ? config.allowedStates
-      : DEFAULT_ISSUE_STATES
-
-  const colors = config?.stateColors ?? {}
-
-  return states.map(state => ({
-    value: state,
-    label: formatStateLabel(state),
-    color: colors[state],
-  }))
-}
-
-/**
- * Format a state value as a display label.
- * e.g., "in-progress" -> "In Progress"
- */
-function formatStateLabel(state: string): string {
-  return state
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
-}
-
-/**
- * Get the CSS class for a state based on config colors or defaults.
- */
-export function getStateClass(state: string, config: Config | null): string {
-  // If config has a custom color for this state, use inline style instead
-  if (config?.stateColors?.[state]) {
-    return 'status-custom'
-  }
-
-  // Fall back to default classes
-  switch (state) {
-    case 'open':
-      return 'status-open'
-    case 'in-progress':
-      return 'status-in-progress'
-    case 'closed':
-      return 'status-closed'
-    default:
-      return ''
   }
 }
