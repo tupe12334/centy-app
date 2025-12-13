@@ -184,18 +184,18 @@ export const AssetUploader = forwardRef<
           return updated
         })
 
-        // If in edit mode with existing issue/PR, upload immediately
+        // If in edit mode with existing issue, upload immediately
         if (mode === 'edit' && targetId) {
-          await uploadAsset(pending, targetId, !!prId)
+          await uploadAsset(pending, targetId)
         }
       }
     },
-    [mode, targetId, prId, onPendingChange, validateFile, uploadAsset]
+    [mode, targetId, onPendingChange, validateFile, uploadAsset]
   )
 
-  // Upload all pending assets (called when issue/PR is created in create mode)
+  // Upload all pending assets (called when issue is created in create mode)
   const uploadAllPending = useCallback(
-    async (uploadTargetId: string, isPrUpload = false): Promise<boolean> => {
+    async (uploadTargetId: string): Promise<boolean> => {
       let allSuccess = true
       const pendingToUpload = pendingAssets.filter(p => p.status === 'pending')
 
@@ -205,7 +205,7 @@ export const AssetUploader = forwardRef<
             p.id === pending.id ? { ...p, status: 'uploading' as const } : p
           )
         )
-        const success = await uploadAsset(pending, uploadTargetId, isPrUpload)
+        const success = await uploadAsset(pending, uploadTargetId)
         if (!success) allSuccess = false
       }
       return allSuccess
