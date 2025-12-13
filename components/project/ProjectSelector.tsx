@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import {
   useFloating,
@@ -21,10 +21,12 @@ import {
   useProject,
   useArchivedProjects,
 } from '@/components/providers/ProjectProvider'
+import { useOrganization } from '@/components/providers/OrganizationProvider'
 
 export function ProjectSelector() {
   const { projectPath, setProjectPath, setIsInitialized } = useProject()
   const { isArchived, archiveProject } = useArchivedProjects()
+  const { selectedOrgSlug, organizations } = useOrganization()
   const [projects, setProjects] = useState<ProjectInfo[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -45,6 +47,12 @@ export function ProjectSelector() {
     try {
       const request = create(ListProjectsRequestSchema, {
         includeStale: false,
+        // Filter by organization when one is selected
+        organizationSlug:
+          selectedOrgSlug !== null && selectedOrgSlug !== ''
+            ? selectedOrgSlug
+            : undefined,
+        ungroupedOnly: selectedOrgSlug === '',
       })
       const response = await centyClient.listProjects(request)
       setProjects(response.projects)
@@ -53,7 +61,7 @@ export function ProjectSelector() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [selectedOrgSlug])
 
   useEffect(() => {
     if (isOpen) {
@@ -153,6 +161,38 @@ export function ProjectSelector() {
       return 0
     })
 
+  // Group projects by organization when showing all (selectedOrgSlug === null)
+  const groupedProjects = useMemo(() => {
+    if (selectedOrgSlug !== null) {
+      // When filtering by a specific org or ungrouped, just show flat list
+      return null
+    }
+
+    const groups: Map<string, { name: string; projects: ProjectInfo[] }> =
+      new Map()
+    groups.set('', { name: 'Ungrouped', projects: [] })
+
+    for (const project of visibleProjects) {
+      const orgSlug = project.organizationSlug || ''
+      if (!groups.has(orgSlug)) {
+        const org = organizations.find(o => o.slug === orgSlug)
+        groups.set(orgSlug, { name: org?.name || orgSlug, projects: [] })
+      }
+      groups.get(orgSlug)!.projects.push(project)
+    }
+
+    // Sort: organizations first (alphabetically), then ungrouped
+    const sortedGroups = Array.from(groups.entries())
+      .filter(([, g]) => g.projects.length > 0)
+      .sort(([slugA], [slugB]) => {
+        if (slugA === '' && slugB !== '') return 1
+        if (slugA !== '' && slugB === '') return -1
+        return slugA.localeCompare(slugB)
+      })
+
+    return sortedGroups
+  }, [visibleProjects, selectedOrgSlug, organizations])
+
   return (
     <div className="project-selector-container">
       <button
@@ -196,7 +236,82 @@ export function ProjectSelector() {
                 Initialize a project with Centy to see it here
               </p>
             </div>
+          ) : groupedProjects ? (
+            // Grouped view when showing all organizations
+            <div className="project-list-grouped" role="listbox">
+              {groupedProjects.map(([orgSlug, group]) => (
+                <div key={orgSlug || '__ungrouped'} className="project-group">
+                  <div className="project-group-header">
+                    <span className="project-group-name">
+                      {orgSlug ? `🏢 ${group.name}` : '📁 Ungrouped'}
+                    </span>
+                    <span className="project-group-count">
+                      {group.projects.length}
+                    </span>
+                  </div>
+                  <ul className="project-group-list">
+                    {group.projects.map(project => (
+                      <li
+                        key={project.path}
+                        role="option"
+                        aria-selected={project.path === projectPath}
+                        className={`project-item ${project.path === projectPath ? 'selected' : ''}`}
+                        onClick={() => handleSelectProject(project)}
+                      >
+                        <div className="project-item-main">
+                          <button
+                            className={`favorite-btn ${project.isFavorite ? 'active' : ''}`}
+                            onClick={e => handleToggleFavorite(e, project)}
+                            title={
+                              project.isFavorite
+                                ? 'Remove from favorites'
+                                : 'Add to favorites'
+                            }
+                          >
+                            {project.isFavorite ? '★' : '☆'}
+                          </button>
+                          <span className="project-item-name">
+                            {project.name}
+                          </span>
+                          {!project.initialized && (
+                            <span className="project-badge not-initialized">
+                              Not initialized
+                            </span>
+                          )}
+                          <button
+                            className="archive-btn"
+                            onClick={e => handleArchiveProject(e, project)}
+                            title="Archive project"
+                          >
+                            Archive
+                          </button>
+                        </div>
+                        <div className="project-item-details">
+                          <span
+                            className="project-item-path"
+                            title={project.displayPath}
+                          >
+                            {project.displayPath}
+                          </span>
+                          <div className="project-item-stats">
+                            {project.initialized && (
+                              <>
+                                <span title="Issues">
+                                  📋 {project.issueCount}
+                                </span>
+                                <span title="Docs">📄 {project.docCount}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           ) : (
+            // Flat list when filtering by specific org
             <ul className="project-list" role="listbox">
               {visibleProjects.map(project => (
                 <li

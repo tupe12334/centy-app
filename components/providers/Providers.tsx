@@ -4,12 +4,15 @@ import { Suspense, type ReactNode } from 'react'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from './ThemeProvider'
 import { DaemonStatusProvider } from './DaemonStatusProvider'
+import { OrganizationProvider } from './OrganizationProvider'
 import { ProjectProvider } from './ProjectProvider'
 
-function ProjectProviderWithSuspense({ children }: { children: ReactNode }) {
+function ProvidersWithSuspense({ children }: { children: ReactNode }) {
   return (
     <Suspense fallback={null}>
-      <ProjectProvider>{children}</ProjectProvider>
+      <OrganizationProvider>
+        <ProjectProvider>{children}</ProjectProvider>
+      </OrganizationProvider>
     </Suspense>
   )
 }
@@ -18,10 +21,10 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider>
       <DaemonStatusProvider>
-        <ProjectProviderWithSuspense>
+        <ProvidersWithSuspense>
           <Toaster position="bottom-right" richColors theme="system" />
           {children}
-        </ProjectProviderWithSuspense>
+        </ProvidersWithSuspense>
       </DaemonStatusProvider>
     </ThemeProvider>
   )

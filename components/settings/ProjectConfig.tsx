@@ -12,24 +12,34 @@ import {
   UpdateVersionRequestSchema,
   UpdateConfigRequestSchema,
   IsInitializedRequestSchema,
+  GetLocalLlmConfigRequestSchema,
+  UpdateLocalLlmConfigRequestSchema,
+  GetProjectInfoRequestSchema,
+  SetProjectOrganizationRequestSchema,
   type Config,
   type Manifest,
   type DaemonInfo,
   type ProjectVersionInfo,
   type CustomFieldDefinition,
   type LlmConfig,
+  type LocalLlmConfig,
 } from '@/gen/centy_pb'
 import { useProject } from '@/components/providers/ProjectProvider'
+import { useOrganization } from '@/components/providers/OrganizationProvider'
 import { StateListEditor } from '@/components/settings/StateListEditor'
 import { PriorityEditor } from '@/components/settings/PriorityEditor'
 import { CustomFieldsEditor } from '@/components/settings/CustomFieldsEditor'
 import { DefaultsEditor } from '@/components/settings/DefaultsEditor'
 import { LlmSettingsEditor } from '@/components/settings/LlmSettingsEditor'
+import { AgentConfigEditor } from '@/components/settings/AgentConfigEditor'
 
 export function ProjectConfig() {
   const { projectPath, isInitialized, setIsInitialized } = useProject()
+  const { organizations, refreshOrganizations } = useOrganization()
 
   const [config, setConfig] = useState<Config | null>(null)
+  const [projectOrgSlug, setProjectOrgSlug] = useState<string>('')
+  const [savingOrg, setSavingOrg] = useState(false)
   const [originalConfig, setOriginalConfig] = useState<Config | null>(null)
   const [manifest, setManifest] = useState<Manifest | null>(null)
   const [daemonInfo, setDaemonInfo] = useState<DaemonInfo | null>(null)
@@ -43,6 +53,24 @@ export function ProjectConfig() {
 
   const [targetVersion, setTargetVersion] = useState('')
   const [updating, setUpdating] = useState(false)
+
+  // LLM Config state for project-level agent configuration
+  const [projectLlmConfig, setProjectLlmConfig] = useState<
+    LocalLlmConfig | undefined
+  >(undefined)
+  const [originalProjectLlmConfig, setOriginalProjectLlmConfig] = useState<
+    LocalLlmConfig | undefined
+  >(undefined)
+  const [globalLlmConfig, setGlobalLlmConfig] = useState<
+    LocalLlmConfig | undefined
+  >(undefined)
+  const [savingLlmConfig, setSavingLlmConfig] = useState(false)
+
+  const isLlmConfigDirty =
+    projectLlmConfig && originalProjectLlmConfig
+      ? JSON.stringify(projectLlmConfig) !==
+        JSON.stringify(originalProjectLlmConfig)
+      : false
 
   const isDirty =
     config && originalConfig
@@ -206,6 +234,123 @@ export function ProjectConfig() {
     [config]
   )
 
+  const fetchLlmConfigs = useCallback(async () => {
+    if (!projectPath.trim()) return
+
+    try {
+      // Fetch global config first
+      const globalRequest = create(GetLocalLlmConfigRequestSchema, {
+        projectPath: '',
+      })
+      const globalResponse = await centyClient.getLocalLlmConfig(globalRequest)
+      setGlobalLlmConfig(globalResponse.config)
+
+      // Fetch project config
+      const projectRequest = create(GetLocalLlmConfigRequestSchema, {
+        projectPath: projectPath.trim(),
+      })
+      const projectResponse =
+        await centyClient.getLocalLlmConfig(projectRequest)
+      setProjectLlmConfig(projectResponse.config)
+      setOriginalProjectLlmConfig(
+        projectResponse.config
+          ? structuredClone(projectResponse.config)
+          : undefined
+      )
+    } catch (err) {
+      console.error('Failed to fetch LLM configs:', err)
+    }
+  }, [projectPath])
+
+  const handleSaveLlmConfig = useCallback(async () => {
+    if (!projectPath || !projectLlmConfig) return
+
+    setSavingLlmConfig(true)
+    setError(null)
+    setSuccess(null)
+
+    try {
+      const request = create(UpdateLocalLlmConfigRequestSchema, {
+        projectPath: projectPath.trim(),
+        config: projectLlmConfig,
+      })
+      const response = await centyClient.updateLocalLlmConfig(request)
+
+      if (response.success && response.config) {
+        setSuccess('Agent configuration saved successfully')
+        setProjectLlmConfig(response.config)
+        setOriginalProjectLlmConfig(structuredClone(response.config))
+      } else {
+        setError(response.error || 'Failed to save agent configuration')
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to connect to daemon'
+      )
+    } finally {
+      setSavingLlmConfig(false)
+    }
+  }, [projectPath, projectLlmConfig])
+
+  const handleResetLlmConfig = useCallback(() => {
+    if (originalProjectLlmConfig) {
+      setProjectLlmConfig(structuredClone(originalProjectLlmConfig))
+    }
+  }, [originalProjectLlmConfig])
+
+  const fetchProjectOrg = useCallback(async () => {
+    if (!projectPath.trim()) return
+
+    try {
+      const request = create(GetProjectInfoRequestSchema, {
+        projectPath: projectPath.trim(),
+      })
+      const response = await centyClient.getProjectInfo(request)
+      if (response.found && response.project) {
+        setProjectOrgSlug(response.project.organizationSlug || '')
+      }
+    } catch (err) {
+      console.error('Failed to fetch project organization:', err)
+    }
+  }, [projectPath])
+
+  const handleOrgChange = useCallback(
+    async (newOrgSlug: string) => {
+      if (!projectPath.trim()) return
+
+      setSavingOrg(true)
+      setError(null)
+      setSuccess(null)
+
+      try {
+        const request = create(SetProjectOrganizationRequestSchema, {
+          projectPath: projectPath.trim(),
+          organizationSlug: newOrgSlug,
+        })
+        const response = await centyClient.setProjectOrganization(request)
+
+        if (response.success) {
+          setProjectOrgSlug(newOrgSlug)
+          setSuccess(
+            newOrgSlug
+              ? 'Project assigned to organization'
+              : 'Project removed from organization'
+          )
+          refreshOrganizations()
+        } else {
+          setError(response.error || 'Failed to update organization')
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : 'Failed to connect to daemon'
+        )
+      } finally {
+        setSavingOrg(false)
+      }
+    },
+    [projectPath, refreshOrganizations]
+  )
+
   useEffect(() => {
     fetchDaemonInfo()
   }, [fetchDaemonInfo])
@@ -220,8 +365,10 @@ export function ProjectConfig() {
   useEffect(() => {
     if (isInitialized === true) {
       fetchProjectData()
+      fetchLlmConfigs()
+      fetchProjectOrg()
     }
-  }, [isInitialized, fetchProjectData])
+  }, [isInitialized, fetchProjectData, fetchLlmConfigs, fetchProjectOrg])
 
   return (
     <div className="settings-page">
@@ -252,6 +399,39 @@ export function ProjectConfig() {
             <div className="loading">Loading project configuration...</div>
           ) : (
             <>
+              <section className="settings-section">
+                <h3>Organization</h3>
+                <div className="settings-card">
+                  <div className="form-group">
+                    <label htmlFor="project-org">Assign to Organization</label>
+                    <div className="org-select-row">
+                      <select
+                        id="project-org"
+                        value={projectOrgSlug}
+                        onChange={e => handleOrgChange(e.target.value)}
+                        disabled={savingOrg}
+                        className="org-select"
+                      >
+                        <option value="">No Organization (Ungrouped)</option>
+                        {organizations.map(org => (
+                          <option key={org.slug} value={org.slug}>
+                            {org.name}
+                          </option>
+                        ))}
+                      </select>
+                      {savingOrg && (
+                        <span className="saving-indicator">Saving...</span>
+                      )}
+                    </div>
+                    <span className="form-hint">
+                      Group this project under an organization for better
+                      management.{' '}
+                      <Link href="/organizations">Manage organizations</Link>
+                    </span>
+                  </div>
+                </div>
+              </section>
+
               <section className="settings-section">
                 <h3>Version Management</h3>
                 <div className="settings-card">
@@ -417,6 +597,43 @@ export function ProjectConfig() {
                   </div>
                 </>
               )}
+
+              <section className="settings-section">
+                <h3>Agent Configuration (Project Override)</h3>
+                {isLlmConfigDirty && (
+                  <span className="unsaved-indicator">Unsaved changes</span>
+                )}
+                <p className="section-description">
+                  Configure agents for this project. Leave empty to use global
+                  settings.
+                </p>
+                <div className="settings-card">
+                  <AgentConfigEditor
+                    config={projectLlmConfig}
+                    onChange={setProjectLlmConfig}
+                    scope="project"
+                    globalConfig={globalLlmConfig}
+                  />
+                </div>
+                <div className="settings-actions">
+                  <button
+                    type="button"
+                    onClick={handleResetLlmConfig}
+                    disabled={!isLlmConfigDirty || savingLlmConfig}
+                    className="reset-btn"
+                  >
+                    Reset Changes
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveLlmConfig}
+                    disabled={!isLlmConfigDirty || savingLlmConfig}
+                    className="save-btn"
+                  >
+                    {savingLlmConfig ? 'Saving...' : 'Save Agent Configuration'}
+                  </button>
+                </div>
+              </section>
 
               <section className="settings-section">
                 <h3>Manifest</h3>

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { DaemonStatusIndicator } from '@/components/shared/DaemonStatusIndicator'
 import { ThemeToggle } from '@/components/shared/ThemeToggle'
+import { OrgSwitcher } from '@/components/organizations/OrgSwitcher'
 import { ProjectSelector } from '@/components/project/ProjectSelector'
 
 export function Header() {
@@ -18,6 +19,7 @@ export function Header() {
         <div className="header-controls">
           <ThemeToggle />
           <DaemonStatusIndicator />
+          <OrgSwitcher />
           <ProjectSelector />
         </div>
       </div>
@@ -49,6 +51,12 @@ export function Header() {
           className={pathname.startsWith('/users') ? 'active' : ''}
         >
           Users
+        </Link>
+        <Link
+          href="/organizations"
+          className={pathname.startsWith('/organizations') ? 'active' : ''}
+        >
+          Organizations
         </Link>
         <Link
           href="/project/config"
