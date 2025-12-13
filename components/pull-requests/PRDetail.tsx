@@ -9,7 +9,6 @@ import {
   GetPrRequestSchema,
   UpdatePrRequestSchema,
   DeletePrRequestSchema,
-  ListAssetsRequestSchema,
   type PullRequest,
   type Asset,
 } from '@/gen/centy_pb'
@@ -82,19 +81,10 @@ export function PRDetail({ prNumber }: PRDetailProps) {
   }, [projectPath, prNumber])
 
   const fetchAssets = useCallback(async () => {
-    if (!projectPath || !prNumber) return
-
-    try {
-      const request = create(ListAssetsRequestSchema, {
-        projectPath,
-        prId: prNumber,
-      })
-      const response = await centyClient.listAssets(request)
-      setAssets(response.assets)
-    } catch (err) {
-      console.error('Failed to load assets:', err)
-    }
-  }, [projectPath, prNumber])
+    // PR assets not supported in current API - only issue assets
+    // Keeping function for future implementation
+    setAssets([])
+  }, [])
 
   useEffect(() => {
     fetchPr()

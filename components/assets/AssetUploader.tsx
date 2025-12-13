@@ -95,17 +95,12 @@ export const AssetUploader = forwardRef<
 
   // Upload single asset to server
   const uploadAsset = useCallback(
-    async (
-      pending: PendingAsset,
-      uploadTargetId: string,
-      isPr = false
-    ): Promise<boolean> => {
+    async (pending: PendingAsset, uploadTargetId: string): Promise<boolean> => {
       try {
         const arrayBuffer = await pending.file.arrayBuffer()
         const request = create(AddAssetRequestSchema, {
           projectPath,
-          issueId: isPr ? '' : uploadTargetId,
-          prId: isPr ? uploadTargetId : '',
+          issueId: uploadTargetId,
           filename: pending.file.name,
           data: new Uint8Array(arrayBuffer),
         })
@@ -231,8 +226,7 @@ export const AssetUploader = forwardRef<
       try {
         const request = create(DeleteAssetRequestSchema, {
           projectPath,
-          issueId: prId ? '' : targetId,
-          prId: prId ? targetId : '',
+          issueId: targetId,
           filename,
         })
         const response = await centyClient.deleteAsset(request)
@@ -250,7 +244,7 @@ export const AssetUploader = forwardRef<
         setError(err instanceof Error ? err.message : 'Failed to remove asset')
       }
     },
-    [projectPath, targetId, prId, onAssetsChange]
+    [projectPath, targetId, onAssetsChange]
   )
 
   // Remove pending asset
