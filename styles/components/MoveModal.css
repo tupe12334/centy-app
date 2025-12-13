@@ -13,7 +13,7 @@
 }
 
 .move-modal {
-  background: white;
+  background: var(--color-bg-elevated);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xl);
   width: 100%;
@@ -29,13 +29,13 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--space-4);
-  border-bottom: 1px solid var(--color-gray-200);
+  border-bottom: 1px solid var(--color-border-default);
 }
 
 .move-modal-header h3 {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--color-gray-900);
+  color: var(--color-text-primary);
   margin: 0;
 }
 
@@ -83,7 +83,7 @@
 .move-modal-label {
   font-size: 0.6875rem;
   font-weight: 500;
-  color: var(--color-gray-500);
+  color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.025em;
 }
@@ -91,7 +91,7 @@
 .move-modal-value {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-gray-900);
+  color: var(--color-text-primary);
 }
 
 .move-modal-field {
@@ -102,7 +102,7 @@
   display: block;
   font-size: 0.8125rem;
   font-weight: 500;
-  color: var(--color-gray-700);
+  color: var(--color-text-secondary);
   margin-bottom: var(--space-1);
 }
 
@@ -111,9 +111,10 @@
   width: 100%;
   padding: var(--space-2) var(--space-3);
   font-size: 0.875rem;
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
-  background: white;
+  background: var(--color-bg-input);
+  color: var(--color-text-primary);
   transition:
     border-color var(--transition-fast),
     box-shadow var(--transition-fast);
@@ -129,7 +130,7 @@
 .move-modal-hint {
   display: block;
   font-size: 0.75rem;
-  color: var(--color-gray-500);
+  color: var(--color-text-muted);
   margin-top: var(--space-1);
 }
 
@@ -138,7 +139,7 @@
   padding: var(--space-4);
   text-align: center;
   font-size: 0.8125rem;
-  color: var(--color-gray-500);
+  color: var(--color-text-muted);
 }
 
 .move-modal-preview {
@@ -170,16 +171,16 @@
   justify-content: flex-end;
   gap: var(--space-2);
   padding: var(--space-4);
-  border-top: 1px solid var(--color-gray-200);
+  border-top: 1px solid var(--color-border-default);
 }
 
 .move-modal-cancel {
   padding: var(--space-2) var(--space-4);
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-gray-700);
-  background: white;
-  border: 1px solid var(--color-gray-200);
+  color: var(--color-text-primary);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);

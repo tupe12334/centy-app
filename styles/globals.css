@@ -3,6 +3,7 @@
 @import './App.css';
 
 /* Component styles */
+@import './components/AgentConfigEditor.css';
 @import './components/AssetUploader.css';
 @import './components/ColorPicker.css';
 @import './components/CustomFieldsEditor.css';
@@ -17,6 +18,7 @@
 @import './components/MultiSelect.css';
 @import './components/PriorityEditor.css';
 @import './components/ProjectSelector.css';
+@import './components/OrgSwitcher.css';
 @import './components/StateListEditor.css';
 @import './components/TextEditor/TextEditor.css';
 @import './components/ThemeToggle.css';
@@ -35,6 +37,9 @@
 @import './pages/SyncUsersModal.css';
 @import './pages/UserDetail.css';
 @import './pages/UsersList.css';
+@import './pages/OrganizationsList.css';
+@import './pages/OrganizationDetail.css';
+@import './pages/CreateOrganization.css';
 
 /* Design System */
 :root {

@@ -59,8 +59,8 @@
 }
 
 .agent-item {
-  background: white;
-  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
@@ -227,10 +227,11 @@
 
 .agent-form-select {
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-gray-300);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
   font-size: 0.875rem;
-  background: white;
+  background: var(--color-bg-input);
+  color: var(--color-text-primary);
   cursor: pointer;
 }
 
@@ -323,9 +324,9 @@
 }
 
 .agent-form-actions button.secondary {
-  background: white;
-  border: 1px solid var(--color-gray-300);
-  color: var(--color-gray-700);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  color: var(--color-text-primary);
 }
 
 .agent-form-actions button.secondary:hover {
@@ -399,8 +400,8 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2);
-  background: white;
-  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
 }
 

@@ -118,7 +118,7 @@
 /* Main Content */
 main {
   flex: 1;
-  background: white;
+  background: var(--color-bg-surface);
   border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   margin-top: -var(--space-4);
   position: relative;

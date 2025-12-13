@@ -17,10 +17,11 @@
 
 .priority-levels-select {
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-gray-300);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
   font-size: 0.875rem;
-  background: white;
+  background: var(--color-bg-input);
+  color: var(--color-text-primary);
   cursor: pointer;
   min-width: 120px;
 }
@@ -42,8 +43,8 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3);
-  background: white;
-  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-lg);
 }
 

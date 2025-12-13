@@ -311,8 +311,8 @@
   left: 0;
   z-index: 50;
   min-width: 140px;
-  background: white;
-  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   list-style: none;
@@ -383,10 +383,10 @@
 .branch-target {
   font-family: var(--font-mono);
   font-size: 0.875rem;
-  background: white;
+  background: var(--color-bg-surface);
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid var(--color-border-default);
 }
 
 .branch-source {

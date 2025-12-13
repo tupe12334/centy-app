@@ -39,7 +39,7 @@
 
 .remove-all-btn {
   padding: var(--space-2) var(--space-4);
-  background: white;
+  background: var(--color-bg-surface);
   color: var(--color-danger);
   border: 1px solid var(--color-danger);
   border-radius: var(--radius-md);
@@ -103,8 +103,8 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  background: white;
-  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-sm);
 }
@@ -181,9 +181,9 @@
 
 .restore-btn {
   padding: var(--space-2) var(--space-4);
-  background: white;
-  color: var(--color-gray-700);
-  border: 1px solid var(--color-gray-300);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
   font-weight: 500;
   font-size: 0.875rem;
@@ -214,7 +214,7 @@
 
 .remove-btn {
   padding: var(--space-2) var(--space-4);
-  background: white;
+  background: var(--color-bg-surface);
   color: var(--color-danger);
   border: 1px solid var(--color-danger);
   border-radius: var(--radius-md);
