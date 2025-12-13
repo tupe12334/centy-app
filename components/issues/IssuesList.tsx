@@ -15,6 +15,11 @@ import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { useLastSeenIssues } from '@/hooks/useLastSeenIssues'
 import { useIssueTableSettings } from '@/hooks/useIssueTableSettings'
 import {
+  useConfig,
+  getIssueStateOptions,
+  getStateClass,
+} from '@/hooks/useConfig'
+import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
@@ -32,12 +37,6 @@ import {
 } from '@/components/shared/ContextMenu'
 import { MoveModal } from '@/components/shared/MoveModal'
 import { DuplicateModal } from '@/components/shared/DuplicateModal'
-
-const STATUS_OPTIONS: MultiSelectOption[] = [
-  { value: 'open', label: 'Open' },
-  { value: 'in-progress', label: 'In Progress' },
-  { value: 'closed', label: 'Closed' },
-]
 
 const PRIORITY_OPTIONS: MultiSelectOption[] = [
   { value: 'high', label: 'High' },
@@ -69,22 +68,10 @@ const getPriorityClass = (priorityLabel: string) => {
   }
 }
 
-const getStatusClass = (status: string) => {
-  switch (status) {
-    case 'open':
-      return 'status-open'
-    case 'in-progress':
-      return 'status-in-progress'
-    case 'closed':
-      return 'status-closed'
-    default:
-      return ''
-  }
-}
-
 export function IssuesList() {
   const router = useRouter()
   const { projectPath, isInitialized, setIsInitialized } = useProject()
+  const { config } = useConfig()
   const [issues, setIssues] = useState<Issue[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -104,6 +91,16 @@ export function IssuesList() {
   // TanStack Table state - persisted per-project
   const { sorting, setSorting, columnFilters, setColumnFilters } =
     useIssueTableSettings()
+
+  // Convert config states to MultiSelect options format
+  const statusOptions: MultiSelectOption[] = useMemo(
+    () =>
+      getIssueStateOptions(config).map(opt => ({
+        value: opt.value,
+        label: opt.label,
+      })),
+    [config]
+  )
 
   const columns = useMemo(
     () => [
@@ -153,7 +150,7 @@ export function IssuesList() {
         cell: info => {
           const status = info.getValue()
           return (
-            <span className={`status-badge ${getStatusClass(status)}`}>
+            <span className={`status-badge ${getStateClass(status, config)}`}>
               {status}
             </span>
           )
@@ -254,7 +251,7 @@ export function IssuesList() {
         },
       }),
     ],
-    [lastSeenMap]
+    [lastSeenMap, config]
   )
 
   const table = useReactTable({
@@ -458,7 +455,7 @@ export function IssuesList() {
                             {header.column.getCanFilter() &&
                               (header.column.id === 'status' ? (
                                 <MultiSelect
-                                  options={STATUS_OPTIONS}
+                                  options={statusOptions}
                                   value={
                                     (header.column.getFilterValue() as string[]) ??
                                     []

@@ -10,20 +10,28 @@ import {
   UpdateIssueRequestSchema,
   DeleteIssueRequestSchema,
   ListAssetsRequestSchema,
+  SpawnAgentRequestSchema,
+  GetLlmWorkRequestSchema,
+  LlmAction,
   type Issue,
   type Asset,
+  type LlmWorkSession,
 } from '@/gen/centy_pb'
 import { useProject } from '@/components/providers/ProjectProvider'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { useLastSeenIssues } from '@/hooks/useLastSeenIssues'
+import {
+  useConfig,
+  getIssueStateOptions,
+  getStateClass,
+} from '@/hooks/useConfig'
 import { AssetUploader } from '@/components/assets/AssetUploader'
 import { TextEditor } from '@/components/shared/TextEditor'
 import { LinkSection } from '@/components/shared/LinkSection'
 import { MoveModal } from '@/components/shared/MoveModal'
 import { DuplicateModal } from '@/components/shared/DuplicateModal'
 import { useSaveShortcut } from '@/hooks/useSaveShortcut'
-
-const STATUS_OPTIONS = ['open', 'in-progress', 'closed'] as const
+import { AssigneeSelector } from '@/components/users/AssigneeSelector'
 
 interface IssueDetailProps {
   issueNumber: string
@@ -34,6 +42,8 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
   const { projectPath } = useProject()
   const { copyToClipboard } = useCopyToClipboard()
   const { recordLastSeen } = useLastSeenIssues()
+  const { config } = useConfig()
+  const stateOptions = getIssueStateOptions(config)
 
   const [issue, setIssue] = useState<Issue | null>(null)
   const [loading, setLoading] = useState(true)
@@ -51,6 +61,9 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
   const [assets, setAssets] = useState<Asset[]>([])
   const [showMoveModal, setShowMoveModal] = useState(false)
   const [showDuplicateModal, setShowDuplicateModal] = useState(false)
+  const [spawningAgent, setSpawningAgent] = useState(false)
+  const [activeWork, setActiveWork] = useState<LlmWorkSession | null>(null)
+  const [assignees, setAssignees] = useState<string[]>([])
   const statusDropdownRef = useRef<HTMLDivElement>(null)
 
   const fetchIssue = useCallback(async () => {
@@ -74,6 +87,7 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
       setEditDescription(response.description)
       setEditStatus(response.metadata?.status || 'open')
       setEditPriority(response.metadata?.priority || 2)
+      setAssignees(response.metadata?.assignees || [])
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Failed to connect to daemon'
@@ -98,10 +112,26 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
     }
   }, [projectPath, issueNumber])
 
+  const fetchActiveWork = useCallback(async () => {
+    if (!projectPath) return
+
+    try {
+      const request = create(GetLlmWorkRequestSchema, {
+        projectPath,
+      })
+      const response = await centyClient.getLlmWork(request)
+      setActiveWork(response.hasActiveWork ? (response.session ?? null) : null)
+    } catch (err) {
+      // Silently fail - not critical if we can't check active work
+      console.error('Failed to check active work:', err)
+    }
+  }, [projectPath])
+
   useEffect(() => {
     fetchIssue()
     fetchAssets()
-  }, [fetchIssue, fetchAssets])
+    fetchActiveWork()
+  }, [fetchIssue, fetchAssets, fetchActiveWork])
 
   // Record last seen timestamp when issue is viewed
   useEffect(() => {
@@ -243,6 +273,36 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
     }
   }
 
+  const handleSpawnPlan = useCallback(async () => {
+    if (!projectPath || !issue) return
+
+    setSpawningAgent(true)
+    setError(null)
+
+    try {
+      const request = create(SpawnAgentRequestSchema, {
+        projectPath,
+        issueId: issue.id,
+        action: LlmAction.PLAN,
+        agentName: '',
+        extraArgs: [],
+      })
+      const response = await centyClient.spawnAgent(request)
+
+      if (response.success) {
+        await fetchActiveWork()
+      } else {
+        setError(response.error || 'Failed to spawn AI agent')
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to connect to daemon'
+      )
+    } finally {
+      setSpawningAgent(false)
+    }
+  }, [projectPath, issue, fetchActiveWork])
+
   const handleMoved = useCallback((targetProjectPath: string) => {
     // Redirect to the issue in the target project
     window.location.href = `/?project=${encodeURIComponent(targetProjectPath)}`
@@ -284,19 +344,6 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
           if (num === 2) return 'priority-medium'
           return 'priority-low'
         }
-        return ''
-    }
-  }
-
-  const getStatusClass = (status: string) => {
-    switch (status) {
-      case 'open':
-        return 'status-open'
-      case 'in-progress':
-        return 'status-in-progress'
-      case 'closed':
-        return 'status-closed'
-      default:
         return ''
     }
   }
@@ -352,6 +399,18 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
         <div className="issue-actions">
           {!isEditing ? (
             <>
+              <button
+                onClick={handleSpawnPlan}
+                disabled={spawningAgent || !!activeWork}
+                className="ai-plan-btn"
+                title={
+                  activeWork
+                    ? `Agent running on #${activeWork.displayNumber}`
+                    : 'Generate AI plan'
+                }
+              >
+                {spawningAgent ? 'Spawning...' : 'AI Plan'}
+              </button>
               <button onClick={() => setIsEditing(true)} className="edit-btn">
                 Edit
               </button>
@@ -447,9 +506,11 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
                   value={editStatus}
                   onChange={e => setEditStatus(e.target.value)}
                 >
-                  <option value="open">Open</option>
-                  <option value="in-progress">In Progress</option>
-                  <option value="closed">Closed</option>
+                  {stateOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -497,7 +558,7 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
             <div className="issue-metadata">
               <div className="status-selector" ref={statusDropdownRef}>
                 <button
-                  className={`status-badge status-badge-clickable ${getStatusClass(issue.metadata?.status || '')} ${updatingStatus ? 'updating' : ''}`}
+                  className={`status-badge status-badge-clickable ${getStateClass(issue.metadata?.status || '', config)} ${updatingStatus ? 'updating' : ''}`}
                   onClick={() => setShowStatusDropdown(!showStatusDropdown)}
                   disabled={updatingStatus}
                   aria-label="Change status"
@@ -517,15 +578,15 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
                     role="listbox"
                     aria-label="Status options"
                   >
-                    {STATUS_OPTIONS.map(status => (
+                    {stateOptions.map(option => (
                       <li
-                        key={status}
+                        key={option.value}
                         role="option"
-                        aria-selected={status === issue.metadata?.status}
-                        className={`status-option ${getStatusClass(status)} ${status === issue.metadata?.status ? 'selected' : ''}`}
-                        onClick={() => handleStatusChange(status)}
+                        aria-selected={option.value === issue.metadata?.status}
+                        className={`status-option ${getStateClass(option.value, config)} ${option.value === issue.metadata?.status ? 'selected' : ''}`}
+                        onClick={() => handleStatusChange(option.value)}
                       >
-                        {status}
+                        {option.label}
                       </li>
                     ))}
                   </ul>
@@ -547,6 +608,16 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
                   Updated: {new Date(issue.metadata.updatedAt).toLocaleString()}
                 </span>
               )}
+            </div>
+
+            <div className="issue-assignees">
+              <h4>Assignees</h4>
+              <AssigneeSelector
+                projectPath={projectPath}
+                issueId={issueNumber}
+                currentAssignees={assignees}
+                onAssigneesChange={setAssignees}
+              />
             </div>
 
             <div className="issue-description">
