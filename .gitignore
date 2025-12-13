@@ -25,6 +25,11 @@ terraform/*.tfplan
 coverage/
 .nyc_output
 
+# Playwright
+playwright-report/
+playwright/.cache/
+test-results/
+
 # Environment
 .env
 .env.local

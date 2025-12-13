@@ -8,6 +8,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./__tests__/setup.ts'],
+    exclude: ['node_modules/**', 'e2e/**', 'dist/**', '.next/**', 'out/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
@@ -29,6 +30,7 @@ export default defineConfig({
         'gen/**',
         'app/**/page.tsx',
         'app/**/layout.tsx',
+        'e2e/**',
       ],
       thresholds: {
         lines: 80,

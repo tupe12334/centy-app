@@ -4,13 +4,15 @@
     "app/**/*.{ts,tsx}",
     "components/**/*.{ts,tsx}",
     "lib/**/*.{ts,tsx}",
-    "hooks/**/*.{ts,tsx}"
+    "hooks/**/*.{ts,tsx}",
+    "e2e/**/*.{ts,tsx}"
   ],
   "project": [
     "app/**/*.{ts,tsx}",
     "components/**/*.{ts,tsx}",
     "lib/**/*.{ts,tsx}",
-    "hooks/**/*.{ts,tsx}"
+    "hooks/**/*.{ts,tsx}",
+    "e2e/**/*.{ts,tsx}"
   ],
   "ignore": [
     "**/*.spec.ts",
@@ -28,7 +30,8 @@
     "@cspell/dict-he",
     "@opennextjs/cloudflare",
     "wrangler",
-    "eslint-config-next"
+    "eslint-config-next",
+    "msw"
   ],
   "ignoreExportsUsedInFile": true,
   "ignoreWorkspaces": []

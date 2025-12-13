@@ -21,7 +21,13 @@
     "spell": "cspell lint '**/*.{ts,tsx,js,md,json}' --gitignore",
     "spell:check": "cspell lint '**/*.{ts,tsx,js,md,json}' --gitignore",
     "knip": "knip",
-    "prepare": "husky"
+    "prepare": "husky",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:headed": "playwright test --headed",
+    "e2e:debug": "playwright test --debug",
+    "e2e:visual": "playwright test --grep @visual",
+    "e2e:visual:update": "playwright test --grep @visual --update-snapshots"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.10.1",
@@ -52,6 +58,7 @@
     "@commitlint/config-conventional": "^19.8.0",
     "@cspell/dict-he": "^4.0.5",
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.57.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@types/node": "^24.10.1",
@@ -68,6 +75,7 @@
     "jsdom": "^26.1.0",
     "knip": "^5.66.2",
     "lint-staged": "^16.1.0",
+    "msw": "^2.12.4",
     "prettier": "^3.5.3",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
