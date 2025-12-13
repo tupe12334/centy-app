@@ -71,7 +71,8 @@
     "turndown",
     "venv",
     "vitejs",
-    "vitest"
+    "vitest",
+    "OPENCODE"
   ],
   "ignorePaths": [
     "node_modules",
