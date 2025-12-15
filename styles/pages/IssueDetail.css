@@ -52,6 +52,7 @@
 .move-btn,
 .duplicate-btn,
 .ai-plan-btn,
+.vscode-btn,
 .cancel-btn,
 .save-btn,
 .confirm-delete-btn {
@@ -95,6 +96,24 @@
 }
 
 .ai-plan-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.vscode-btn {
+  background: linear-gradient(135deg, #007acc, #0098ff);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 122, 204, 0.3);
+}
+
+.vscode-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #005a9e, #007acc);
+  box-shadow: 0 4px 8px rgba(0, 122, 204, 0.4);
+  transform: translateY(-1px);
+}
+
+.vscode-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;

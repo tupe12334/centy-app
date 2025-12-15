@@ -31,7 +31,6 @@ const protoToTargetType: Record<LinkTargetType, string> = {
   [LinkTargetType.ISSUE]: 'issue',
   [LinkTargetType.DOC]: 'doc',
   [LinkTargetType.PR]: 'pr',
-  [LinkTargetType.USER]: 'user',
 }
 
 const targetTypeRoutes: Record<string, string> = {

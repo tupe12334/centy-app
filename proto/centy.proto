@@ -28,6 +28,9 @@ service CentyDaemon {
   // List all issues with optional filtering
   rpc ListIssues(ListIssuesRequest) returns (ListIssuesResponse);
 
+  // Advanced issue search with query language
+  rpc AdvancedSearch(AdvancedSearchRequest) returns (AdvancedSearchResponse);
+
   // Update an existing issue
   rpc UpdateIssue(UpdateIssueRequest) returns (UpdateIssueResponse);
 
@@ -98,17 +101,6 @@ service CentyDaemon {
   // List all shared assets
   rpc ListSharedAssets(ListSharedAssetsRequest) returns (ListAssetsResponse);
 
-  // ============ Plan RPCs ============
-
-  // Get an issue's plan
-  rpc GetPlan(GetPlanRequest) returns (GetPlanResponse);
-
-  // Update (or create) an issue's plan
-  rpc UpdatePlan(UpdatePlanRequest) returns (UpdatePlanResponse);
-
-  // Delete an issue's plan
-  rpc DeletePlan(DeletePlanRequest) returns (DeletePlanResponse);
-
   // ============ Project Registry RPCs ============
 
   // List all tracked projects
@@ -131,12 +123,6 @@ service CentyDaemon {
 
   // Set project organization
   rpc SetProjectOrganization(SetProjectOrganizationRequest) returns (SetProjectOrganizationResponse);
-
-  // Set project user-scope title (stored in ~/.centy/projects.json)
-  rpc SetProjectUserTitle(SetProjectUserTitleRequest) returns (SetProjectUserTitleResponse);
-
-  // Set project-scope title (stored in .centy/project.json)
-  rpc SetProjectTitle(SetProjectTitleRequest) returns (SetProjectTitleResponse);
 
   // ============ Organization RPCs ============
 
@@ -240,6 +226,20 @@ service CentyDaemon {
   // Update local LLM configuration
   rpc UpdateLocalLlmConfig(UpdateLocalLlmConfigRequest) returns (UpdateLocalLlmConfigResponse);
 
+  // ============ Temp Workspace RPCs ============
+
+  // Open a project in a temporary VS Code workspace
+  rpc OpenInTempVscode(OpenInTempVscodeRequest) returns (OpenInTempVscodeResponse);
+
+  // List all temp workspaces
+  rpc ListTempWorkspaces(ListTempWorkspacesRequest) returns (ListTempWorkspacesResponse);
+
+  // Close/cleanup a temp workspace
+  rpc CloseTempWorkspace(CloseTempWorkspaceRequest) returns (CloseTempWorkspaceResponse);
+
+  // Cleanup all expired workspaces
+  rpc CleanupExpiredWorkspaces(CleanupExpiredWorkspacesRequest) returns (CleanupExpiredWorkspacesResponse);
+
   // ============ Link RPCs ============
 
   // Create a link between two entities (bidirectional)
@@ -262,7 +262,7 @@ service CentyDaemon {
   // Get a single user by ID
   rpc GetUser(GetUserRequest) returns (User);
 
-  // List all users with optional filtering
+  // List all users
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
 
   // Update an existing user
@@ -273,14 +273,6 @@ service CentyDaemon {
 
   // Sync users from git history
   rpc SyncUsers(SyncUsersRequest) returns (SyncUsersResponse);
-
-  // ============ Issue Assignee RPCs ============
-
-  // Assign users to an issue
-  rpc AssignIssue(AssignIssueRequest) returns (AssignIssueResponse);
-
-  // Unassign users from an issue
-  rpc UnassignIssue(UnassignIssueRequest) returns (UnassignIssueResponse);
 }
 
 // ============ Init Messages ============
@@ -294,11 +286,6 @@ message InitRequest {
 
   // Decisions for files that need user input (only used when force=false)
   ReconciliationDecisions decisions = 3;
-
-  // Optional: Initial configuration for the project
-  // If provided, config.json will be created with these settings merged with defaults
-  // Proto default values (0, "", []) mean "use CentyConfig default"
-  Config config = 4;
 }
 
 message InitResponse {
@@ -342,10 +329,6 @@ message ReconciliationPlan {
 message ExecuteReconciliationRequest {
   string project_path = 1;
   ReconciliationDecisions decisions = 2;
-
-  // Optional: Initial configuration for the project
-  // If provided, config.json will be created with these settings merged with defaults
-  Config config = 3;
 }
 
 message ReconciliationDecisions {
@@ -366,6 +349,7 @@ message CreateIssueRequest {
   string status = 5;    // default: "open"
   map<string, string> custom_fields = 6;
   string template = 7;  // Optional template name (without .md extension)
+  bool draft = 8;       // Create as draft (default: false)
 }
 
 message CreateIssueResponse {
@@ -410,7 +394,6 @@ message Issue {
   string title = 4;
   string description = 5;
   IssueMetadata metadata = 6;
-  bool has_plan = 7;              // Whether issue has a plan.md file
 }
 
 message IssueMetadata {
@@ -424,7 +407,7 @@ message IssueMetadata {
   string priority_label = 7;      // Human-readable label (e.g., "high", "P1")
   bool compacted = 8;             // Whether issue has been compacted into features
   string compacted_at = 9;        // ISO timestamp when compacted (empty if not)
-  repeated string assignees = 10; // User IDs assigned to this issue
+  bool draft = 10;                // Whether this issue is a draft
 }
 
 message GetIssueRequest {
@@ -463,11 +446,38 @@ message ListIssuesRequest {
   // Optional filters
   string status = 2;              // Filter by status (empty = all)
   int32 priority = 3;             // Filter by priority (0 = all)
+  optional bool draft = 4;        // Filter by draft status (absent = all, true = drafts only, false = non-drafts only)
 }
 
 message ListIssuesResponse {
   repeated Issue issues = 1;
   int32 total_count = 2;
+}
+
+// Advanced search request
+message AdvancedSearchRequest {
+  string query = 1;              // Query string (e.g., "status:open AND priority:1")
+  string sort_by = 2;            // Field to sort by (e.g., "createdAt", "priority")
+  bool sort_descending = 3;      // Sort order (true = descending)
+  bool multi_project = 4;        // Search across all tracked projects
+  string project_path = 5;       // Project path (required if multi_project is false)
+}
+
+// Search result containing issue and project info
+message SearchResultIssue {
+  Issue issue = 1;
+  string project_path = 2;
+  string project_name = 3;
+  string display_path = 4;
+}
+
+// Advanced search response
+message AdvancedSearchResponse {
+  bool success = 1;
+  string error = 2;
+  repeated SearchResultIssue results = 3;
+  int32 total_count = 4;
+  string parsed_query = 5;       // Debug: the parsed query representation
 }
 
 message UpdateIssueRequest {
@@ -480,6 +490,7 @@ message UpdateIssueRequest {
   string status = 5;
   int32 priority = 6;             // 0 = don't update, otherwise 1-N
   map<string, string> custom_fields = 7;
+  optional bool draft = 8;        // Update draft status (absent = don't update)
 }
 
 message UpdateIssueResponse {
@@ -819,42 +830,6 @@ message ListSharedAssetsRequest {
   string project_path = 1;
 }
 
-// ============ Plan Messages ============
-
-message GetPlanRequest {
-  string project_path = 1;
-  string issue_id = 2;            // Issue ID or display number
-}
-
-message GetPlanResponse {
-  bool exists = 1;                // Whether plan.md exists
-  string content = 2;             // Plan content (empty if not exists)
-  string updated_at = 3;          // ISO timestamp of last modification (empty if not exists)
-}
-
-message UpdatePlanRequest {
-  string project_path = 1;
-  string issue_id = 2;            // Issue ID or display number
-  string content = 3;             // New plan content
-}
-
-message UpdatePlanResponse {
-  bool success = 1;
-  string error = 2;
-  Manifest manifest = 3;
-}
-
-message DeletePlanRequest {
-  string project_path = 1;
-  string issue_id = 2;            // Issue ID or display number
-}
-
-message DeletePlanResponse {
-  bool success = 1;
-  string error = 2;
-  Manifest manifest = 3;
-}
-
 // ============ Project Registry Messages ============
 
 // Returned by API (enriched with live data from disk)
@@ -865,14 +840,12 @@ message ProjectInfo {
   uint32 issue_count = 4;         // Fetched live from .centy/issues/
   uint32 doc_count = 5;           // Fetched live from .centy/docs/
   bool initialized = 6;           // Fetched live (manifest exists)
-  string name = 7;                // Resolved display name (user_title > project_title > directory name)
+  string name = 7;                // Fetched live (directory name)
   bool is_favorite = 8;           // User-marked favorite status
   bool is_archived = 9;           // User-marked archived status
   string display_path = 10;       // Human-readable path with ~/ for home dir (use for display only)
   string organization_slug = 11;  // Organization slug (empty if ungrouped)
   string organization_name = 12;  // Organization display name (for convenience)
-  string user_title = 13;         // Custom title set by user (user-scope, from ~/.centy/projects.json)
-  string project_title = 14;      // Custom title set at project level (project-scope, from .centy/project.json)
 }
 
 message ListProjectsRequest {
@@ -944,28 +917,6 @@ message SetProjectOrganizationRequest {
 }
 
 message SetProjectOrganizationResponse {
-  bool success = 1;
-  string error = 2;
-  ProjectInfo project = 3;        // The updated project info
-}
-
-message SetProjectUserTitleRequest {
-  string project_path = 1;
-  string title = 2;               // Custom title (empty string to clear)
-}
-
-message SetProjectUserTitleResponse {
-  bool success = 1;
-  string error = 2;
-  ProjectInfo project = 3;        // The updated project info
-}
-
-message SetProjectTitleRequest {
-  string project_path = 1;
-  string title = 2;               // Custom title (empty string to clear)
-}
-
-message SetProjectTitleResponse {
   bool success = 1;
   string error = 2;
   ProjectInfo project = 3;        // The updated project info
@@ -1422,6 +1373,73 @@ message UpdateLocalLlmConfigResponse {
   LocalLlmConfig config = 3;
 }
 
+// ============ Temp Workspace Messages ============
+
+// Request to open a project in a temporary VS Code workspace
+message OpenInTempVscodeRequest {
+  string project_path = 1;              // Source project path
+  string issue_id = 2;                  // Issue UUID or display number
+  LlmAction action = 3;                 // Plan or Implement
+  string agent_name = 4;                // Agent to use (empty = default)
+  uint32 ttl_hours = 5;                 // Custom TTL in hours (0 = use default 12h)
+}
+
+message OpenInTempVscodeResponse {
+  bool success = 1;
+  string error = 2;
+  string workspace_path = 3;            // Path to the temp workspace
+  string issue_id = 4;                  // Resolved issue UUID
+  uint32 display_number = 5;            // Issue display number
+  string expires_at = 6;                // ISO timestamp when workspace expires
+  bool vscode_opened = 7;               // Whether VS Code was successfully opened
+}
+
+// A temporary workspace entry
+message TempWorkspace {
+  string workspace_path = 1;            // Absolute path to temp workspace
+  string source_project_path = 2;       // Original project path
+  string issue_id = 3;                  // Issue UUID
+  uint32 issue_display_number = 4;      // Issue display number
+  string issue_title = 5;               // Issue title
+  string agent_name = 6;                // Agent being used
+  LlmAction action = 7;                 // Plan or Implement
+  string created_at = 8;                // ISO timestamp
+  string expires_at = 9;                // ISO timestamp when workspace expires
+}
+
+message ListTempWorkspacesRequest {
+  bool include_expired = 1;             // Include expired workspaces (default: false)
+  string source_project_path = 2;       // Filter by source project (empty = all)
+}
+
+message ListTempWorkspacesResponse {
+  repeated TempWorkspace workspaces = 1;
+  uint32 total_count = 2;
+  uint32 expired_count = 3;             // Number of expired workspaces (not included unless include_expired)
+}
+
+message CloseTempWorkspaceRequest {
+  string workspace_path = 1;            // Path to the workspace to close
+  bool force = 2;                       // Force removal even if VS Code may be open
+}
+
+message CloseTempWorkspaceResponse {
+  bool success = 1;
+  string error = 2;
+  bool worktree_removed = 3;            // Whether git worktree was removed
+  bool directory_removed = 4;           // Whether directory was removed
+}
+
+message CleanupExpiredWorkspacesRequest {}
+
+message CleanupExpiredWorkspacesResponse {
+  bool success = 1;
+  string error = 2;
+  uint32 cleaned_count = 3;             // Number of workspaces cleaned up
+  repeated string cleaned_paths = 4;    // Paths that were cleaned
+  repeated string failed_paths = 5;     // Paths that failed to clean
+}
+
 // ============ Link Messages ============
 
 // Target entity type for links
@@ -1430,7 +1448,6 @@ enum LinkTargetType {
   LINK_TARGET_TYPE_ISSUE = 1;
   LINK_TARGET_TYPE_DOC = 2;
   LINK_TARGET_TYPE_PR = 3;
-  LINK_TARGET_TYPE_USER = 4;
 }
 
 // A link between two entities
@@ -1591,32 +1608,4 @@ message SyncUsersResponse {
   repeated GitContributor would_create = 6;  // For dry run: users that would be created
   repeated GitContributor would_skip = 7;    // For dry run: users that would be skipped
   Manifest manifest = 8;
-}
-
-// ============ Issue Assignee Messages ============
-
-message AssignIssueRequest {
-  string project_path = 1;
-  string issue_id = 2;                  // Issue ID (UUID)
-  repeated string user_ids = 3;         // User IDs to assign
-}
-
-message AssignIssueResponse {
-  bool success = 1;
-  string error = 2;
-  Issue issue = 3;                      // The updated issue
-  Manifest manifest = 4;
-}
-
-message UnassignIssueRequest {
-  string project_path = 1;
-  string issue_id = 2;                  // Issue ID (UUID)
-  repeated string user_ids = 3;         // User IDs to unassign
-}
-
-message UnassignIssueResponse {
-  bool success = 1;
-  string error = 2;
-  Issue issue = 3;                      // The updated issue
-  Manifest manifest = 4;
 }

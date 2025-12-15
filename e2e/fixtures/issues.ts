@@ -15,9 +15,9 @@ export function createMockIssue(overrides: Partial<Issue> = {}): Issue {
     createdAt: now,
     updatedAt: now,
     customFields: {},
-    assignees: [],
     compacted: false,
     compactedAt: '',
+    draft: false,
     $typeName: 'centy.IssueMetadata',
   }
 
@@ -32,7 +32,6 @@ export function createMockIssue(overrides: Partial<Issue> = {}): Issue {
       ...defaultMetadata,
       ...overrides.metadata,
     },
-    hasPlan: overrides.hasPlan ?? false,
     $typeName: 'centy.Issue',
   }
 }
@@ -53,9 +52,9 @@ export function createMockIssueMetadata(
     createdAt: overrides.createdAt ?? now,
     updatedAt: overrides.updatedAt ?? now,
     customFields: overrides.customFields ?? {},
-    assignees: overrides.assignees ?? [],
     compacted: overrides.compacted ?? false,
     compactedAt: overrides.compactedAt ?? '',
+    draft: overrides.draft ?? false,
     $typeName: 'centy.IssueMetadata',
   }
 }
@@ -131,23 +130,6 @@ export const createIssueScenario = {
         priority: 1,
         priorityLabel: 'low',
       }),
-    }),
-  ],
-
-  /** Returns issues with assignees */
-  withAssignees: (): Issue[] => [
-    createMockIssue({
-      displayNumber: 1,
-      title: 'Assigned Issue',
-      metadata: createMockIssueMetadata({
-        displayNumber: 1,
-        assignees: ['user-1', 'user-2'],
-      }),
-    }),
-    createMockIssue({
-      displayNumber: 2,
-      title: 'Unassigned Issue',
-      metadata: createMockIssueMetadata({ displayNumber: 2, assignees: [] }),
     }),
   ],
 }

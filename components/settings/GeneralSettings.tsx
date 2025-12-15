@@ -7,9 +7,13 @@ import {
   GetDaemonInfoRequestSchema,
   ShutdownRequestSchema,
   RestartRequestSchema,
+  GetLocalLlmConfigRequestSchema,
+  UpdateLocalLlmConfigRequestSchema,
   type DaemonInfo,
+  type LocalLlmConfig,
 } from '@/gen/centy_pb'
 import { DaemonSettings } from '@/components/settings/DaemonSettings'
+import { AgentConfigEditor } from '@/components/settings/AgentConfigEditor'
 
 export function GeneralSettings() {
   const [daemonInfo, setDaemonInfo] = useState<DaemonInfo | null>(null)
@@ -20,6 +24,21 @@ export function GeneralSettings() {
   const [restarting, setRestarting] = useState(false)
   const [showShutdownConfirm, setShowShutdownConfirm] = useState(false)
   const [showRestartConfirm, setShowRestartConfirm] = useState(false)
+
+  // LLM Config state
+  const [localLlmConfig, setLocalLlmConfig] = useState<
+    LocalLlmConfig | undefined
+  >(undefined)
+  const [originalLocalLlmConfig, setOriginalLocalLlmConfig] = useState<
+    LocalLlmConfig | undefined
+  >(undefined)
+  const [savingLlmConfig, setSavingLlmConfig] = useState(false)
+
+  const isLlmConfigDirty =
+    localLlmConfig && originalLocalLlmConfig
+      ? JSON.stringify(localLlmConfig) !==
+        JSON.stringify(originalLocalLlmConfig)
+      : false
 
   const fetchDaemonInfo = useCallback(async () => {
     try {
@@ -77,9 +96,61 @@ export function GeneralSettings() {
     }
   }, [])
 
+  const fetchGlobalLlmConfig = useCallback(async () => {
+    try {
+      const request = create(GetLocalLlmConfigRequestSchema, {
+        projectPath: '',
+      })
+      const response = await centyClient.getLocalLlmConfig(request)
+      setLocalLlmConfig(response.config)
+      setOriginalLocalLlmConfig(
+        response.config ? structuredClone(response.config) : undefined
+      )
+    } catch (err) {
+      console.error('Failed to fetch global LLM config:', err)
+    }
+  }, [])
+
+  const handleSaveLlmConfig = useCallback(async () => {
+    if (!localLlmConfig) return
+
+    setSavingLlmConfig(true)
+    setError(null)
+    setSuccess(null)
+
+    try {
+      const request = create(UpdateLocalLlmConfigRequestSchema, {
+        projectPath: '',
+        config: localLlmConfig,
+      })
+      const response = await centyClient.updateLocalLlmConfig(request)
+
+      if (response.success && response.config) {
+        setSuccess('Agent configuration saved successfully')
+        setLocalLlmConfig(response.config)
+        setOriginalLocalLlmConfig(structuredClone(response.config))
+      } else {
+        setError(response.error || 'Failed to save agent configuration')
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to connect to daemon'
+      )
+    } finally {
+      setSavingLlmConfig(false)
+    }
+  }, [localLlmConfig])
+
+  const handleResetLlmConfig = useCallback(() => {
+    if (originalLocalLlmConfig) {
+      setLocalLlmConfig(structuredClone(originalLocalLlmConfig))
+    }
+  }, [originalLocalLlmConfig])
+
   useEffect(() => {
     fetchDaemonInfo()
-  }, [fetchDaemonInfo])
+    fetchGlobalLlmConfig()
+  }, [fetchDaemonInfo, fetchGlobalLlmConfig])
 
   return (
     <div className="settings-page">
@@ -172,6 +243,38 @@ export function GeneralSettings() {
         <h3>Daemon Connection</h3>
         <div className="settings-card">
           <DaemonSettings />
+        </div>
+      </section>
+
+      <section className="settings-section">
+        <h3>Agent Configuration</h3>
+        {isLlmConfigDirty && (
+          <span className="unsaved-indicator">Unsaved changes</span>
+        )}
+        <div className="settings-card">
+          <AgentConfigEditor
+            config={localLlmConfig}
+            onChange={setLocalLlmConfig}
+            scope="global"
+          />
+        </div>
+        <div className="settings-actions">
+          <button
+            type="button"
+            onClick={handleResetLlmConfig}
+            disabled={!isLlmConfigDirty || savingLlmConfig}
+            className="reset-btn"
+          >
+            Reset Changes
+          </button>
+          <button
+            type="button"
+            onClick={handleSaveLlmConfig}
+            disabled={!isLlmConfigDirty || savingLlmConfig}
+            className="save-btn"
+          >
+            {savingLlmConfig ? 'Saving...' : 'Save Agent Configuration'}
+          </button>
         </div>
       </section>
     </div>

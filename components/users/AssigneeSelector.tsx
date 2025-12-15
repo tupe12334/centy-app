@@ -3,12 +3,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
-import {
-  ListUsersRequestSchema,
-  AssignIssueRequestSchema,
-  UnassignIssueRequestSchema,
-  type User,
-} from '@/gen/centy_pb'
+import { ListUsersRequestSchema, type User } from '@/gen/centy_pb'
 import {
   MultiSelect,
   type MultiSelectOption,
@@ -24,13 +19,10 @@ interface AssigneeSelectorProps {
 
 export function AssigneeSelector({
   projectPath,
-  issueId,
   currentAssignees,
-  onAssigneesChange,
 }: AssigneeSelectorProps) {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
-  const [updating, setUpdating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const fetchUsers = useCallback(async () => {
@@ -71,60 +63,10 @@ export function AssigneeSelector({
     [users]
   )
 
-  const handleChange = useCallback(
-    async (newAssignees: string[]) => {
-      if (!projectPath || !issueId || updating) return
-
-      const toAssign = newAssignees.filter(id => !currentAssignees.includes(id))
-      const toUnassign = currentAssignees.filter(
-        id => !newAssignees.includes(id)
-      )
-
-      if (toAssign.length === 0 && toUnassign.length === 0) return
-
-      setUpdating(true)
-      setError(null)
-
-      try {
-        // Assign new users
-        if (toAssign.length > 0) {
-          const assignRequest = create(AssignIssueRequestSchema, {
-            projectPath,
-            issueId,
-            userIds: toAssign,
-          })
-          const response = await centyClient.assignIssue(assignRequest)
-          if (!response.success) {
-            setError(response.error || 'Failed to assign users')
-            return
-          }
-        }
-
-        // Unassign removed users
-        if (toUnassign.length > 0) {
-          const unassignRequest = create(UnassignIssueRequestSchema, {
-            projectPath,
-            issueId,
-            userIds: toUnassign,
-          })
-          const response = await centyClient.unassignIssue(unassignRequest)
-          if (!response.success) {
-            setError(response.error || 'Failed to unassign users')
-            return
-          }
-        }
-
-        onAssigneesChange(newAssignees)
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : 'Failed to update assignees'
-        )
-      } finally {
-        setUpdating(false)
-      }
-    },
-    [projectPath, issueId, currentAssignees, onAssigneesChange, updating]
-  )
+  const handleChange = useCallback(async () => {
+    // TODO: Implement AssignIssue and UnassignIssue RPCs in the daemon
+    setError('Assignee modification not yet implemented')
+  }, [])
 
   if (loading) {
     return (
@@ -135,7 +77,8 @@ export function AssigneeSelector({
   }
 
   if (error) {
-    const isUnimplemented = error.includes('not available')
+    const isUnimplemented =
+      error.includes('not available') || error.includes('not yet implemented')
     return (
       <div className="assignee-selector error">
         <span className="error-text">{error}</span>
@@ -157,7 +100,7 @@ export function AssigneeSelector({
   }
 
   return (
-    <div className={`assignee-selector ${updating ? 'updating' : ''}`}>
+    <div className="assignee-selector">
       <MultiSelect
         options={options}
         value={currentAssignees}
@@ -165,7 +108,6 @@ export function AssigneeSelector({
         placeholder="Unassigned"
         className="assignee-multi-select"
       />
-      {updating && <span className="updating-indicator">Saving...</span>}
     </div>
   )
 }

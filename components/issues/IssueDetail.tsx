@@ -12,6 +12,7 @@ import {
   ListAssetsRequestSchema,
   SpawnAgentRequestSchema,
   GetLlmWorkRequestSchema,
+  OpenInTempVscodeRequestSchema,
   LlmAction,
   type Issue,
   type Asset,
@@ -58,6 +59,7 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
   const [showMoveModal, setShowMoveModal] = useState(false)
   const [showDuplicateModal, setShowDuplicateModal] = useState(false)
   const [spawningAgent, setSpawningAgent] = useState(false)
+  const [openingInVscode, setOpeningInVscode] = useState(false)
   const [activeWork, setActiveWork] = useState<LlmWorkSession | null>(null)
   const [assignees, setAssignees] = useState<string[]>([])
   const statusDropdownRef = useRef<HTMLDivElement>(null)
@@ -83,7 +85,6 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
       setEditDescription(response.description)
       setEditStatus(response.metadata?.status || 'open')
       setEditPriority(response.metadata?.priority || 2)
-      setAssignees(response.metadata?.assignees || [])
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Failed to connect to daemon'
@@ -299,6 +300,40 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
     }
   }, [projectPath, issue, fetchActiveWork])
 
+  const handleOpenInVscode = useCallback(async () => {
+    if (!projectPath || !issue) return
+
+    setOpeningInVscode(true)
+    setError(null)
+
+    try {
+      const request = create(OpenInTempVscodeRequestSchema, {
+        projectPath,
+        issueId: issue.id,
+        action: LlmAction.PLAN,
+        agentName: '',
+        ttlHours: 0,
+      })
+      const response = await centyClient.openInTempVscode(request)
+
+      if (response.success) {
+        if (!response.vscodeOpened) {
+          setError(
+            `Workspace created at ${response.workspacePath} but VS Code could not be opened automatically`
+          )
+        }
+      } else {
+        setError(response.error || 'Failed to open in VS Code')
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to connect to daemon'
+      )
+    } finally {
+      setOpeningInVscode(false)
+    }
+  }, [projectPath, issue])
+
   const handleMoved = useCallback((targetProjectPath: string) => {
     // Redirect to the issue in the target project
     window.location.href = `/?project=${encodeURIComponent(targetProjectPath)}`
@@ -406,6 +441,14 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
                 }
               >
                 {spawningAgent ? 'Spawning...' : 'AI Plan'}
+              </button>
+              <button
+                onClick={handleOpenInVscode}
+                disabled={openingInVscode}
+                className="vscode-btn"
+                title="Open in a temporary VS Code workspace with AI agent"
+              >
+                {openingInVscode ? 'Opening...' : 'Open in VS Code'}
               </button>
               <button onClick={() => setIsEditing(true)} className="edit-btn">
                 Edit
