@@ -179,7 +179,7 @@ export function DuplicateModal({
               >
                 {projects.map(project => (
                   <option key={project.path} value={project.path}>
-                    {project.name}
+                    {project.userTitle || project.projectTitle || project.name}
                     {project.path === currentProjectPath ? ' (current)' : ''} (
                     {project.displayPath})
                   </option>

@@ -32,6 +32,7 @@ import { CustomFieldsEditor } from '@/components/settings/CustomFieldsEditor'
 import { DefaultsEditor } from '@/components/settings/DefaultsEditor'
 import { LlmSettingsEditor } from '@/components/settings/LlmSettingsEditor'
 import { AgentConfigEditor } from '@/components/settings/AgentConfigEditor'
+import { ProjectTitleEditor } from '@/components/settings/ProjectTitleEditor'
 
 export function ProjectConfig() {
   const { projectPath, isInitialized, setIsInitialized } = useProject()
@@ -429,6 +430,13 @@ export function ProjectConfig() {
                       <Link href="/organizations">Manage organizations</Link>
                     </span>
                   </div>
+                </div>
+              </section>
+
+              <section className="settings-section">
+                <h3>Project Title</h3>
+                <div className="settings-card">
+                  <ProjectTitleEditor projectPath={projectPath} />
                 </div>
               </section>
 

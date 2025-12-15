@@ -53,6 +53,8 @@ export function createMockProjectInfo(
     displayPath: overrides.displayPath ?? '/test/project',
     organizationSlug: overrides.organizationSlug ?? '',
     organizationName: overrides.organizationName ?? '',
+    userTitle: overrides.userTitle ?? '',
+    projectTitle: overrides.projectTitle ?? '',
     $typeName: 'centy.ProjectInfo',
   }
 }

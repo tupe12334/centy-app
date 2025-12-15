@@ -124,6 +124,12 @@ service CentyDaemon {
   // Set project organization
   rpc SetProjectOrganization(SetProjectOrganizationRequest) returns (SetProjectOrganizationResponse);
 
+  // Set user-scope custom title (stored in ~/.centy/projects.json, only visible to current user)
+  rpc SetProjectUserTitle(SetProjectUserTitleRequest) returns (SetProjectUserTitleResponse);
+
+  // Set project-scope custom title (stored in .centy/project.json, visible to all users)
+  rpc SetProjectTitle(SetProjectTitleRequest) returns (SetProjectTitleResponse);
+
   // ============ Organization RPCs ============
 
   // Create a new organization
@@ -300,6 +306,9 @@ message InitResponse {
 
   // The updated manifest
   Manifest manifest = 7;
+
+  // Organization inference result from git remote
+  OrgInferenceResult org_inference = 8;
 }
 
 message GetReconciliationPlanRequest {
@@ -846,6 +855,8 @@ message ProjectInfo {
   string display_path = 10;       // Human-readable path with ~/ for home dir (use for display only)
   string organization_slug = 11;  // Organization slug (empty if ungrouped)
   string organization_name = 12;  // Organization display name (for convenience)
+  string user_title = 13;         // User-scope custom title (from ~/.centy/projects.json)
+  string project_title = 14;      // Project-scope custom title (from .centy/project.json)
 }
 
 message ListProjectsRequest {
@@ -869,6 +880,7 @@ message RegisterProjectResponse {
   bool success = 1;
   string error = 2;
   ProjectInfo project = 3;        // The registered project info
+  OrgInferenceResult org_inference = 4;  // Organization inference result from git remote
 }
 
 message UntrackProjectRequest {
@@ -922,6 +934,28 @@ message SetProjectOrganizationResponse {
   ProjectInfo project = 3;        // The updated project info
 }
 
+message SetProjectUserTitleRequest {
+  string project_path = 1;
+  string title = 2;               // Custom title (empty to clear)
+}
+
+message SetProjectUserTitleResponse {
+  bool success = 1;
+  string error = 2;
+  ProjectInfo project = 3;        // The updated project info
+}
+
+message SetProjectTitleRequest {
+  string project_path = 1;
+  string title = 2;               // Custom title (empty to clear)
+}
+
+message SetProjectTitleResponse {
+  bool success = 1;
+  string error = 2;
+  ProjectInfo project = 3;        // The updated project info
+}
+
 // ============ Organization Messages ============
 
 message Organization {
@@ -931,6 +965,16 @@ message Organization {
   string created_at = 4;          // ISO timestamp
   string updated_at = 5;          // ISO timestamp
   uint32 project_count = 6;       // Number of projects in this org
+}
+
+// Organization inference result from git remote
+message OrgInferenceResult {
+  string inferred_org_slug = 1;   // The inferred slug (empty if not found)
+  string inferred_org_name = 2;   // The inferred display name
+  bool org_created = 3;           // Whether a new org was created
+  string existing_org_slug = 4;   // Existing org if already assigned
+  bool has_mismatch = 5;          // True if inferred != existing
+  string message = 6;             // Human-readable status message
 }
 
 message CreateOrganizationRequest {

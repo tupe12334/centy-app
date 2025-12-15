@@ -183,7 +183,9 @@ export function ArchivedProjects() {
           {archivedProjects.map(project => (
             <li key={project.path} className="archived-item">
               <div className="archived-item-info">
-                <span className="archived-item-name">{project.name}</span>
+                <span className="archived-item-name">
+                  {project.userTitle || project.projectTitle || project.name}
+                </span>
                 <span className="archived-item-path">
                   {project.displayPath}
                 </span>

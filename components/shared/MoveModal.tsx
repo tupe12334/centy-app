@@ -178,7 +178,8 @@ export function MoveModal({
               >
                 {projects.map(project => (
                   <option key={project.path} value={project.path}>
-                    {project.name} ({project.displayPath})
+                    {project.userTitle || project.projectTitle || project.name}{' '}
+                    ({project.displayPath})
                   </option>
                 ))}
               </select>

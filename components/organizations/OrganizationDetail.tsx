@@ -350,7 +350,11 @@ export function OrganizationDetail({ orgSlug }: OrganizationDetailProps) {
                 <ul className="project-list">
                   {projects.map(project => (
                     <li key={project.path} className="project-item">
-                      <span className="project-name">{project.name}</span>
+                      <span className="project-name">
+                        {project.userTitle ||
+                          project.projectTitle ||
+                          project.name}
+                      </span>
                       <span className="project-path" title={project.path}>
                         {project.displayPath || project.path}
                       </span>
