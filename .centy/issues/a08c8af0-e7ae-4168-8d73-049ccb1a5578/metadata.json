@@ -1,7 +1,9 @@
 {
   "displayNumber": 17,
-  "status": "open",
+  "status": "for-validation",
   "priority": 2,
   "createdAt": "2025-12-03T19:59:04.199710+00:00",
-  "updatedAt": "2025-12-03T19:59:04.199710+00:00"
+  "updatedAt": "2025-12-15T17:11:07.454362+00:00",
+  "compacted": false,
+  "draft": false
 }
