@@ -122,16 +122,10 @@ export function ProjectSelector() {
     }
   }
 
-  const getProjectDisplayName = (project: ProjectInfo) => {
-    return (
-      project.userTitle || project.projectTitle || project.name || 'Unnamed'
-    )
-  }
-
   const getCurrentProjectName = () => {
     if (!projectPath) return 'Select Project'
     const project = projects.find(p => p.path === projectPath)
-    if (project) return getProjectDisplayName(project)
+    if (project?.name) return project.name
     // Extract folder name from path
     const parts = projectPath.split('/')
     return parts[parts.length - 1] || projectPath
