@@ -439,3 +439,34 @@ button.project-group-header:hover {
   margin: 0;
   padding: 0;
 }
+
+/* Radix Popover animations */
+.project-selector-dropdown[data-state='open'] {
+  animation: popover-in 150ms ease-out;
+}
+
+.project-selector-dropdown[data-state='closed'] {
+  animation: popover-out 150ms ease-in;
+}
+
+@keyframes popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popover-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}

@@ -1,14 +1,8 @@
 'use client'
 
-import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import Link from 'next/link'
-import {
-  useFloating,
-  autoUpdate,
-  flip,
-  shift,
-  offset,
-} from '@floating-ui/react'
+import * as Popover from '@radix-ui/react-popover'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -45,12 +39,7 @@ export function ProjectSelector() {
     }
   })
 
-  const { refs, floatingStyles } = useFloating({
-    open: isOpen,
-    placement: 'bottom-start',
-    middleware: [offset(4), flip(), shift({ padding: 8 })],
-    whileElementsMounted: autoUpdate,
-  })
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   const fetchProjects = useCallback(async () => {
     setLoading(true)
@@ -236,24 +225,24 @@ export function ProjectSelector() {
   }, [visibleProjects, selectedOrgSlug, organizations])
 
   return (
-    <div className="project-selector-container">
-      <button
-        ref={refs.setReference}
-        className="project-selector-trigger"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-expanded={isOpen}
-        aria-haspopup="listbox"
-      >
-        <span className="project-icon">📁</span>
-        <span className="project-name">{getCurrentProjectName()}</span>
-        <span className="dropdown-arrow">{isOpen ? '▲' : '▼'}</span>
-      </button>
+    <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
+      <Popover.Trigger asChild>
+        <button className="project-selector-trigger" aria-haspopup="listbox">
+          <span className="project-icon">📁</span>
+          <span className="project-name">{getCurrentProjectName()}</span>
+          <span className="dropdown-arrow">{isOpen ? '▲' : '▼'}</span>
+        </button>
+      </Popover.Trigger>
 
-      {isOpen && (
-        <div
-          ref={refs.setFloating}
-          style={floatingStyles}
+      <Popover.Portal>
+        <Popover.Content
           className="project-selector-dropdown"
+          align="start"
+          sideOffset={4}
+          onOpenAutoFocus={e => {
+            e.preventDefault()
+            searchInputRef.current?.focus()
+          }}
         >
           <div className="project-selector-header">
             <h3>Select Project</h3>
@@ -269,12 +258,12 @@ export function ProjectSelector() {
 
           <div className="project-selector-search">
             <input
+              ref={searchInputRef}
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search projects..."
               className="search-input"
-              autoFocus
             />
             {searchQuery && (
               <button
@@ -490,8 +479,8 @@ export function ProjectSelector() {
               </button>
             </form>
           </div>
-        </div>
-      )}
-    </div>
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
   )
 }
