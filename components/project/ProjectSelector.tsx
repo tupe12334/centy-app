@@ -23,6 +23,8 @@ import {
 } from '@/components/providers/ProjectProvider'
 import { useOrganization } from '@/components/providers/OrganizationProvider'
 
+const COLLAPSED_ORGS_KEY = 'centy-collapsed-orgs'
+
 export function ProjectSelector() {
   const { projectPath, setProjectPath, setIsInitialized } = useProject()
   const { isArchived, archiveProject } = useArchivedProjects()
@@ -32,6 +34,16 @@ export function ProjectSelector() {
   const [error, setError] = useState<string | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [manualPath, setManualPath] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [collapsedOrgs, setCollapsedOrgs] = useState<Set<string>>(() => {
+    if (typeof window === 'undefined') return new Set()
+    try {
+      const stored = localStorage.getItem(COLLAPSED_ORGS_KEY)
+      return stored ? new Set(JSON.parse(stored)) : new Set()
+    } catch {
+      return new Set()
+    }
+  })
 
   const { refs, floatingStyles } = useFloating({
     open: isOpen,
@@ -73,6 +85,7 @@ export function ProjectSelector() {
     setProjectPath(project.path)
     setIsInitialized(project.initialized)
     setIsOpen(false)
+    setSearchQuery('')
   }
 
   const handleManualSubmit = async (e: React.FormEvent) => {
@@ -104,14 +117,21 @@ export function ProjectSelector() {
         setIsInitialized(null)
       }
       setManualPath('')
+      setSearchQuery('')
       setIsOpen(false)
     }
+  }
+
+  const getProjectDisplayName = (project: ProjectInfo) => {
+    return (
+      project.userTitle || project.projectTitle || project.name || 'Unnamed'
+    )
   }
 
   const getCurrentProjectName = () => {
     if (!projectPath) return 'Select Project'
     const project = projects.find(p => p.path === projectPath)
-    if (project?.name) return project.name
+    if (project) return getProjectDisplayName(project)
     // Extract folder name from path
     const parts = projectPath.split('/')
     return parts[parts.length - 1] || projectPath
@@ -152,14 +172,42 @@ export function ProjectSelector() {
     }
   }
 
-  // Filter out archived projects and sort favorites first
-  const visibleProjects = projects
-    .filter(p => !isArchived(p.path))
-    .sort((a, b) => {
-      if (a.isFavorite && !b.isFavorite) return -1
-      if (!a.isFavorite && b.isFavorite) return 1
-      return 0
+  const toggleOrgCollapse = (orgSlug: string) => {
+    setCollapsedOrgs(prev => {
+      const next = new Set(prev)
+      if (next.has(orgSlug)) {
+        next.delete(orgSlug)
+      } else {
+        next.add(orgSlug)
+      }
+      // Persist to localStorage
+      try {
+        localStorage.setItem(COLLAPSED_ORGS_KEY, JSON.stringify([...next]))
+      } catch {
+        // Ignore storage errors
+      }
+      return next
     })
+  }
+
+  // Filter out archived projects, apply search, and sort favorites first
+  const visibleProjects = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim()
+    return projects
+      .filter(p => !isArchived(p.path))
+      .filter(p => {
+        if (!query) return true
+        return (
+          p.name.toLowerCase().includes(query) ||
+          p.path.toLowerCase().includes(query)
+        )
+      })
+      .sort((a, b) => {
+        if (a.isFavorite && !b.isFavorite) return -1
+        if (!a.isFavorite && b.isFavorite) return 1
+        return 0
+      })
+  }, [projects, isArchived, searchQuery])
 
   // Group projects by organization when showing all (selectedOrgSlug === null)
   const groupedProjects = useMemo(() => {
@@ -225,90 +273,135 @@ export function ProjectSelector() {
             </button>
           </div>
 
+          <div className="project-selector-search">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search projects..."
+              className="search-input"
+              autoFocus
+            />
+            {searchQuery && (
+              <button
+                className="search-clear-btn"
+                onClick={() => setSearchQuery('')}
+                title="Clear search"
+              >
+                ×
+              </button>
+            )}
+          </div>
+
           {error && <div className="project-selector-error">{error}</div>}
 
           {loading ? (
             <div className="project-selector-loading">Loading projects...</div>
           ) : visibleProjects.length === 0 ? (
             <div className="project-selector-empty">
-              <p>No tracked projects found</p>
-              <p className="hint">
-                Initialize a project with Centy to see it here
-              </p>
+              {searchQuery ? (
+                <>
+                  <p>No projects match "{searchQuery}"</p>
+                  <p className="hint">Try a different search term</p>
+                </>
+              ) : (
+                <>
+                  <p>No tracked projects found</p>
+                  <p className="hint">
+                    Initialize a project with Centy to see it here
+                  </p>
+                </>
+              )}
             </div>
           ) : groupedProjects ? (
             // Grouped view when showing all organizations
             <div className="project-list-grouped" role="listbox">
-              {groupedProjects.map(([orgSlug, group]) => (
-                <div key={orgSlug || '__ungrouped'} className="project-group">
-                  <div className="project-group-header">
-                    <span className="project-group-name">
-                      {orgSlug ? `🏢 ${group.name}` : '📁 Ungrouped'}
-                    </span>
-                    <span className="project-group-count">
-                      {group.projects.length}
-                    </span>
-                  </div>
-                  <ul className="project-group-list">
-                    {group.projects.map(project => (
-                      <li
-                        key={project.path}
-                        role="option"
-                        aria-selected={project.path === projectPath}
-                        className={`project-item ${project.path === projectPath ? 'selected' : ''}`}
-                        onClick={() => handleSelectProject(project)}
+              {groupedProjects.map(([orgSlug, group]) => {
+                const isCollapsed = collapsedOrgs.has(orgSlug)
+                return (
+                  <div key={orgSlug || '__ungrouped'} className="project-group">
+                    <button
+                      className="project-group-header"
+                      onClick={() => toggleOrgCollapse(orgSlug)}
+                      aria-expanded={!isCollapsed}
+                    >
+                      <span
+                        className={`project-group-chevron ${isCollapsed ? 'collapsed' : ''}`}
                       >
-                        <div className="project-item-main">
-                          <button
-                            className={`favorite-btn ${project.isFavorite ? 'active' : ''}`}
-                            onClick={e => handleToggleFavorite(e, project)}
-                            title={
-                              project.isFavorite
-                                ? 'Remove from favorites'
-                                : 'Add to favorites'
-                            }
+                        ▼
+                      </span>
+                      <span className="project-group-name">
+                        {orgSlug ? `🏢 ${group.name}` : '📁 Ungrouped'}
+                      </span>
+                      <span className="project-group-count">
+                        {group.projects.length}
+                      </span>
+                    </button>
+                    {!isCollapsed && (
+                      <ul className="project-group-list">
+                        {group.projects.map(project => (
+                          <li
+                            key={project.path}
+                            role="option"
+                            aria-selected={project.path === projectPath}
+                            className={`project-item ${project.path === projectPath ? 'selected' : ''}`}
+                            onClick={() => handleSelectProject(project)}
                           >
-                            {project.isFavorite ? '★' : '☆'}
-                          </button>
-                          <span className="project-item-name">
-                            {project.name}
-                          </span>
-                          {!project.initialized && (
-                            <span className="project-badge not-initialized">
-                              Not initialized
-                            </span>
-                          )}
-                          <button
-                            className="archive-btn"
-                            onClick={e => handleArchiveProject(e, project)}
-                            title="Archive project"
-                          >
-                            Archive
-                          </button>
-                        </div>
-                        <div className="project-item-details">
-                          <span
-                            className="project-item-path"
-                            title={project.displayPath}
-                          >
-                            {project.displayPath}
-                          </span>
-                          <div className="project-item-stats">
-                            {project.initialized && (
-                              <>
-                                <span title="Issues">
-                                  📋 {project.issueCount}
+                            <div className="project-item-main">
+                              <button
+                                className={`favorite-btn ${project.isFavorite ? 'active' : ''}`}
+                                onClick={e => handleToggleFavorite(e, project)}
+                                title={
+                                  project.isFavorite
+                                    ? 'Remove from favorites'
+                                    : 'Add to favorites'
+                                }
+                              >
+                                {project.isFavorite ? '★' : '☆'}
+                              </button>
+                              <span className="project-item-name">
+                                {getProjectDisplayName(project)}
+                              </span>
+                              {!project.initialized && (
+                                <span className="project-badge not-initialized">
+                                  Not initialized
                                 </span>
-                                <span title="Docs">📄 {project.docCount}</span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+                              )}
+                              <button
+                                className="archive-btn"
+                                onClick={e => handleArchiveProject(e, project)}
+                                title="Archive project"
+                              >
+                                Archive
+                              </button>
+                            </div>
+                            <div className="project-item-details">
+                              <span
+                                className="project-item-path"
+                                title={project.displayPath}
+                              >
+                                {project.displayPath}
+                              </span>
+                              <div className="project-item-stats">
+                                {project.initialized && (
+                                  <>
+                                    <span title="Issues">
+                                      📋 {project.issueCount}
+                                    </span>
+                                    <span title="Docs">
+                                      📄 {project.docCount}
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           ) : (
             // Flat list when filtering by specific org
@@ -333,7 +426,9 @@ export function ProjectSelector() {
                     >
                       {project.isFavorite ? '★' : '☆'}
                     </button>
-                    <span className="project-item-name">{project.name}</span>
+                    <span className="project-item-name">
+                      {getProjectDisplayName(project)}
+                    </span>
                     {!project.initialized && (
                       <span className="project-badge not-initialized">
                         Not initialized
