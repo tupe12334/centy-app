@@ -9,6 +9,7 @@
 @import './components/CustomFieldsEditor.css';
 @import './components/DaemonDisconnectedOverlay.css';
 @import './components/DaemonStatusIndicator.css';
+@import './components/DemoModeIndicator.css';
 @import './components/MobileNotSupportedOverlay.css';
 @import './components/DefaultsEditor.css';
 @import './components/InitProject.css';

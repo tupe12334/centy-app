@@ -64,3 +64,12 @@
 .daemon-status-indicator.checking {
   border-color: rgba(251, 191, 36, 0.3);
 }
+
+.daemon-status-indicator.demo .daemon-status-dot {
+  background-color: #a78bfa;
+  box-shadow: 0 0 6px rgba(167, 139, 250, 0.5);
+}
+
+.daemon-status-indicator.demo {
+  border-color: rgba(167, 139, 250, 0.3);
+}

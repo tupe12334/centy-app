@@ -3,7 +3,7 @@
 import { useDaemonStatus } from '@/components/providers/DaemonStatusProvider'
 
 export function DaemonDisconnectedOverlay() {
-  const { status, checkNow } = useDaemonStatus()
+  const { status, checkNow, enterDemoMode } = useDaemonStatus()
 
   // Only show when disconnected (not during initial check)
   if (status !== 'disconnected') {
@@ -48,6 +48,12 @@ export function DaemonDisconnectedOverlay() {
         <button className="daemon-retry-button" onClick={checkNow}>
           Retry Connection
         </button>
+        <div className="daemon-disconnected-demo-section">
+          <p>Or explore with sample data:</p>
+          <button className="daemon-demo-button" onClick={enterDemoMode}>
+            Try Demo Mode
+          </button>
+        </div>
       </div>
     </div>
   )

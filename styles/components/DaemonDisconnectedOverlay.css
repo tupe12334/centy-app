@@ -83,3 +83,37 @@
 .daemon-retry-button:active {
   background: #1d4ed8;
 }
+
+.daemon-disconnected-demo-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #333;
+}
+
+.daemon-disconnected-demo-section p {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.daemon-demo-button {
+  background: transparent;
+  color: #a78bfa;
+  border: 1px solid #a78bfa;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.daemon-demo-button:hover {
+  background: rgba(167, 139, 250, 0.1);
+  border-color: #c4b5fd;
+  color: #c4b5fd;
+}
+
+.daemon-demo-button:active {
+  background: rgba(167, 139, 250, 0.2);
+}

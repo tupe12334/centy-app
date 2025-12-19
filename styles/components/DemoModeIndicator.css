@@ -1,0 +1,60 @@
+.demo-mode-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  z-index: 9998;
+  padding: 8px 16px;
+}
+
+.demo-mode-indicator-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.demo-mode-indicator-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.demo-mode-indicator-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+}
+
+.demo-mode-exit-button {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-mode-exit-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.demo-mode-exit-button:active {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Adjust app layout when demo mode indicator is visible */
+body:has(.demo-mode-indicator) .app {
+  padding-top: 40px;
+}

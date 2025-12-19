@@ -18,6 +18,10 @@ export function DaemonStatusIndicator() {
       label: 'Checking...',
       className: 'checking',
     },
+    demo: {
+      label: 'Demo Mode',
+      className: 'demo',
+    },
   }
 
   const config = statusConfig[status]
