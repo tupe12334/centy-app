@@ -91,8 +91,9 @@ export function DaemonStatusProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    // Skip polling when in demo mode
-    if (status === 'demo') {
+    // Skip polling when in demo mode (use isDemoMode() directly to avoid
+    // status in deps which would cause infinite re-renders)
+    if (isDemoMode()) {
       return
     }
 
@@ -104,7 +105,7 @@ export function DaemonStatusProvider({ children }: { children: ReactNode }) {
       clearTimeout(timeoutId)
       clearInterval(interval)
     }
-  }, [checkDaemonStatus, status, hasMounted])
+  }, [checkDaemonStatus, hasMounted])
 
   return (
     <DaemonStatusContext.Provider
