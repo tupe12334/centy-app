@@ -39,10 +39,19 @@ export function DaemonStatusProvider({ children }: { children: ReactNode }) {
   const [hasMounted, setHasMounted] = useState(false)
 
   // Check for demo mode after mount to avoid hydration mismatch
+  // Also check for ?demo=true URL param to auto-enable demo mode
   useEffect(() => {
     // Schedule setState asynchronously to satisfy eslint react-hooks/set-state-in-effect
     const timeoutId = setTimeout(() => {
-      if (isDemoMode()) {
+      // Check for ?demo=true URL param to auto-enable demo mode
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.get('demo') === 'true' && !isDemoMode()) {
+        enableDemoMode()
+        setStatus('demo')
+        // Clean up URL by removing demo param and adding org/project
+        const newUrl = `/?org=${DEMO_ORG_SLUG}&project=${encodeURIComponent(DEMO_PROJECT_PATH)}`
+        window.history.replaceState({}, '', newUrl)
+      } else if (isDemoMode()) {
         setStatus('demo')
       }
       setHasMounted(true)
