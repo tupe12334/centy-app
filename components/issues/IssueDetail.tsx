@@ -434,6 +434,7 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
                 onClick={handleSpawnPlan}
                 disabled={spawningAgent || !!activeWork}
                 className="ai-plan-btn"
+                style={{ display: 'none' }}
                 title={
                   activeWork
                     ? `Agent running on #${activeWork.displayNumber}`
