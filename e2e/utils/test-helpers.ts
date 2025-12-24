@@ -10,6 +10,10 @@ import type { ProjectInfo } from '@/gen/centy_pb'
 
 const TEST_PROJECT_PATH = '/test/project'
 
+// Demo project constants for path-based routing
+const DEMO_ORG_SLUG = 'demo-org'
+const DEMO_PROJECT_NAME = 'centy-showcase'
+
 export interface SetupOptions {
   issues?: Issue[]
   docs?: Doc[]
@@ -82,9 +86,25 @@ export async function waitForAppReady(page: Page): Promise<void> {
 
 /**
  * Navigates to a page and waits for it to be ready.
+ * In demo mode, paths like /issues are converted to project-scoped paths.
  */
 export async function navigateTo(page: Page, path: string): Promise<void> {
   await page.goto(path)
+  await waitForAppReady(page)
+}
+
+/**
+ * Navigates to a project-scoped page in demo mode.
+ * Use this for tests that need the project-scoped view.
+ * E.g., navigateToDemoProject(page, '/issues') -> /demo-org/centy-showcase/issues
+ */
+export async function navigateToDemoProject(
+  page: Page,
+  path: string
+): Promise<void> {
+  const normalizedPath = path.startsWith('/') ? path.slice(1) : path
+  const projectPath = `/${DEMO_ORG_SLUG}/${DEMO_PROJECT_NAME}/${normalizedPath}`
+  await page.goto(projectPath)
   await waitForAppReady(page)
 }
 

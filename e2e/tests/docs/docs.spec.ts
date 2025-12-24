@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test'
-import { setupDemoMode, navigateTo } from '../../utils/test-helpers'
+import { setupDemoMode, navigateToDemoProject } from '../../utils/test-helpers'
 
 test.describe('Docs List', () => {
   test('should display list of docs', async ({ page }) => {
     await setupDemoMode(page)
-    await navigateTo(page, '/docs')
+    await navigateToDemoProject(page, '/docs')
 
     // Wait for the docs list to load by checking for the heading
     await expect(
@@ -27,7 +27,7 @@ test.describe('Docs List', () => {
     page,
   }) => {
     await setupDemoMode(page)
-    await navigateTo(page, '/docs')
+    await navigateToDemoProject(page, '/docs')
 
     // Wait for docs to load
     await expect(
@@ -45,7 +45,7 @@ test.describe('Docs List', () => {
 test.describe('Doc Detail', () => {
   test('should display doc title', async ({ page }) => {
     await setupDemoMode(page)
-    await navigateTo(page, '/docs/getting-started')
+    await navigateToDemoProject(page, '/docs/getting-started')
 
     // Doc title is in the .doc-title class
     await expect(page.locator('.doc-title')).toBeVisible({ timeout: 10000 })
@@ -54,7 +54,7 @@ test.describe('Doc Detail', () => {
 
   test('should display doc content', async ({ page }) => {
     await setupDemoMode(page)
-    await navigateTo(page, '/docs/getting-started')
+    await navigateToDemoProject(page, '/docs/getting-started')
 
     // Should display some of the demo doc content
     await expect(page.getByText(/welcome to centy/i)).toBeVisible({
@@ -64,7 +64,7 @@ test.describe('Doc Detail', () => {
 
   test('should render markdown content', async ({ page }) => {
     await setupDemoMode(page)
-    await navigateTo(page, '/docs/getting-started')
+    await navigateToDemoProject(page, '/docs/getting-started')
 
     // Should render markdown (check for Installation heading in content)
     await expect(

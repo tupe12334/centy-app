@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test'
-import { setupDemoMode, navigateTo } from '../../utils/test-helpers'
+import {
+  setupDemoMode,
+  navigateTo,
+  navigateToDemoProject,
+} from '../../utils/test-helpers'
 
 test.describe('Layout Visual Tests @visual', () => {
   test('homepage - light theme', async ({ page }) => {
@@ -37,7 +41,7 @@ test.describe('Layout Visual Tests @visual', () => {
   test('issues page - dark theme', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'dark' })
     await setupDemoMode(page)
-    await navigateTo(page, '/issues')
+    await navigateToDemoProject(page, '/issues')
 
     // Wait for demo mode indicator to confirm data is loaded
     await expect(page.locator('.demo-mode-indicator')).toBeVisible({
@@ -55,7 +59,7 @@ test.describe('Responsive Layout Visual Tests @visual', () => {
   test('issues page - mobile viewport', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 })
     await setupDemoMode(page)
-    await navigateTo(page, '/issues')
+    await navigateToDemoProject(page, '/issues')
 
     // Wait for demo mode indicator to confirm data is loaded
     await expect(page.locator('.demo-mode-indicator')).toBeVisible({
@@ -71,7 +75,7 @@ test.describe('Responsive Layout Visual Tests @visual', () => {
   test('issues page - tablet viewport', async ({ page }) => {
     await page.setViewportSize({ width: 768, height: 1024 })
     await setupDemoMode(page)
-    await navigateTo(page, '/issues')
+    await navigateToDemoProject(page, '/issues')
 
     // Wait for demo mode indicator to confirm data is loaded
     await expect(page.locator('.demo-mode-indicator')).toBeVisible({
@@ -88,7 +92,7 @@ test.describe('Responsive Layout Visual Tests @visual', () => {
 test.describe('Docs Visual Tests @visual', () => {
   test('docs page - with demo content', async ({ page }) => {
     await setupDemoMode(page)
-    await navigateTo(page, '/docs')
+    await navigateToDemoProject(page, '/docs')
 
     // Wait for demo mode indicator to confirm data is loaded
     await expect(page.locator('.demo-mode-indicator')).toBeVisible({
