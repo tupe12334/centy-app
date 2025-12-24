@@ -12,6 +12,7 @@ import {
 } from '@/gen/centy_pb'
 import { useProject } from '@/components/providers/ProjectProvider'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
+import { useAppLink } from '@/hooks/useAppLink'
 import { useLastSeenIssues } from '@/hooks/useLastSeenIssues'
 import { useIssueTableSettings } from '@/hooks/useIssueTableSettings'
 import { useStateManager } from '@/lib/state'
@@ -72,6 +73,7 @@ export function IssuesList() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { copyToClipboard } = useCopyToClipboard()
+  const { createLink } = useAppLink()
   const { lastSeenMap } = useLastSeenIssues()
 
   // Context menu state
@@ -129,14 +131,19 @@ export function IssuesList() {
       }),
       columnHelper.accessor('title', {
         header: 'Title',
-        cell: info => (
-          <Link
-            href={`/issues/${info.row.original.issueNumber}`}
-            className="issue-title-link"
-          >
-            {info.getValue()}
-          </Link>
-        ),
+        cell: info => {
+          const meta = info.table.options.meta as {
+            createLink: (path: string) => string
+          }
+          return (
+            <Link
+              href={meta.createLink(`/issues/${info.row.original.issueNumber}`)}
+              className="issue-title-link"
+            >
+              {info.getValue()}
+            </Link>
+          )
+        },
         enableColumnFilter: true,
         filterFn: 'includesString',
       }),
@@ -266,6 +273,7 @@ export function IssuesList() {
     getFilteredRowModel: getFilteredRowModel(),
     meta: {
       copyToClipboard,
+      createLink,
     },
   })
 
@@ -350,7 +358,7 @@ export function IssuesList() {
       if (targetProjectPath === projectPath) {
         // Same project - refresh and navigate to new issue
         fetchIssues()
-        router.push(`/issues/${newIssueId}`)
+        router.push(createLink(`/issues/${newIssueId}`))
       } else {
         // Different project - redirect
         window.location.href = `/?project=${encodeURIComponent(targetProjectPath)}`
@@ -358,7 +366,7 @@ export function IssuesList() {
       setShowDuplicateModal(false)
       setSelectedIssue(null)
     },
-    [projectPath, router, fetchIssues]
+    [projectPath, router, fetchIssues, createLink]
   )
 
   const contextMenuItems: ContextMenuItem[] = contextMenu
@@ -366,7 +374,7 @@ export function IssuesList() {
         {
           label: 'View',
           onClick: () => {
-            router.push(`/issues/${contextMenu.issue.id}`)
+            router.push(createLink(`/issues/${contextMenu.issue.id}`))
             setContextMenu(null)
           },
         },
@@ -395,7 +403,7 @@ export function IssuesList() {
               {loading ? 'Loading...' : 'Refresh'}
             </button>
           )}
-          <Link href="/issues/new" className="create-btn">
+          <Link href={createLink('/issues/new')} className="create-btn">
             + New Issue
           </Link>
         </div>
@@ -410,7 +418,7 @@ export function IssuesList() {
       {projectPath && isInitialized === false && (
         <div className="not-initialized-message">
           <p>Centy is not initialized in this directory</p>
-          <Link href="/">Initialize Project</Link>
+          <Link href={createLink('/')}>Initialize Project</Link>
         </div>
       )}
 
@@ -423,7 +431,9 @@ export function IssuesList() {
           ) : issues.length === 0 ? (
             <div className="empty-state">
               <p>No issues found</p>
-              <Link href="/issues/new">Create your first issue</Link>
+              <Link href={createLink('/issues/new')}>
+                Create your first issue
+              </Link>
             </div>
           ) : (
             <div className="issues-table">
