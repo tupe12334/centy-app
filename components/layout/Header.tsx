@@ -1,16 +1,63 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { usePathname, useParams } from 'next/navigation'
+import { useState, useEffect, useMemo } from 'react'
 import { DaemonStatusIndicator } from '@/components/shared/DaemonStatusIndicator'
 import { ThemeToggle } from '@/components/shared/ThemeToggle'
 import { OrgSwitcher } from '@/components/organizations/OrgSwitcher'
 import { ProjectSelector } from '@/components/project/ProjectSelector'
+import { UNGROUPED_ORG_MARKER } from '@/lib/project-resolver'
 
 export function Header() {
   const pathname = usePathname()
+  const params = useParams()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  // Extract org and project from URL path array (catch-all route)
+  const pathSegments = params.path as string[] | undefined
+  const org = pathSegments?.[0]
+  const project = pathSegments?.[1]
+  const hasProjectContext = Boolean(org && project)
+
+  // Build navigation links based on context
+  const navLinks = useMemo(() => {
+    if (hasProjectContext) {
+      const base = `/${org}/${project}`
+      return {
+        issues: `${base}/issues`,
+        pullRequests: `${base}/pull-requests`,
+        docs: `${base}/docs`,
+        assets: `${base}/assets`,
+        users: `${base}/users`,
+        config: `${base}/config`,
+      }
+    }
+    // Aggregate/root level links
+    return {
+      issues: '/issues',
+      pullRequests: '/pull-requests',
+      docs: '/docs',
+      assets: '/assets',
+      users: '/users',
+      config: '/project/config',
+    }
+  }, [hasProjectContext, org, project])
+
+  // Check if a path is active
+  const isActive = (href: string, checkPrefix = true) => {
+    if (checkPrefix) {
+      // For aggregate views, check if pathname starts with the base path
+      // For project views, check if we're on the same page
+      if (hasProjectContext) {
+        const page = href.split('/').slice(3).join('/')
+        const currentPage = pathname.split('/').slice(3).join('/')
+        return currentPage.startsWith(page.split('/')[0])
+      }
+      return pathname.startsWith(href)
+    }
+    return pathname === href
+  }
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -43,11 +90,20 @@ export function Header() {
     }
   }, [mobileMenuOpen])
 
+  // Display the current project context
+  const contextDisplay = hasProjectContext ? (
+    <span className="header-context">
+      {org === UNGROUPED_ORG_MARKER ? '' : `${org} / `}
+      {project}
+    </span>
+  ) : null
+
   return (
     <header className="app-header">
       <div className="header-top">
         <h1>
           <Link href="/">Centy</Link>
+          {contextDisplay}
         </h1>
         <div className="header-controls">
           <ThemeToggle />
@@ -69,29 +125,32 @@ export function Header() {
       <p>Local-first issue and documentation tracker</p>
       <nav className="app-nav">
         <Link
-          href="/issues"
-          className={pathname.startsWith('/issues') ? 'active' : ''}
+          href={navLinks.issues}
+          className={isActive(navLinks.issues) ? 'active' : ''}
         >
           Issues
         </Link>
         <Link
-          href="/pull-requests"
-          className={pathname.startsWith('/pull-requests') ? 'active' : ''}
+          href={navLinks.pullRequests}
+          className={isActive(navLinks.pullRequests) ? 'active' : ''}
         >
           Pull Requests
         </Link>
         <Link
-          href="/docs"
-          className={pathname.startsWith('/docs') ? 'active' : ''}
+          href={navLinks.docs}
+          className={isActive(navLinks.docs) ? 'active' : ''}
         >
           Docs
         </Link>
-        <Link href="/assets" className={pathname === '/assets' ? 'active' : ''}>
+        <Link
+          href={navLinks.assets}
+          className={isActive(navLinks.assets, false) ? 'active' : ''}
+        >
           Assets
         </Link>
         <Link
-          href="/users"
-          className={pathname.startsWith('/users') ? 'active' : ''}
+          href={navLinks.users}
+          className={isActive(navLinks.users) ? 'active' : ''}
         >
           Users
         </Link>
@@ -102,8 +161,8 @@ export function Header() {
           Organizations
         </Link>
         <Link
-          href="/project/config"
-          className={pathname === '/project/config' ? 'active' : ''}
+          href={navLinks.config}
+          className={isActive(navLinks.config, false) ? 'active' : ''}
         >
           Project Config
         </Link>
@@ -142,32 +201,32 @@ export function Header() {
         </div>
         <nav className="mobile-menu-nav">
           <Link
-            href="/issues"
-            className={pathname.startsWith('/issues') ? 'active' : ''}
+            href={navLinks.issues}
+            className={isActive(navLinks.issues) ? 'active' : ''}
           >
             Issues
           </Link>
           <Link
-            href="/pull-requests"
-            className={pathname.startsWith('/pull-requests') ? 'active' : ''}
+            href={navLinks.pullRequests}
+            className={isActive(navLinks.pullRequests) ? 'active' : ''}
           >
             Pull Requests
           </Link>
           <Link
-            href="/docs"
-            className={pathname.startsWith('/docs') ? 'active' : ''}
+            href={navLinks.docs}
+            className={isActive(navLinks.docs) ? 'active' : ''}
           >
             Docs
           </Link>
           <Link
-            href="/assets"
-            className={pathname === '/assets' ? 'active' : ''}
+            href={navLinks.assets}
+            className={isActive(navLinks.assets, false) ? 'active' : ''}
           >
             Assets
           </Link>
           <Link
-            href="/users"
-            className={pathname.startsWith('/users') ? 'active' : ''}
+            href={navLinks.users}
+            className={isActive(navLinks.users) ? 'active' : ''}
           >
             Users
           </Link>
@@ -178,8 +237,8 @@ export function Header() {
             Organizations
           </Link>
           <Link
-            href="/project/config"
-            className={pathname === '/project/config' ? 'active' : ''}
+            href={navLinks.config}
+            className={isActive(navLinks.config, false) ? 'active' : ''}
           >
             Project Config
           </Link>

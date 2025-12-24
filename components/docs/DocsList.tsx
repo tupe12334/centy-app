@@ -8,11 +8,14 @@ import { create } from '@bufbuild/protobuf'
 import {
   ListDocsRequestSchema,
   DeleteDocRequestSchema,
-  IsInitializedRequestSchema,
   type Doc,
 } from '@/gen/centy_pb'
-import { useProject } from '@/components/providers/ProjectProvider'
+import {
+  usePathContext,
+  useProjectPathToUrl,
+} from '@/components/providers/PathContextProvider'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
+import { useAppLink } from '@/hooks/useAppLink'
 import {
   ContextMenu,
   type ContextMenuItem,
@@ -22,8 +25,10 @@ import { DuplicateModal } from '@/components/shared/DuplicateModal'
 
 export function DocsList() {
   const router = useRouter()
-  const { projectPath, isInitialized, setIsInitialized } = useProject()
+  const { projectPath, isInitialized } = usePathContext()
+  const resolvePathToUrl = useProjectPathToUrl()
   const { copyToClipboard } = useCopyToClipboard()
+  const { createLink, createProjectLink } = useAppLink()
   const [docs, setDocs] = useState<Doc[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -39,26 +44,6 @@ export function DocsList() {
   const [showMoveModal, setShowMoveModal] = useState(false)
   const [showDuplicateModal, setShowDuplicateModal] = useState(false)
   const [selectedDoc, setSelectedDoc] = useState<Doc | null>(null)
-
-  const checkInitialized = useCallback(
-    async (path: string) => {
-      if (!path.trim()) {
-        setIsInitialized(null)
-        return
-      }
-
-      try {
-        const request = create(IsInitializedRequestSchema, {
-          projectPath: path.trim(),
-        })
-        const response = await centyClient.isInitialized(request)
-        setIsInitialized(response.initialized)
-      } catch {
-        setIsInitialized(false)
-      }
-    },
-    [setIsInitialized]
-  )
 
   const fetchDocs = useCallback(async () => {
     if (!projectPath.trim() || isInitialized !== true) return
@@ -113,13 +98,6 @@ export function DocsList() {
   )
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      checkInitialized(projectPath)
-    }, 300)
-    return () => clearTimeout(timeoutId)
-  }, [projectPath, checkInitialized])
-
-  useEffect(() => {
     if (isInitialized === true) {
       fetchDocs()
     }
@@ -142,25 +120,55 @@ export function DocsList() {
     setContextMenu(null)
   }, [])
 
-  const handleMoved = useCallback((targetProjectPath: string) => {
-    // Redirect to target project
-    window.location.href = `/?project=${encodeURIComponent(targetProjectPath)}`
-  }, [])
+  const handleMoved = useCallback(
+    async (targetProjectPath: string) => {
+      // Resolve path to org/project for URL navigation
+      const result = await resolvePathToUrl(targetProjectPath)
+      if (result) {
+        const url = createProjectLink(
+          result.orgSlug,
+          result.projectName,
+          'docs'
+        )
+        router.push(url)
+      } else {
+        router.push('/')
+      }
+    },
+    [resolvePathToUrl, createProjectLink, router]
+  )
 
   const handleDuplicated = useCallback(
-    (newSlug: string, targetProjectPath: string) => {
+    async (newSlug: string, targetProjectPath: string) => {
       if (targetProjectPath === projectPath) {
         // Same project - refresh and navigate to new doc
         fetchDocs()
-        router.push(`/docs/${newSlug}`)
+        router.push(createLink(`/docs/${newSlug}`))
       } else {
-        // Different project - redirect
-        window.location.href = `/?project=${encodeURIComponent(targetProjectPath)}`
+        // Different project - resolve and redirect
+        const result = await resolvePathToUrl(targetProjectPath)
+        if (result) {
+          const url = createProjectLink(
+            result.orgSlug,
+            result.projectName,
+            `docs/${newSlug}`
+          )
+          router.push(url)
+        } else {
+          router.push('/')
+        }
       }
       setShowDuplicateModal(false)
       setSelectedDoc(null)
     },
-    [projectPath, router, fetchDocs]
+    [
+      projectPath,
+      router,
+      fetchDocs,
+      createLink,
+      resolvePathToUrl,
+      createProjectLink,
+    ]
   )
 
   const contextMenuItems: ContextMenuItem[] = contextMenu
@@ -168,7 +176,7 @@ export function DocsList() {
         {
           label: 'View',
           onClick: () => {
-            router.push(`/docs/${contextMenu.doc.slug}`)
+            router.push(createLink(`/docs/${contextMenu.doc.slug}`))
             setContextMenu(null)
           },
         },
@@ -197,7 +205,7 @@ export function DocsList() {
               {loading ? 'Loading...' : 'Refresh'}
             </button>
           )}
-          <Link href="/docs/new" className="create-btn">
+          <Link href={createLink('/docs/new')} className="create-btn">
             + New Doc
           </Link>
         </div>
@@ -225,7 +233,9 @@ export function DocsList() {
           ) : docs.length === 0 ? (
             <div className="empty-state">
               <p>No documentation found</p>
-              <Link href="/docs/new">Create your first document</Link>
+              <Link href={createLink('/docs/new')}>
+                Create your first document
+              </Link>
             </div>
           ) : (
             <div className="docs-grid">
@@ -236,7 +246,10 @@ export function DocsList() {
                   onContextMenu={e => handleContextMenu(e, doc)}
                 >
                   <div className="doc-card-content">
-                    <Link href={`/docs/${doc.slug}`} className="doc-card-link">
+                    <Link
+                      href={createLink(`/docs/${doc.slug}`)}
+                      className="doc-card-link"
+                    >
                       <h3 className="doc-title">{doc.title}</h3>
                     </Link>
                     <button

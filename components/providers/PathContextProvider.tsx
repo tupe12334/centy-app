@@ -60,9 +60,10 @@ export function PathContextProvider({ children }: { children: ReactNode }) {
   const params = useParams()
   const router = useRouter()
 
-  // Extract org and project from URL params
-  const urlOrg = params.org as string | undefined
-  const urlProject = params.project as string | undefined
+  // Extract org and project from URL path array (catch-all route)
+  const pathSegments = params.path as string[] | undefined
+  const urlOrg = pathSegments?.[0]
+  const urlProject = pathSegments?.[1]
 
   // Determine if this is an aggregate view (no org/project in URL)
   const isAggregateView = !urlOrg || !urlProject

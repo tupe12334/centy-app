@@ -10,9 +10,21 @@ vi.mock('@/lib/grpc/client', () => ({
   },
 }))
 
-const mockUseProject = vi.fn()
+const mockUsePathContext = vi.fn()
+const mockUseProjectPathToUrl = vi.fn()
+vi.mock('@/components/providers/PathContextProvider', () => ({
+  usePathContext: () => mockUsePathContext(),
+  useProjectPathToUrl: () => mockUseProjectPathToUrl(),
+}))
+
+// Mock useProject for hooks that still depend on it (useConfig -> useStateManager)
 vi.mock('@/components/providers/ProjectProvider', () => ({
-  useProject: () => mockUseProject(),
+  useProject: () => ({
+    projectPath: '/test/path',
+    setProjectPath: vi.fn(),
+    isInitialized: true,
+    setIsInitialized: vi.fn(),
+  }),
 }))
 
 import { centyClient } from '@/lib/grpc/client'
@@ -58,12 +70,18 @@ describe('IssuesList', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // Default mock - no project selected
-    mockUseProject.mockReturnValue({
+    mockUsePathContext.mockReturnValue({
       projectPath: '',
-      setProjectPath: vi.fn(),
       isInitialized: null,
-      setIsInitialized: vi.fn(),
+      orgSlug: null,
+      projectName: null,
+      displayPath: '',
+      isAggregateView: false,
+      isLoading: false,
+      error: null,
+      navigateToProject: vi.fn(),
     })
+    mockUseProjectPathToUrl.mockReturnValue(vi.fn().mockResolvedValue(null))
   })
 
   const renderComponent = () => {
@@ -86,11 +104,16 @@ describe('IssuesList', () => {
   })
 
   it('should show error when project is not initialized', () => {
-    mockUseProject.mockReturnValue({
+    mockUsePathContext.mockReturnValue({
       projectPath: '/test/path',
-      setProjectPath: vi.fn(),
       isInitialized: false,
-      setIsInitialized: vi.fn(),
+      orgSlug: null,
+      projectName: 'test',
+      displayPath: '~/test/path',
+      isAggregateView: false,
+      isLoading: false,
+      error: null,
+      navigateToProject: vi.fn(),
     })
 
     renderComponent()
@@ -110,11 +133,16 @@ describe('IssuesList', () => {
       $unknown: undefined,
     })
 
-    mockUseProject.mockReturnValue({
+    mockUsePathContext.mockReturnValue({
       projectPath: '/test/path',
-      setProjectPath: vi.fn(),
       isInitialized: true,
-      setIsInitialized: vi.fn(),
+      orgSlug: null,
+      projectName: 'test',
+      displayPath: '~/test/path',
+      isAggregateView: false,
+      isLoading: false,
+      error: null,
+      navigateToProject: vi.fn(),
     })
 
     renderComponent()
@@ -151,11 +179,16 @@ describe('IssuesList', () => {
       $unknown: undefined,
     })
 
-    mockUseProject.mockReturnValue({
+    mockUsePathContext.mockReturnValue({
       projectPath: '/test/path',
-      setProjectPath: vi.fn(),
       isInitialized: true,
-      setIsInitialized: vi.fn(),
+      orgSlug: null,
+      projectName: 'test',
+      displayPath: '~/test/path',
+      isAggregateView: false,
+      isLoading: false,
+      error: null,
+      navigateToProject: vi.fn(),
     })
 
     renderComponent()
@@ -177,11 +210,16 @@ describe('IssuesList', () => {
       $unknown: undefined,
     })
 
-    mockUseProject.mockReturnValue({
+    mockUsePathContext.mockReturnValue({
       projectPath: '/test/path',
-      setProjectPath: vi.fn(),
       isInitialized: true,
-      setIsInitialized: vi.fn(),
+      orgSlug: null,
+      projectName: 'test',
+      displayPath: '~/test/path',
+      isAggregateView: false,
+      isLoading: false,
+      error: null,
+      navigateToProject: vi.fn(),
     })
 
     renderComponent()
@@ -195,11 +233,16 @@ describe('IssuesList', () => {
     const mockListIssues = vi.mocked(centyClient.listIssues)
     mockListIssues.mockRejectedValue(new Error('Connection refused'))
 
-    mockUseProject.mockReturnValue({
+    mockUsePathContext.mockReturnValue({
       projectPath: '/test/path',
-      setProjectPath: vi.fn(),
       isInitialized: true,
-      setIsInitialized: vi.fn(),
+      orgSlug: null,
+      projectName: 'test',
+      displayPath: '~/test/path',
+      isAggregateView: false,
+      isLoading: false,
+      error: null,
+      navigateToProject: vi.fn(),
     })
 
     renderComponent()
@@ -218,11 +261,16 @@ describe('IssuesList', () => {
       $unknown: undefined,
     })
 
-    mockUseProject.mockReturnValue({
+    mockUsePathContext.mockReturnValue({
       projectPath: '/test/path',
-      setProjectPath: vi.fn(),
       isInitialized: true,
-      setIsInitialized: vi.fn(),
+      orgSlug: null,
+      projectName: 'test',
+      displayPath: '~/test/path',
+      isAggregateView: false,
+      isLoading: false,
+      error: null,
+      navigateToProject: vi.fn(),
     })
 
     renderComponent()
@@ -256,11 +304,16 @@ describe('IssuesList', () => {
       $unknown: undefined,
     })
 
-    mockUseProject.mockReturnValue({
+    mockUsePathContext.mockReturnValue({
       projectPath: '/test/path',
-      setProjectPath: vi.fn(),
       isInitialized: true,
-      setIsInitialized: vi.fn(),
+      orgSlug: null,
+      projectName: 'test',
+      displayPath: '~/test/path',
+      isAggregateView: false,
+      isLoading: false,
+      error: null,
+      navigateToProject: vi.fn(),
     })
 
     renderComponent()
@@ -278,11 +331,16 @@ describe('IssuesList', () => {
     const mockListIssues = vi.mocked(centyClient.listIssues)
     mockListIssues.mockRejectedValue('string error')
 
-    mockUseProject.mockReturnValue({
+    mockUsePathContext.mockReturnValue({
       projectPath: '/test/path',
-      setProjectPath: vi.fn(),
       isInitialized: true,
-      setIsInitialized: vi.fn(),
+      orgSlug: null,
+      projectName: 'test',
+      displayPath: '~/test/path',
+      isAggregateView: false,
+      isLoading: false,
+      error: null,
+      navigateToProject: vi.fn(),
     })
 
     renderComponent()

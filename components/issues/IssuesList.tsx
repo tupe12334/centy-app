@@ -5,12 +5,11 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
+import { ListIssuesRequestSchema, type Issue } from '@/gen/centy_pb'
 import {
-  ListIssuesRequestSchema,
-  IsInitializedRequestSchema,
-  type Issue,
-} from '@/gen/centy_pb'
-import { useProject } from '@/components/providers/ProjectProvider'
+  usePathContext,
+  useProjectPathToUrl,
+} from '@/components/providers/PathContextProvider'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { useAppLink } from '@/hooks/useAppLink'
 import { useLastSeenIssues } from '@/hooks/useLastSeenIssues'
@@ -67,13 +66,14 @@ const getPriorityClass = (priorityLabel: string) => {
 
 export function IssuesList() {
   const router = useRouter()
-  const { projectPath, isInitialized, setIsInitialized } = useProject()
+  const { projectPath, isInitialized } = usePathContext()
+  const resolvePathToUrl = useProjectPathToUrl()
   const stateManager = useStateManager()
   const [issues, setIssues] = useState<Issue[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { copyToClipboard } = useCopyToClipboard()
-  const { createLink } = useAppLink()
+  const { createLink, createProjectLink } = useAppLink()
   const { lastSeenMap } = useLastSeenIssues()
 
   // Context menu state
@@ -277,26 +277,6 @@ export function IssuesList() {
     },
   })
 
-  const checkInitialized = useCallback(
-    async (path: string) => {
-      if (!path.trim()) {
-        setIsInitialized(null)
-        return
-      }
-
-      try {
-        const request = create(IsInitializedRequestSchema, {
-          projectPath: path.trim(),
-        })
-        const response = await centyClient.isInitialized(request)
-        setIsInitialized(response.initialized)
-      } catch {
-        setIsInitialized(false)
-      }
-    },
-    [setIsInitialized]
-  )
-
   const fetchIssues = useCallback(async () => {
     if (!projectPath.trim() || isInitialized !== true) return
 
@@ -317,13 +297,6 @@ export function IssuesList() {
       setLoading(false)
     }
   }, [projectPath, isInitialized])
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      checkInitialized(projectPath)
-    }, 300)
-    return () => clearTimeout(timeoutId)
-  }, [projectPath, checkInitialized])
 
   useEffect(() => {
     if (isInitialized === true) {
@@ -348,25 +321,56 @@ export function IssuesList() {
     setContextMenu(null)
   }, [])
 
-  const handleMoved = useCallback((targetProjectPath: string) => {
-    // Redirect to target project
-    window.location.href = `/?project=${encodeURIComponent(targetProjectPath)}`
-  }, [])
+  const handleMoved = useCallback(
+    async (targetProjectPath: string) => {
+      // Resolve path to org/project for URL navigation
+      const result = await resolvePathToUrl(targetProjectPath)
+      if (result) {
+        const url = createProjectLink(
+          result.orgSlug,
+          result.projectName,
+          'issues'
+        )
+        router.push(url)
+      } else {
+        // Fallback to root if resolution fails
+        router.push('/')
+      }
+    },
+    [resolvePathToUrl, createProjectLink, router]
+  )
 
   const handleDuplicated = useCallback(
-    (newIssueId: string, targetProjectPath: string) => {
+    async (newIssueId: string, targetProjectPath: string) => {
       if (targetProjectPath === projectPath) {
         // Same project - refresh and navigate to new issue
         fetchIssues()
         router.push(createLink(`/issues/${newIssueId}`))
       } else {
-        // Different project - redirect
-        window.location.href = `/?project=${encodeURIComponent(targetProjectPath)}`
+        // Different project - resolve and redirect
+        const result = await resolvePathToUrl(targetProjectPath)
+        if (result) {
+          const url = createProjectLink(
+            result.orgSlug,
+            result.projectName,
+            `issues/${newIssueId}`
+          )
+          router.push(url)
+        } else {
+          router.push('/')
+        }
       }
       setShowDuplicateModal(false)
       setSelectedIssue(null)
     },
-    [projectPath, router, fetchIssues, createLink]
+    [
+      projectPath,
+      router,
+      fetchIssues,
+      createLink,
+      resolvePathToUrl,
+      createProjectLink,
+    ]
   )
 
   const contextMenuItems: ContextMenuItem[] = contextMenu

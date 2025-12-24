@@ -11,9 +11,10 @@ import { UNGROUPED_ORG_MARKER } from '@/lib/project-resolver'
 export function useAppLink() {
   const params = useParams()
 
-  // Extract org and project from URL path
-  const org = params.org as string | undefined
-  const project = params.project as string | undefined
+  // Extract org and project from URL path array (catch-all route)
+  const pathSegments = params.path as string[] | undefined
+  const org = pathSegments?.[0]
+  const project = pathSegments?.[1]
 
   /**
    * Create a link within the current project context.

@@ -1,9 +1,9 @@
-import { IssuesPageClient } from './IssuesPageClient'
+import { AggregateIssuesPageClient } from './AggregateIssuesPageClient'
 
 export async function generateStaticParams() {
   return [{ params: undefined }]
 }
 
-export default function Page() {
-  return <IssuesPageClient />
+export default function AggregateIssuesPage() {
+  return <AggregateIssuesPageClient />
 }

@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import Link from 'next/link'
+import { useRouter, useParams, usePathname } from 'next/navigation'
 import * as Popover from '@radix-ui/react-popover'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
@@ -16,10 +17,14 @@ import {
   useArchivedProjects,
 } from '@/components/providers/ProjectProvider'
 import { useOrganization } from '@/components/providers/OrganizationProvider'
+import { UNGROUPED_ORG_MARKER } from '@/lib/project-resolver'
 
 const COLLAPSED_ORGS_KEY = 'centy-collapsed-orgs'
 
 export function ProjectSelector() {
+  const router = useRouter()
+  const params = useParams()
+  const pathname = usePathname()
   const { projectPath, setProjectPath, setIsInitialized } = useProject()
   const { isArchived, archiveProject } = useArchivedProjects()
   const { selectedOrgSlug, organizations } = useOrganization()
@@ -40,6 +45,23 @@ export function ProjectSelector() {
   })
 
   const searchInputRef = useRef<HTMLInputElement>(null)
+
+  // Get current page from URL for navigation
+  const getCurrentPage = () => {
+    // Extract org and project from catch-all route path
+    const pathSegments = params.path as string[] | undefined
+    const org = pathSegments?.[0]
+    const project = pathSegments?.[1]
+
+    // Check if we're in a project-scoped route
+    if (org && project) {
+      // pathSegments: [org, project, page, ...]
+      return pathSegments[2] || 'issues'
+    }
+    // For aggregate/root views, extract page from pathname
+    const page = pathname.split('/').filter(Boolean)[0]
+    return page || 'issues'
+  }
 
   const fetchProjects = useCallback(async () => {
     setLoading(true)
@@ -71,8 +93,18 @@ export function ProjectSelector() {
   }, [isOpen, fetchProjects])
 
   const handleSelectProject = (project: ProjectInfo) => {
+    // Build the new URL path
+    const orgSlug = project.organizationSlug || UNGROUPED_ORG_MARKER
+    const page = getCurrentPage()
+    const newPath = `/${orgSlug}/${project.name}/${page}`
+
+    // Also update the old context for compatibility during migration
     setProjectPath(project.path)
     setIsInitialized(project.initialized)
+
+    // Navigate to the new URL
+    router.push(newPath)
+
     setIsOpen(false)
     setSearchQuery('')
   }
