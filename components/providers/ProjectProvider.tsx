@@ -5,11 +5,8 @@ import {
   useContext,
   useState,
   useCallback,
-  useEffect,
-  useRef,
   type ReactNode,
 } from 'react'
-import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
 interface ProjectContextType {
   projectPath: string
@@ -35,20 +32,9 @@ function setArchivedProjectsStorage(paths: string[]): void {
   }
 }
 
-const PROJECT_QUERY_PARAM = 'project'
-
 export function ProjectProvider({ children }: { children: ReactNode }) {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const pathname = usePathname()
-  const projectPathRef = useRef<string>('')
-
+  // Only use localStorage for persistence - URL path is handled by PathContextProvider
   const [projectPath, setProjectPathState] = useState(() => {
-    // Priority: query string > localStorage > empty
-    const queryProject = searchParams.get(PROJECT_QUERY_PARAM)
-    if (queryProject) {
-      return queryProject
-    }
     if (typeof window !== 'undefined') {
       return localStorage.getItem(STORAGE_KEY) || ''
     }
@@ -56,51 +42,17 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   })
   const [isInitialized, setIsInitialized] = useState<boolean | null>(null)
 
-  // Sync query string with project path on mount and when projectPath changes
-  useEffect(() => {
-    const currentQueryProject = searchParams.get(PROJECT_QUERY_PARAM)
-    if (projectPath && currentQueryProject !== projectPath) {
-      const newParams = new URLSearchParams(searchParams.toString())
-      newParams.set(PROJECT_QUERY_PARAM, projectPath)
-      router.replace(`${pathname}?${newParams.toString()}`)
-    } else if (!projectPath && currentQueryProject) {
-      const newParams = new URLSearchParams(searchParams.toString())
-      newParams.delete(PROJECT_QUERY_PARAM)
-      const queryString = newParams.toString()
-      router.replace(queryString ? `${pathname}?${queryString}` : pathname)
-    }
-  }, [projectPath, searchParams, router, pathname])
-
-  // Keep ref in sync for use in callback
-  useEffect(() => {
-    projectPathRef.current = projectPath
-  }, [projectPath])
-
-  const setProjectPath = useCallback(
-    (path: string) => {
-      // Navigate away from detail pages before changing project context
-      // This prevents race conditions where components fetch with wrong project
-      const isDetailPage = /^\/(issues|cycles|docs)\/[^/]+/.test(pathname)
-      if (isDetailPage && path !== projectPathRef.current && path) {
-        const basePath = pathname.split('/').slice(0, 2).join('/') // e.g., /issues
-        // Persist to localStorage and use window.location for immediate navigation
+  const setProjectPath = useCallback((path: string) => {
+    setProjectPathState(path)
+    // Persist to localStorage
+    if (typeof window !== 'undefined') {
+      if (path) {
         localStorage.setItem(STORAGE_KEY, path)
-        window.location.href = `${basePath}?${PROJECT_QUERY_PARAM}=${encodeURIComponent(path)}`
-        return
+      } else {
+        localStorage.removeItem(STORAGE_KEY)
       }
-
-      setProjectPathState(path)
-      // Persist to localStorage
-      if (typeof window !== 'undefined') {
-        if (path) {
-          localStorage.setItem(STORAGE_KEY, path)
-        } else {
-          localStorage.removeItem(STORAGE_KEY)
-        }
-      }
-    },
-    [pathname]
-  )
+    }
+  }, [])
 
   return (
     <ProjectContext.Provider
