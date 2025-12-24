@@ -29,16 +29,11 @@ export default defineConfig({
 
   projects: process.env.CI
     ? [
-        // CI: Chromium only for faster builds
+        // CI: Chromium only for faster builds, skip visual tests (font rendering differs)
         {
           name: 'chromium',
           use: { ...devices['Desktop Chrome'] },
-        },
-        // Mobile viewport for visual testing (Chromium-based)
-        {
-          name: 'mobile-chrome',
-          use: { ...devices['Pixel 5'] },
-          testMatch: '**/*.visual.spec.ts',
+          testIgnore: '**/*.visual.spec.ts',
         },
       ]
     : [
