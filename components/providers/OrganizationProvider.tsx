@@ -8,7 +8,6 @@ import {
   useEffect,
   type ReactNode,
 } from 'react'
-import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -29,21 +28,11 @@ interface OrganizationContextType {
 const OrganizationContext = createContext<OrganizationContextType | null>(null)
 
 const STORAGE_KEY = 'centy-selected-org'
-const ORG_QUERY_PARAM = 'org'
 
 export function OrganizationProvider({ children }: { children: ReactNode }) {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const pathname = usePathname()
-
+  // Only use localStorage for persistence - URL path is handled by PathContextProvider
   const [selectedOrgSlug, setSelectedOrgSlugState] = useState<string | null>(
     () => {
-      // Priority: query string > localStorage > null (all)
-      const queryOrg = searchParams.get(ORG_QUERY_PARAM)
-      if (queryOrg !== null) {
-        // Empty string means ungrouped, non-empty means specific org
-        return queryOrg
-      }
       if (typeof window !== 'undefined') {
         const stored = localStorage.getItem(STORAGE_KEY)
         if (stored !== null) {
@@ -57,22 +46,6 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  // Sync query string with selected org
-  useEffect(() => {
-    const currentQueryOrg = searchParams.get(ORG_QUERY_PARAM)
-
-    if (selectedOrgSlug !== null && currentQueryOrg !== selectedOrgSlug) {
-      const newParams = new URLSearchParams(searchParams.toString())
-      newParams.set(ORG_QUERY_PARAM, selectedOrgSlug)
-      router.replace(`${pathname}?${newParams.toString()}`)
-    } else if (selectedOrgSlug === null && currentQueryOrg !== null) {
-      const newParams = new URLSearchParams(searchParams.toString())
-      newParams.delete(ORG_QUERY_PARAM)
-      const queryString = newParams.toString()
-      router.replace(queryString ? `${pathname}?${queryString}` : pathname)
-    }
-  }, [selectedOrgSlug, searchParams, router, pathname])
 
   const refreshOrganizations = useCallback(async () => {
     setLoading(true)
