@@ -1,5 +1,8 @@
 import type { Config, ProjectInfo, Manifest } from '@/gen/centy_pb'
 
+// Fixed date for deterministic visual tests
+const FIXED_DATE = '2024-01-15T10:30:00.000Z'
+
 /**
  * Creates a mock config with default values that can be overridden.
  */
@@ -38,7 +41,7 @@ export function createMockConfig(overrides: Partial<Config> = {}): Config {
 export function createMockProjectInfo(
   overrides: Partial<ProjectInfo> = {}
 ): ProjectInfo {
-  const now = new Date().toISOString()
+  const now = FIXED_DATE
 
   return {
     path: overrides.path ?? '/test/project',
@@ -65,7 +68,7 @@ export function createMockProjectInfo(
 export function createMockManifest(
   overrides: Partial<Manifest> = {}
 ): Manifest {
-  const now = new Date().toISOString()
+  const now = FIXED_DATE
 
   return {
     schemaVersion: overrides.schemaVersion ?? 1,

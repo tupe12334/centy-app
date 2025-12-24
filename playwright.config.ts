@@ -27,26 +27,41 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
 
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-    // Mobile viewport for visual testing
-    {
-      name: 'mobile-chrome',
-      use: { ...devices['Pixel 5'] },
-      testMatch: '**/*.visual.spec.ts',
-    },
-  ],
+  projects: process.env.CI
+    ? [
+        // CI: Chromium only for faster builds
+        {
+          name: 'chromium',
+          use: { ...devices['Desktop Chrome'] },
+        },
+        // Mobile viewport for visual testing (Chromium-based)
+        {
+          name: 'mobile-chrome',
+          use: { ...devices['Pixel 5'] },
+          testMatch: '**/*.visual.spec.ts',
+        },
+      ]
+    : [
+        // Local: All browsers for comprehensive testing
+        {
+          name: 'chromium',
+          use: { ...devices['Desktop Chrome'] },
+        },
+        {
+          name: 'firefox',
+          use: { ...devices['Desktop Firefox'] },
+        },
+        {
+          name: 'webkit',
+          use: { ...devices['Desktop Safari'] },
+        },
+        // Mobile viewport for visual testing
+        {
+          name: 'mobile-chrome',
+          use: { ...devices['Pixel 5'] },
+          testMatch: '**/*.visual.spec.ts',
+        },
+      ],
 
   webServer: {
     command: 'pnpm dev',

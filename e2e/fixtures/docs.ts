@@ -1,11 +1,14 @@
 import type { Doc, DocMetadata } from '@/gen/centy_pb'
 
+// Fixed date for deterministic visual tests
+const FIXED_DATE = '2024-01-15T10:30:00.000Z'
+
 /**
  * Creates a mock doc with default values that can be overridden.
  */
 export function createMockDoc(overrides: Partial<Doc> = {}): Doc {
   const slug = overrides.slug ?? 'test-doc'
-  const now = new Date().toISOString()
+  const now = FIXED_DATE
 
   const defaultMetadata: DocMetadata = {
     createdAt: now,
@@ -31,7 +34,7 @@ export function createMockDoc(overrides: Partial<Doc> = {}): Doc {
 export function createMockDocMetadata(
   overrides: Partial<DocMetadata> = {}
 ): DocMetadata {
-  const now = new Date().toISOString()
+  const now = FIXED_DATE
 
   return {
     createdAt: overrides.createdAt ?? now,

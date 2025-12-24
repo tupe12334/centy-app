@@ -3,9 +3,12 @@ import type { Issue, IssueMetadata } from '@/gen/centy_pb'
 /**
  * Creates a mock issue with default values that can be overridden.
  */
+// Fixed date for deterministic visual tests
+const FIXED_DATE = '2024-01-15T10:30:00.000Z'
+
 export function createMockIssue(overrides: Partial<Issue> = {}): Issue {
   const displayNumber = overrides.displayNumber ?? 1
-  const now = new Date().toISOString()
+  const now = FIXED_DATE
 
   const defaultMetadata: IssueMetadata = {
     displayNumber,
@@ -22,7 +25,7 @@ export function createMockIssue(overrides: Partial<Issue> = {}): Issue {
   }
 
   return {
-    id: overrides.id ?? `issue-${displayNumber}-${Date.now()}`,
+    id: overrides.id ?? `issue-${displayNumber}`,
     displayNumber,
     issueNumber: overrides.issueNumber ?? `uuid-${displayNumber}`,
     title: overrides.title ?? `Test Issue ${displayNumber}`,
@@ -42,7 +45,7 @@ export function createMockIssue(overrides: Partial<Issue> = {}): Issue {
 export function createMockIssueMetadata(
   overrides: Partial<IssueMetadata> = {}
 ): IssueMetadata {
-  const now = new Date().toISOString()
+  const now = FIXED_DATE
 
   return {
     displayNumber: overrides.displayNumber ?? 1,
