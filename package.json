@@ -34,6 +34,7 @@
     "@connectrpc/connect": "^2.1.1",
     "@connectrpc/connect-web": "^2.1.1",
     "@floating-ui/react": "^0.27.16",
+    "@fontsource/noto-sans": "^5.2.10",
     "@radix-ui/react-popover": "^1.1.15",
     "@tanstack/react-table": "^8.21.3",
     "@tauri-apps/plugin-dialog": "^2.2.0",

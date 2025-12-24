@@ -6,6 +6,10 @@ import { LegacyUrlRedirect } from '@/components/layout/LegacyUrlRedirect'
 import { MobileNotSupportedOverlay } from '@/components/layout/MobileNotSupportedOverlay'
 import { Header } from '@/components/layout/Header'
 import { ClientRouteHandler } from '@/components/layout/ClientRouteHandler'
+import '@fontsource/noto-sans/400.css'
+import '@fontsource/noto-sans/500.css'
+import '@fontsource/noto-sans/600.css'
+import '@fontsource/noto-sans/700.css'
 import '@/styles/globals.css'
 
 export const metadata: Metadata = {
