@@ -30,22 +30,22 @@ const OrganizationContext = createContext<OrganizationContextType | null>(null)
 const STORAGE_KEY = 'centy-selected-org'
 
 export function OrganizationProvider({ children }: { children: ReactNode }) {
-  // Only use localStorage for persistence - URL path is handled by PathContextProvider
+  // Initialize to null to avoid hydration mismatch - load from localStorage after mount
   const [selectedOrgSlug, setSelectedOrgSlugState] = useState<string | null>(
-    () => {
-      if (typeof window !== 'undefined') {
-        const stored = localStorage.getItem(STORAGE_KEY)
-        if (stored !== null) {
-          return stored
-        }
-      }
-      return null
-    }
+    null
   )
 
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Load from localStorage after mount to avoid hydration mismatch
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored !== null) {
+      setSelectedOrgSlugState(stored)
+    }
+  }, [])
 
   const refreshOrganizations = useCallback(async () => {
     setLoading(true)

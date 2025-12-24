@@ -5,6 +5,7 @@ import {
   useContext,
   useState,
   useCallback,
+  useEffect,
   type ReactNode,
 } from 'react'
 
@@ -20,12 +21,6 @@ const ProjectContext = createContext<ProjectContextType | null>(null)
 const STORAGE_KEY = 'centy-project-path'
 const ARCHIVED_STORAGE_KEY = 'centy-archived-projects'
 
-function getArchivedProjects(): string[] {
-  if (typeof window === 'undefined') return []
-  const stored = localStorage.getItem(ARCHIVED_STORAGE_KEY)
-  return stored ? JSON.parse(stored) : []
-}
-
 function setArchivedProjectsStorage(paths: string[]): void {
   if (typeof window !== 'undefined') {
     localStorage.setItem(ARCHIVED_STORAGE_KEY, JSON.stringify(paths))
@@ -33,24 +28,26 @@ function setArchivedProjectsStorage(paths: string[]): void {
 }
 
 export function ProjectProvider({ children }: { children: ReactNode }) {
-  // Only use localStorage for persistence - URL path is handled by PathContextProvider
-  const [projectPath, setProjectPathState] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem(STORAGE_KEY) || ''
-    }
-    return ''
-  })
+  // Initialize to empty to avoid hydration mismatch - load from localStorage after mount
+  const [projectPath, setProjectPathState] = useState('')
   const [isInitialized, setIsInitialized] = useState<boolean | null>(null)
+
+  // Load from localStorage after mount to avoid hydration mismatch
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setProjectPathState(stored)
+    }
+  }, [])
 
   const setProjectPath = useCallback((path: string) => {
     setProjectPathState(path)
     // Persist to localStorage
-    if (typeof window !== 'undefined') {
-      if (path) {
-        localStorage.setItem(STORAGE_KEY, path)
-      } else {
-        localStorage.removeItem(STORAGE_KEY)
-      }
+    if (path) {
+      localStorage.setItem(STORAGE_KEY, path)
+    } else {
+      localStorage.removeItem(STORAGE_KEY)
     }
   }, [])
 
@@ -72,9 +69,17 @@ export function useProject() {
 }
 
 export function useArchivedProjects() {
-  const [archivedPaths, setArchivedPathsState] = useState<string[]>(() =>
-    getArchivedProjects()
-  )
+  // Initialize to empty to avoid hydration mismatch - load from localStorage after mount
+  const [archivedPaths, setArchivedPathsState] = useState<string[]>([])
+
+  // Load from localStorage after mount to avoid hydration mismatch
+  useEffect(() => {
+    const stored = localStorage.getItem(ARCHIVED_STORAGE_KEY)
+    if (stored) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setArchivedPathsState(JSON.parse(stored))
+    }
+  }, [])
 
   const archiveProject = useCallback((path: string) => {
     setArchivedPathsState(prev => {
