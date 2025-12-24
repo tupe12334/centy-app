@@ -8,7 +8,7 @@ import {
   useMemo,
   type ReactNode,
 } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, usePathname } from 'next/navigation'
 import {
   resolveProject,
   resolveProjectPath,
@@ -59,9 +59,19 @@ const LAST_PROJECT_STORAGE_KEY = 'centy-last-project-path'
 export function PathContextProvider({ children }: { children: ReactNode }) {
   const params = useParams()
   const router = useRouter()
+  const pathname = usePathname()
 
-  // Extract org and project from URL path array (catch-all route)
-  const pathSegments = params.path as string[] | undefined
+  // Parse path segments from pathname - more reliable than params with static export
+  const pathSegments = useMemo(() => {
+    const segments = pathname
+      .split('/')
+      .filter(Boolean)
+      .map(s => decodeURIComponent(s))
+    return segments.length > 0
+      ? segments
+      : (params.path as string[] | undefined)
+  }, [pathname, params.path])
+
   const urlOrg = pathSegments?.[0]
   const urlProject = pathSegments?.[1]
 
