@@ -30,4 +30,10 @@ pnpm test --run || {
   exit 1
 }
 
+echo "Running e2e tests..."
+pnpm e2e || {
+  echo "E2E tests failed. Please fix failing tests before pushing."
+  exit 1
+}
+
 echo "All pre-push checks passed!"
