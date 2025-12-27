@@ -1,0 +1,60 @@
+name: Update Visual Snapshots
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to update screenshots on'
+        required: true
+        default: 'main'
+
+jobs:
+  update-screenshots:
+    name: Update Visual Test Screenshots
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps
+
+      - name: Update visual snapshots
+        run: pnpm e2e -- --grep @visual --update-snapshots
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code app/**/screenshot/*.png || echo "changes=true" >> $GITHUB_OUTPUT
+
+      - name: Commit updated screenshots
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add app/**/screenshot/*.png
+          git commit -m "chore: update visual test screenshots from CI
+
+          🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+          Co-Authored-By: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          git push
+
+      - name: No changes detected
+        if: steps.git-check.outputs.changes != 'true'
+        run: echo "No screenshot changes detected"

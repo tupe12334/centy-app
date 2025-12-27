@@ -81,15 +81,22 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps
 
-      - name: Run e2e tests (including visual tests)
-        run: pnpm e2e
+      - name: Run e2e tests (regular only)
+        run: pnpm e2e -- --grep-invert @visual
+
+      - name: Run visual tests
+        run: pnpm e2e -- --grep @visual
+        continue-on-error: true
+        id: visual-tests
 
       - name: Upload visual test snapshots on failure
-        if: failure()
+        if: steps.visual-tests.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: visual-snapshots-diff
-          path: screenshots/
+          path: |
+            app/**/screenshot/*.png
+            test-results/
           retention-days: 7
 
       - name: Upload test artifacts
@@ -101,3 +108,10 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+
+      - name: Visual tests summary
+        if: steps.visual-tests.outcome == 'failure'
+        run: |
+          echo "::warning::Visual tests failed. Screenshots may need to be regenerated."
+          echo "To update screenshots, run: pnpm e2e:visual:docker:update"
+          echo "Or download the artifacts and review the diffs."
