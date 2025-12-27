@@ -9,21 +9,56 @@ import { OrgSwitcher } from '@/components/organizations/OrgSwitcher'
 import { ProjectSelector } from '@/components/project/ProjectSelector'
 import { UNGROUPED_ORG_MARKER } from '@/lib/project-resolver'
 
+// Known root-level routes that are NOT org/project paths
+const ROOT_ROUTES = new Set([
+  'issues',
+  'docs',
+  'pull-requests',
+  'users',
+  'organizations',
+  'settings',
+  'archived',
+  'assets',
+  'project',
+])
+
 export function Header() {
   const pathname = usePathname()
   const params = useParams()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  // Extract org and project from URL path array (catch-all route)
-  const pathSegments = params.path as string[] | undefined
-  const org = pathSegments?.[0]
-  const project = pathSegments?.[1]
-  const hasProjectContext = Boolean(org && project)
+  // Extract org and project from URL
+  // New route structure: /[organization]/[project]/...
+  // Named params are available as params.organization and params.project
+  const org = params.organization as string | undefined
+  const project = params.project as string | undefined
+
+  // Fallback: parse pathname for cases where params might not be available
+  const pathSegments = useMemo(() => {
+    return pathname.split('/').filter(Boolean)
+  }, [pathname])
+
+  // Determine if we're in a project context
+  // A project context exists when:
+  // 1. We have both org and project params, OR
+  // 2. The first segment is not a known root-level route
+  const hasProjectContext = useMemo(() => {
+    if (org && project) return true
+    if (pathSegments.length >= 2 && !ROOT_ROUTES.has(pathSegments[0])) {
+      return true
+    }
+    return false
+  }, [org, project, pathSegments])
+
+  // Get effective org and project (from params or parsed pathname)
+  const effectiveOrg = org || (hasProjectContext ? pathSegments[0] : undefined)
+  const effectiveProject =
+    project || (hasProjectContext ? pathSegments[1] : undefined)
 
   // Build navigation links based on context
   const navLinks = useMemo(() => {
-    if (hasProjectContext) {
-      const base = `/${org}/${project}`
+    if (hasProjectContext && effectiveOrg && effectiveProject) {
+      const base = `/${effectiveOrg}/${effectiveProject}`
       return {
         issues: `${base}/issues`,
         pullRequests: `${base}/pull-requests`,
@@ -42,7 +77,7 @@ export function Header() {
       users: '/users',
       config: '/project/config',
     }
-  }, [hasProjectContext, org, project])
+  }, [hasProjectContext, effectiveOrg, effectiveProject])
 
   // Check if a path is active
   const isActive = (href: string, checkPrefix = true) => {
@@ -91,12 +126,13 @@ export function Header() {
   }, [mobileMenuOpen])
 
   // Display the current project context
-  const contextDisplay = hasProjectContext ? (
-    <span className="header-context">
-      {org === UNGROUPED_ORG_MARKER ? '' : `${org} / `}
-      {project}
-    </span>
-  ) : null
+  const contextDisplay =
+    hasProjectContext && effectiveOrg && effectiveProject ? (
+      <span className="header-context">
+        {effectiveOrg === UNGROUPED_ORG_MARKER ? '' : `${effectiveOrg} / `}
+        {effectiveProject}
+      </span>
+    ) : null
 
   return (
     <header className="app-header">

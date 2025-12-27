@@ -49,11 +49,24 @@ const PathContext = createContext<PathContextType | null>(null)
 
 const LAST_PROJECT_STORAGE_KEY = 'centy-last-project-path'
 
+// Known root-level routes that are NOT org/project paths
+const ROOT_ROUTES = new Set([
+  'issues',
+  'docs',
+  'pull-requests',
+  'users',
+  'organizations',
+  'settings',
+  'archived',
+  'assets',
+  'project',
+])
+
 /**
  * Provider that extracts org/project from URL path and resolves to project info
  *
  * Expected route structure:
- * - /[org]/[project]/... - Project-scoped pages
+ * - /[organization]/[project]/... - Project-scoped pages
  * - /issues, /docs, etc. - Aggregate views (no org/project in path)
  */
 export function PathContextProvider({ children }: { children: ReactNode }) {
@@ -61,19 +74,37 @@ export function PathContextProvider({ children }: { children: ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
 
-  // Parse path segments from pathname - more reliable than params with static export
+  // Extract org and project from named route params
+  const org = params.organization as string | undefined
+  const project = params.project as string | undefined
+
+  // Parse path segments from pathname as fallback
   const pathSegments = useMemo(() => {
-    const segments = pathname
+    return pathname
       .split('/')
       .filter(Boolean)
       .map(s => decodeURIComponent(s))
-    return segments.length > 0
-      ? segments
-      : (params.path as string[] | undefined)
-  }, [pathname, params.path])
+  }, [pathname])
 
-  const urlOrg = pathSegments?.[0]
-  const urlProject = pathSegments?.[1]
+  // Determine effective org and project
+  // Either from params or by parsing the pathname
+  const urlOrg = useMemo(() => {
+    if (org) return org
+    // Check if first segment is not a known root route
+    if (pathSegments.length >= 2 && !ROOT_ROUTES.has(pathSegments[0])) {
+      return pathSegments[0]
+    }
+    return undefined
+  }, [org, pathSegments])
+
+  const urlProject = useMemo(() => {
+    if (project) return project
+    // Check if first segment is not a known root route
+    if (pathSegments.length >= 2 && !ROOT_ROUTES.has(pathSegments[0])) {
+      return pathSegments[1]
+    }
+    return undefined
+  }, [project, pathSegments])
 
   // Determine if this is an aggregate view (no org/project in URL)
   const isAggregateView = !urlOrg || !urlProject

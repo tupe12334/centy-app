@@ -1,8 +1,21 @@
 'use client'
 
-import { useCallback } from 'react'
-import { useParams } from 'next/navigation'
+import { useCallback, useMemo } from 'react'
+import { useParams, usePathname } from 'next/navigation'
 import { UNGROUPED_ORG_MARKER } from '@/lib/project-resolver'
+
+// Known root-level routes that are NOT org/project paths
+const ROOT_ROUTES = new Set([
+  'issues',
+  'docs',
+  'pull-requests',
+  'users',
+  'organizations',
+  'settings',
+  'archived',
+  'assets',
+  'project',
+])
 
 /**
  * Hook that provides functions to generate path-based links.
@@ -10,11 +23,35 @@ import { UNGROUPED_ORG_MARKER } from '@/lib/project-resolver'
  */
 export function useAppLink() {
   const params = useParams()
+  const pathname = usePathname()
 
-  // Extract org and project from URL path array (catch-all route)
-  const pathSegments = params.path as string[] | undefined
-  const org = pathSegments?.[0]
-  const project = pathSegments?.[1]
+  // Extract org and project from named route params
+  const paramOrg = params.organization as string | undefined
+  const paramProject = params.project as string | undefined
+
+  // Parse path segments from pathname as fallback
+  const pathSegments = useMemo(() => {
+    return pathname.split('/').filter(Boolean)
+  }, [pathname])
+
+  // Determine effective org and project
+  const org = useMemo(() => {
+    if (paramOrg) return paramOrg
+    // Check if first segment is not a known root route
+    if (pathSegments.length >= 2 && !ROOT_ROUTES.has(pathSegments[0])) {
+      return pathSegments[0]
+    }
+    return undefined
+  }, [paramOrg, pathSegments])
+
+  const project = useMemo(() => {
+    if (paramProject) return paramProject
+    // Check if first segment is not a known root route
+    if (pathSegments.length >= 2 && !ROOT_ROUTES.has(pathSegments[0])) {
+      return pathSegments[1]
+    }
+    return undefined
+  }, [paramProject, pathSegments])
 
   /**
    * Create a link within the current project context.

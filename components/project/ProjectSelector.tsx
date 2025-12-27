@@ -46,20 +46,41 @@ export function ProjectSelector() {
 
   const searchInputRef = useRef<HTMLInputElement>(null)
 
+  // Known root-level routes that are NOT org/project paths
+  const ROOT_ROUTES = new Set([
+    'issues',
+    'docs',
+    'pull-requests',
+    'users',
+    'organizations',
+    'settings',
+    'archived',
+    'assets',
+    'project',
+  ])
+
   // Get current page from URL for navigation
   const getCurrentPage = () => {
-    // Extract org and project from catch-all route path
-    const pathSegments = params.path as string[] | undefined
-    const org = pathSegments?.[0]
-    const project = pathSegments?.[1]
+    // Extract org and project from named route params
+    const org = params.organization as string | undefined
+    const project = params.project as string | undefined
+
+    // Parse pathname segments
+    const pathSegments = pathname.split('/').filter(Boolean)
 
     // Check if we're in a project-scoped route
     if (org && project) {
-      // pathSegments: [org, project, page, ...]
+      // Path structure: /org/project/page/...
       return pathSegments[2] || 'issues'
     }
+
+    // For cases where params aren't set but we're in a project route
+    if (pathSegments.length >= 2 && !ROOT_ROUTES.has(pathSegments[0])) {
+      return pathSegments[2] || 'issues'
+    }
+
     // For aggregate/root views, extract page from pathname
-    const page = pathname.split('/').filter(Boolean)[0]
+    const page = pathSegments[0]
     return page || 'issues'
   }
 
