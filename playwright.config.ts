@@ -1,8 +1,21 @@
 import { defineConfig, devices } from '@playwright/test'
 
-export default defineConfig({
+// Visual test snapshot configuration
+// Screenshots are stored next to the pages they test in app/**/screenshot/
+const visualTestConfig = {
+  testDir: './e2e/tests/visual',
+  testMatch: '**/*.visual.spec.ts',
+  snapshotDir: './app',
+  snapshotPathTemplate: '{snapshotDir}/{testFileDir}/{arg}-{projectName}{ext}',
+}
+
+// Regular e2e test configuration
+const regularTestConfig = {
   testDir: './e2e/tests',
-  testMatch: '**/*.spec.ts',
+  testIgnore: '**/visual/**',
+}
+
+export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -38,28 +51,47 @@ export default defineConfig({
         {
           name: 'chromium',
           use: { ...devices['Desktop Chrome'] },
-          testIgnore: '**/*.visual.spec.ts',
+          ...regularTestConfig,
         },
       ]
     : [
-        // Local: All browsers for comprehensive testing
+        // Regular e2e tests - all browsers
         {
           name: 'chromium',
           use: { ...devices['Desktop Chrome'] },
+          ...regularTestConfig,
         },
         {
           name: 'firefox',
           use: { ...devices['Desktop Firefox'] },
+          ...regularTestConfig,
         },
         {
           name: 'webkit',
           use: { ...devices['Desktop Safari'] },
+          ...regularTestConfig,
         },
-        // Mobile viewport for visual testing
+        // Visual tests - desktop browsers
+        {
+          name: 'chromium',
+          use: { ...devices['Desktop Chrome'] },
+          ...visualTestConfig,
+        },
+        {
+          name: 'firefox',
+          use: { ...devices['Desktop Firefox'] },
+          ...visualTestConfig,
+        },
+        {
+          name: 'webkit',
+          use: { ...devices['Desktop Safari'] },
+          ...visualTestConfig,
+        },
+        // Visual tests - mobile viewport
         {
           name: 'mobile-chrome',
           use: { ...devices['Pixel 5'] },
-          testMatch: '**/*.visual.spec.ts',
+          ...visualTestConfig,
         },
       ],
 
@@ -69,8 +101,4 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },
-
-  snapshotDir: './screenshots',
-  snapshotPathTemplate:
-    '{snapshotDir}/{testFileDir}/{testFileName}-{arg}-{projectName}{ext}',
 })

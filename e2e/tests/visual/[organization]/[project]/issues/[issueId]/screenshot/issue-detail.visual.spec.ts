@@ -1,5 +1,27 @@
 import { test, expect } from '@playwright/test'
-import { setupDemoMode, navigateToDemoProject } from '../../utils/test-helpers'
+import {
+  setupDemoMode,
+  navigateToDemoProject,
+} from '../../../../../../../utils/test-helpers'
+
+test.describe('Issue Detail Visual Tests @visual', () => {
+  test('issue detail page', async ({ page }) => {
+    await setupDemoMode(page)
+    await navigateToDemoProject(page, '/issues/demo-issue-1')
+
+    // Wait for demo mode indicator to confirm data is loaded
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
+      timeout: 10000,
+    })
+
+    // Wait for content to stabilize
+    await page.waitForTimeout(500)
+
+    await expect(page).toHaveScreenshot('issue-detail.png', {
+      fullPage: true,
+    })
+  })
+})
 
 test.describe('VS Code Button Visual Tests @visual', () => {
   test.describe('VS Code Available (Demo Mode)', () => {
