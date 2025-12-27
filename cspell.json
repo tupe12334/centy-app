@@ -60,6 +60,7 @@
     "noto",
     "msdownload",
     "networkidle",
+    "noto",
     "ofetch",
     "oneline",
     "opennextjs",
@@ -80,7 +81,8 @@
     "venv",
     "viewports",
     "vitejs",
-    "vitest"
+    "vitest",
+    "worktree"
   ],
   "ignorePaths": [
     "node_modules",
