@@ -1,11 +1,14 @@
-'use client'
-
-import { useParams } from 'next/navigation'
 import { OrganizationDetail } from '@/components/organizations/OrganizationDetail'
 
-export default function OrganizationDetailPage() {
-  const params = useParams()
-  const orgSlug = params.orgSlug as string
+export async function generateStaticParams() {
+  return [{ orgSlug: '_placeholder' }]
+}
 
+export default async function OrganizationDetailPage({
+  params,
+}: {
+  params: Promise<{ orgSlug: string }>
+}) {
+  const { orgSlug } = await params
   return <OrganizationDetail orgSlug={orgSlug} />
 }

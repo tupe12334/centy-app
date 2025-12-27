@@ -1,22 +1,14 @@
-'use client'
+import { redirect } from 'next/navigation'
 
-import { useParams, useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+export async function generateStaticParams() {
+  return [{ organization: '_placeholder', project: '_placeholder' }]
+}
 
-export default function ProjectPage() {
-  const params = useParams()
-  const router = useRouter()
-  const organization = params.organization as string
-  const project = params.project as string
-
-  useEffect(() => {
-    // Redirect to issues as the default project page
-    router.replace(`/${organization}/${project}/issues`)
-  }, [organization, project, router])
-
-  return (
-    <div className="loading">
-      <p>Loading project...</p>
-    </div>
-  )
+export default async function ProjectPage({
+  params,
+}: {
+  params: Promise<{ organization: string; project: string }>
+}) {
+  const { organization, project } = await params
+  redirect(`/${organization}/${project}/issues`)
 }

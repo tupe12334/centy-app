@@ -1,11 +1,20 @@
-'use client'
-
-import { useParams } from 'next/navigation'
 import { PRDetail } from '@/components/pull-requests/PRDetail'
 
-export default function PRDetailPage() {
-  const params = useParams()
-  const prNumber = params.prNumber as string
+export async function generateStaticParams() {
+  return [
+    {
+      organization: '_placeholder',
+      project: '_placeholder',
+      prNumber: '_placeholder',
+    },
+  ]
+}
 
+export default async function PRDetailPage({
+  params,
+}: {
+  params: Promise<{ prNumber: string }>
+}) {
+  const { prNumber } = await params
   return <PRDetail prNumber={prNumber} />
 }
