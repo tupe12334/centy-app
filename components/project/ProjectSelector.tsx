@@ -111,7 +111,8 @@ export function ProjectSelector() {
     if (isOpen) {
       fetchProjects()
     }
-  }, [isOpen, fetchProjects])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen])
 
   const handleSelectProject = (project: ProjectInfo) => {
     // Build the new URL path

@@ -32,7 +32,8 @@ export function OrgSwitcher() {
     if (isOpen) {
       refreshOrganizations()
     }
-  }, [isOpen, refreshOrganizations])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen])
 
   // Close on click outside
   useEffect(() => {
@@ -78,7 +79,6 @@ export function OrgSwitcher() {
 
       {isOpen && (
         <div
-          // eslint-disable-next-line react-hooks/refs -- setFloating is a ref callback, not accessing .current
           ref={refs.setFloating}
           style={floatingStyles}
           className="org-switcher-dropdown"

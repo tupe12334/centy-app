@@ -39,7 +39,8 @@ export default function HomePage() {
     }
 
     handleRouting()
-  }, [router])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   if (loading) {
     return (
