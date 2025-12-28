@@ -1,0 +1,10 @@
+# Cloudflare Pages redirects for SPA-style routing
+# This ensures all routes that don't match static files are served by the catch-all page
+# The catch-all page handles client-side routing based on the actual URL
+
+# Serve static assets directly (let Cloudflare handle these)
+/_next/*  /_next/:splat  200
+
+# All other routes that don't match static files should serve the fallback page
+# The 200 status means "rewrite" (serve the content but keep the original URL)
+/*  /_fallback/index.html  200
