@@ -25,6 +25,7 @@
 @import './components/ThemeToggle.css';
 
 /* Page styles */
+@import './pages/HomePage.css';
 @import './pages/ArchivedProjects.css';
 @import './pages/CreateDoc.css';
 @import './pages/CreateIssue.css';
