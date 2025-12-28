@@ -294,7 +294,8 @@ export function AggregateIssuesList() {
 
   useEffect(() => {
     fetchAllIssues()
-  }, [fetchAllIssues])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="issues-list">

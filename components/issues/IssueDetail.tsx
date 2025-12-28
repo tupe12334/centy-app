@@ -130,14 +130,16 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
     fetchIssue()
     fetchAssets()
     fetchActiveWork()
-  }, [fetchIssue, fetchAssets, fetchActiveWork])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectPath, issueNumber])
 
   // Record last seen timestamp when issue is viewed
   useEffect(() => {
     if (issue?.id) {
       recordLastSeen(issue.id)
     }
-  }, [issue?.id, recordLastSeen])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [issue?.id])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

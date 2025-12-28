@@ -110,7 +110,8 @@ export function DaemonStatusProvider({ children }: { children: ReactNode }) {
     setTimeout(() => {
       checkDaemonStatus()
     }, 100)
-  }, [checkDaemonStatus])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Initial check and periodic polling
   useEffect(() => {
@@ -133,7 +134,8 @@ export function DaemonStatusProvider({ children }: { children: ReactNode }) {
       clearTimeout(timeoutId)
       clearInterval(interval)
     }
-  }, [checkDaemonStatus, hasMounted])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasMounted])
 
   return (
     <DaemonStatusContext.Provider

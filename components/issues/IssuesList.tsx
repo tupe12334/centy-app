@@ -302,7 +302,8 @@ export function IssuesList() {
     if (isInitialized === true) {
       fetchIssues()
     }
-  }, [isInitialized, fetchIssues])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isInitialized, projectPath])
 
   const handleContextMenu = useCallback((e: React.MouseEvent, issue: Issue) => {
     e.preventDefault()
