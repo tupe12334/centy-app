@@ -6,7 +6,7 @@
   "description": "Centy - Local-first issue and documentation tracker web application",
   "scripts": {
     "dev": "next dev -p 5180",
-    "build": "next build && rm -rf out/404.html out/404",
+    "build": "next build && cp out/_fallback/index.html out/404.html",
     "pages:dev": "pnpm build && wrangler pages dev out",
     "pages:deploy": "pnpm build && wrangler pages deploy out --project-name=centy-app",
     "start": "next start -p 5180",
