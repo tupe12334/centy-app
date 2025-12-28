@@ -33,7 +33,9 @@ export function ProjectsGrid() {
             includeStale: false,
           })
         ),
-        centyClient.listOrganizations(create(ListOrganizationsRequestSchema, {})),
+        centyClient.listOrganizations(
+          create(ListOrganizationsRequestSchema, {})
+        ),
       ])
 
       setProjects(projectsResponse.projects)
@@ -47,7 +49,8 @@ export function ProjectsGrid() {
 
   useEffect(() => {
     fetchData()
-  }, [fetchData])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleToggleFavorite = async (
     e: React.MouseEvent,
