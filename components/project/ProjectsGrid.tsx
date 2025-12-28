@@ -236,12 +236,6 @@ export function ProjectsGrid() {
       ))}
 
       <div className="projects-grid-footer">
-        <Link href="/issues" className="view-all-link">
-          View All Issues
-        </Link>
-        <Link href="/docs" className="view-all-link">
-          View All Docs
-        </Link>
         <Link href="/organizations" className="view-all-link">
           Manage Organizations
         </Link>

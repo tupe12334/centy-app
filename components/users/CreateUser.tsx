@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
@@ -18,7 +18,15 @@ function generateSlug(name: string): string {
 
 export function CreateUser() {
   const router = useRouter()
+  const params = useParams()
   const { projectPath, isInitialized } = useProject()
+
+  const usersListUrl = useMemo(() => {
+    const org = params.organization as string | undefined
+    const project = params.project as string | undefined
+    if (org && project) return `/${org}/${project}/users`
+    return '/'
+  }, [params])
 
   const [name, setName] = useState('')
   const [userId, setUserId] = useState('')
@@ -107,7 +115,7 @@ export function CreateUser() {
       <div className="create-user">
         <div className="error-message">
           No project path specified. Please go to the{' '}
-          <Link href="/users">users list</Link> and select a project.
+          <Link href={usersListUrl}>users list</Link> and select a project.
         </div>
       </div>
     )
@@ -127,7 +135,7 @@ export function CreateUser() {
   return (
     <div className="create-user">
       <div className="create-user-header">
-        <Link href="/users" className="back-link">
+        <Link href={usersListUrl} className="back-link">
           Back to Users
         </Link>
         <h2>Create New User</h2>
@@ -213,7 +221,7 @@ export function CreateUser() {
         </div>
 
         <div className="form-actions">
-          <Link href="/users" className="cancel-btn">
+          <Link href={usersListUrl} className="cancel-btn">
             Cancel
           </Link>
           <button

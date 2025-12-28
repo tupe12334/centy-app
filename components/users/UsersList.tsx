@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -32,7 +32,16 @@ const columnHelper = createColumnHelper<User>()
 
 export function UsersList() {
   const router = useRouter()
+  const params = useParams()
   const { projectPath, isInitialized, setIsInitialized } = useProject()
+
+  const usersBaseUrl = useMemo(() => {
+    const org = params.organization as string | undefined
+    const project = params.project as string | undefined
+    if (org && project) return `/${org}/${project}/users`
+    return '/'
+  }, [params])
+
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -278,7 +287,7 @@ export function UsersList() {
               </button>
             </>
           )}
-          <Link href="/users/new" className="create-btn">
+          <Link href={`${usersBaseUrl}/new`} className="create-btn">
             + New User
           </Link>
         </div>
@@ -328,7 +337,8 @@ export function UsersList() {
             <div className="empty-state">
               <p>No users found</p>
               <p>
-                <Link href="/users/new">Create your first user</Link> or{' '}
+                <Link href={`${usersBaseUrl}/new`}>Create your first user</Link>{' '}
+                or{' '}
                 <button
                   onClick={() => setShowSyncModal(true)}
                   className="sync-link-btn"

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
@@ -37,12 +37,23 @@ interface IssueDetailProps {
 
 export function IssueDetail({ issueNumber }: IssueDetailProps) {
   const router = useRouter()
+  const params = useParams()
   const { projectPath } = useProject()
   const { vscodeAvailable } = useDaemonStatus()
   const { copyToClipboard } = useCopyToClipboard()
   const { recordLastSeen } = useLastSeenIssues()
   const stateManager = useStateManager()
   const stateOptions = stateManager.getStateOptions()
+
+  // Get the project-scoped issues URL
+  const issuesListUrl = useMemo(() => {
+    const org = params.organization as string | undefined
+    const project = params.project as string | undefined
+    if (org && project) {
+      return `/${org}/${project}/issues`
+    }
+    return '/'
+  }, [params])
 
   const [issue, setIssue] = useState<Issue | null>(null)
   const [loading, setLoading] = useState(true)
@@ -249,7 +260,7 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
       const response = await centyClient.deleteIssue(request)
 
       if (response.success) {
-        router.push('/issues')
+        router.push(issuesListUrl)
       } else {
         setError(response.error || 'Failed to delete issue')
         setShowDeleteConfirm(false)
@@ -262,7 +273,7 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
     } finally {
       setDeleting(false)
     }
-  }, [projectPath, issueNumber, router])
+  }, [projectPath, issueNumber, router, issuesListUrl])
 
   const handleCancelEdit = () => {
     setIsEditing(false)
@@ -388,7 +399,7 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
       <div className="issue-detail">
         <div className="error-message">
           No project path specified. Please go to the{' '}
-          <Link href="/issues">issues list</Link> and select a project.
+          <Link href={issuesListUrl}>issues list</Link> and select a project.
         </div>
       </div>
     )
@@ -406,7 +417,7 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
     return (
       <div className="issue-detail">
         <div className="error-message">{error}</div>
-        <Link href="/issues" className="back-link">
+        <Link href={issuesListUrl} className="back-link">
           Back to Issues
         </Link>
       </div>
@@ -417,7 +428,7 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
     return (
       <div className="issue-detail">
         <div className="error-message">Issue not found</div>
-        <Link href="/issues" className="back-link">
+        <Link href={issuesListUrl} className="back-link">
           Back to Issues
         </Link>
       </div>
@@ -427,7 +438,7 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
   return (
     <div className="issue-detail">
       <div className="issue-header">
-        <Link href="/issues" className="back-link">
+        <Link href={issuesListUrl} className="back-link">
           Back to Issues
         </Link>
 

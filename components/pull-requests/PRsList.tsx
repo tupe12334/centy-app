@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -79,11 +80,22 @@ const getStatusClass = (status: string) => {
 }
 
 export function PRsList() {
+  const params = useParams()
   const { projectPath, isInitialized, setIsInitialized } = useProject()
   const [prs, setPrs] = useState<PullRequest[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { copyToClipboard } = useCopyToClipboard()
+
+  // Get the project-scoped PR URL
+  const prBaseUrl = useMemo(() => {
+    const org = params.organization as string | undefined
+    const project = params.project as string | undefined
+    if (org && project) {
+      return `/${org}/${project}/pull-requests`
+    }
+    return '/'
+  }, [params])
 
   // TanStack Table state - default sort by createdAt descending (newest first)
   const [sorting, setSorting] = useState<SortingState>([
@@ -321,7 +333,7 @@ export function PRsList() {
               {loading ? 'Loading...' : 'Refresh'}
             </button>
           )}
-          <Link href="/pull-requests/new" className="create-btn">
+          <Link href={`${prBaseUrl}/new`} className="create-btn">
             + New PR
           </Link>
         </div>
@@ -349,7 +361,7 @@ export function PRsList() {
           ) : prs.length === 0 ? (
             <div className="empty-state">
               <p>No pull requests found</p>
-              <Link href="/pull-requests/new">Create your first PR</Link>
+              <Link href={`${prBaseUrl}/new`}>Create your first PR</Link>
             </div>
           ) : (
             <div className="prs-table">

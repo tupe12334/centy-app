@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
@@ -10,6 +10,7 @@ import {
   IsInitializedRequestSchema,
 } from '@/gen/centy_pb'
 import { useProject } from '@/components/providers/ProjectProvider'
+import { useProjectPathToUrl } from '@/components/providers/PathContextProvider'
 import {
   AssetUploader,
   type AssetUploaderHandle,
@@ -21,7 +22,9 @@ import { useStateManager } from '@/lib/state'
 
 export function CreateIssue() {
   const router = useRouter()
+  const params = useParams()
   const { projectPath, isInitialized, setIsInitialized } = useProject()
+  const projectPathToUrl = useProjectPathToUrl()
   const stateManager = useStateManager()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -32,6 +35,26 @@ export function CreateIssue() {
   const [pendingAssets, setPendingAssets] = useState<PendingAsset[]>([])
   const assetUploaderRef = useRef<AssetUploaderHandle>(null)
   const stateOptions = stateManager.getStateOptions()
+
+  // Get the project URL base from params or resolve from projectPath
+  const getProjectBase = useCallback(async () => {
+    const org = params.organization as string | undefined
+    const project = params.project as string | undefined
+
+    if (org && project) {
+      return `/${org}/${project}`
+    }
+
+    // Fall back to resolving from projectPath
+    if (projectPath) {
+      const result = await projectPathToUrl(projectPath)
+      if (result) {
+        return `/${result.orgSlug}/${result.projectName}`
+      }
+    }
+
+    return null
+  }, [params, projectPath, projectPathToUrl])
 
   const checkInitialized = useCallback(
     async (path: string) => {
@@ -82,7 +105,14 @@ export function CreateIssue() {
           if (pendingAssets.length > 0 && assetUploaderRef.current) {
             await assetUploaderRef.current.uploadAllPending(response.id)
           }
-          router.push(`/issues/${response.issueNumber}`)
+          // Navigate to the project-scoped issue detail page
+          const base = await getProjectBase()
+          if (base) {
+            router.push(`${base}/issues/${response.issueNumber}`)
+          } else {
+            // Fallback to issues list if we can't determine project base
+            router.push('/')
+          }
         } else {
           setError(response.error || 'Failed to create issue')
         }
@@ -94,7 +124,16 @@ export function CreateIssue() {
         setLoading(false)
       }
     },
-    [projectPath, title, description, priority, status, pendingAssets, router]
+    [
+      projectPath,
+      title,
+      description,
+      priority,
+      status,
+      pendingAssets,
+      router,
+      getProjectBase,
+    ]
   )
 
   const handleKeyboardSave = useCallback(() => {
@@ -203,7 +242,10 @@ export function CreateIssue() {
         <div className="actions">
           <button
             type="button"
-            onClick={() => router.push('/issues')}
+            onClick={async () => {
+              const base = await getProjectBase()
+              router.push(base ? `${base}/issues` : '/')
+            }}
             className="secondary"
           >
             Cancel

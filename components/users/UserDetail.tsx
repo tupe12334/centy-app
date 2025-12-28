@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
@@ -20,7 +20,15 @@ interface UserDetailProps {
 
 export function UserDetail({ userId }: UserDetailProps) {
   const router = useRouter()
+  const params = useParams()
   const { projectPath } = useProject()
+
+  const usersListUrl = useMemo(() => {
+    const org = params.organization as string | undefined
+    const project = params.project as string | undefined
+    if (org && project) return `/${org}/${project}/users`
+    return '/'
+  }, [params])
 
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
@@ -130,7 +138,7 @@ export function UserDetail({ userId }: UserDetailProps) {
       const response = await centyClient.deleteUser(request)
 
       if (response.success) {
-        router.push('/users')
+        router.push(usersListUrl)
       } else {
         const errorMsg = response.error || 'Failed to delete user'
         if (errorMsg.includes('unimplemented')) {
@@ -191,7 +199,7 @@ export function UserDetail({ userId }: UserDetailProps) {
       <div className="user-detail">
         <div className="error-message">
           No project path specified. Please go to the{' '}
-          <Link href="/users">users list</Link> and select a project.
+          <Link href={usersListUrl}>users list</Link> and select a project.
         </div>
       </div>
     )
@@ -209,7 +217,7 @@ export function UserDetail({ userId }: UserDetailProps) {
     return (
       <div className="user-detail">
         <div className="error-message">{error}</div>
-        <Link href="/users" className="back-link">
+        <Link href={usersListUrl} className="back-link">
           Back to Users
         </Link>
       </div>
@@ -220,7 +228,7 @@ export function UserDetail({ userId }: UserDetailProps) {
     return (
       <div className="user-detail">
         <div className="error-message">User not found</div>
-        <Link href="/users" className="back-link">
+        <Link href={usersListUrl} className="back-link">
           Back to Users
         </Link>
       </div>
@@ -230,7 +238,7 @@ export function UserDetail({ userId }: UserDetailProps) {
   return (
     <div className="user-detail">
       <div className="user-header">
-        <Link href="/users" className="back-link">
+        <Link href={usersListUrl} className="back-link">
           Back to Users
         </Link>
 

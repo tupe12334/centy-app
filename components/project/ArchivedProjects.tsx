@@ -160,8 +160,8 @@ export function ArchivedProjects() {
               )}
             </>
           )}
-          <Link href="/issues" className="back-link">
-            Back to Issues
+          <Link href="/" className="back-link">
+            Back to Projects
           </Link>
         </div>
       </div>

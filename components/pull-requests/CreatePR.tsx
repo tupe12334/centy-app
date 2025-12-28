@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
@@ -10,6 +10,7 @@ import {
   IsInitializedRequestSchema,
 } from '@/gen/centy_pb'
 import { useProject } from '@/components/providers/ProjectProvider'
+import { useProjectPathToUrl } from '@/components/providers/PathContextProvider'
 import {
   AssetUploader,
   type AssetUploaderHandle,
@@ -20,7 +21,20 @@ import '@/styles/pages/CreatePR.css'
 
 export function CreatePR() {
   const router = useRouter()
+  const params = useParams()
   const { projectPath, isInitialized, setIsInitialized } = useProject()
+  const projectPathToUrl = useProjectPathToUrl()
+
+  const getProjectBase = useCallback(async () => {
+    const org = params.organization as string | undefined
+    const project = params.project as string | undefined
+    if (org && project) return `/${org}/${project}`
+    if (projectPath) {
+      const result = await projectPathToUrl(projectPath)
+      if (result) return `/${result.orgSlug}/${result.projectName}`
+    }
+    return null
+  }, [params, projectPath, projectPathToUrl])
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [sourceBranch, setSourceBranch] = useState('')
@@ -226,7 +240,10 @@ export function CreatePR() {
         <div className="actions">
           <button
             type="button"
-            onClick={() => router.push('/pull-requests')}
+            onClick={async () => {
+              const base = await getProjectBase()
+              router.push(base ? `${base}/pull-requests` : '/')
+            }}
             className="secondary"
           >
             Cancel

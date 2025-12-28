@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
@@ -24,8 +24,19 @@ interface DocDetailProps {
 
 export function DocDetail({ slug }: DocDetailProps) {
   const router = useRouter()
+  const params = useParams()
   const { projectPath } = useProject()
   const { copyToClipboard } = useCopyToClipboard()
+
+  // Get the project-scoped docs URL
+  const docsListUrl = useMemo(() => {
+    const org = params.organization as string | undefined
+    const project = params.project as string | undefined
+    if (org && project) {
+      return `/${org}/${project}/docs`
+    }
+    return '/'
+  }, [params])
 
   const [doc, setDoc] = useState<Doc | null>(null)
   const [loading, setLoading] = useState(true)
@@ -121,7 +132,7 @@ export function DocDetail({ slug }: DocDetailProps) {
       const response = await centyClient.deleteDoc(request)
 
       if (response.success) {
-        router.push('/docs')
+        router.push(docsListUrl)
       } else {
         setError(response.error || 'Failed to delete document')
         setShowDeleteConfirm(false)
@@ -134,7 +145,7 @@ export function DocDetail({ slug }: DocDetailProps) {
     } finally {
       setDeleting(false)
     }
-  }, [projectPath, slug, router])
+  }, [projectPath, slug, router, docsListUrl])
 
   const handleCancelEdit = () => {
     setIsEditing(false)
@@ -154,14 +165,14 @@ export function DocDetail({ slug }: DocDetailProps) {
     (newSlug: string, targetProjectPath: string) => {
       if (targetProjectPath === projectPath) {
         // Same project - navigate to the new doc
-        router.push(`/docs/${newSlug}`)
+        router.push(`${docsListUrl}/${newSlug}`)
       } else {
         // Different project - redirect to target project
         window.location.href = `/?project=${encodeURIComponent(targetProjectPath)}`
       }
       setShowDuplicateModal(false)
     },
-    [projectPath, router]
+    [projectPath, router, docsListUrl]
   )
 
   if (!projectPath) {
@@ -169,7 +180,8 @@ export function DocDetail({ slug }: DocDetailProps) {
       <div className="doc-detail">
         <div className="error-message">
           No project path specified. Please go to the{' '}
-          <Link href="/docs">documentation list</Link> and select a project.
+          <Link href={docsListUrl}>documentation list</Link> and select a
+          project.
         </div>
       </div>
     )
@@ -187,7 +199,7 @@ export function DocDetail({ slug }: DocDetailProps) {
     return (
       <div className="doc-detail">
         <div className="error-message">{error}</div>
-        <Link href="/docs" className="back-link">
+        <Link href={docsListUrl} className="back-link">
           Back to Documentation
         </Link>
       </div>
@@ -198,7 +210,7 @@ export function DocDetail({ slug }: DocDetailProps) {
     return (
       <div className="doc-detail">
         <div className="error-message">Document not found</div>
-        <Link href="/docs" className="back-link">
+        <Link href={docsListUrl} className="back-link">
           Back to Documentation
         </Link>
       </div>
@@ -208,7 +220,7 @@ export function DocDetail({ slug }: DocDetailProps) {
   return (
     <div className="doc-detail">
       <div className="doc-header">
-        <Link href="/docs" className="back-link">
+        <Link href={docsListUrl} className="back-link">
           Back to Documentation
         </Link>
 

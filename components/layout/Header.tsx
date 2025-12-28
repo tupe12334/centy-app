@@ -11,10 +11,6 @@ import { UNGROUPED_ORG_MARKER } from '@/lib/project-resolver'
 
 // Known root-level routes that are NOT org/project paths
 const ROOT_ROUTES = new Set([
-  'issues',
-  'docs',
-  'pull-requests',
-  'users',
   'organizations',
   'settings',
   'archived',
@@ -56,6 +52,7 @@ export function Header() {
     project || (hasProjectContext ? pathSegments[1] : undefined)
 
   // Build navigation links based on context
+  // All navigation now requires project context
   const navLinks = useMemo(() => {
     if (hasProjectContext && effectiveOrg && effectiveProject) {
       const base = `/${effectiveOrg}/${effectiveProject}`
@@ -68,15 +65,8 @@ export function Header() {
         config: `${base}/config`,
       }
     }
-    // Aggregate/root level links
-    return {
-      issues: '/issues',
-      pullRequests: '/pull-requests',
-      docs: '/docs',
-      assets: '/assets',
-      users: '/users',
-      config: '/project/config',
-    }
+    // No project context - return null to indicate nav items shouldn't be shown
+    return null
   }, [hasProjectContext, effectiveOrg, effectiveProject])
 
   // Check if a path is active
@@ -160,48 +150,52 @@ export function Header() {
       </div>
       <p>Local-first issue and documentation tracker</p>
       <nav className="app-nav">
-        {/* Project-dependent items */}
-        <div className="nav-group nav-group-project">
-          <Link
-            href={navLinks.issues}
-            className={isActive(navLinks.issues) ? 'active' : ''}
-          >
-            Issues
-          </Link>
-          <Link
-            href={navLinks.pullRequests}
-            className={isActive(navLinks.pullRequests) ? 'active' : ''}
-          >
-            Pull Requests
-          </Link>
-          <Link
-            href={navLinks.docs}
-            className={isActive(navLinks.docs) ? 'active' : ''}
-          >
-            Docs
-          </Link>
-          <Link
-            href={navLinks.assets}
-            className={isActive(navLinks.assets, false) ? 'active' : ''}
-          >
-            Assets
-          </Link>
-          <Link
-            href={navLinks.users}
-            className={isActive(navLinks.users) ? 'active' : ''}
-          >
-            Users
-          </Link>
-          <Link
-            href={navLinks.config}
-            className={isActive(navLinks.config, false) ? 'active' : ''}
-          >
-            Project Config
-          </Link>
-        </div>
+        {/* Project-dependent items - only show when project context exists */}
+        {navLinks && (
+          <>
+            <div className="nav-group nav-group-project">
+              <Link
+                href={navLinks.issues}
+                className={isActive(navLinks.issues) ? 'active' : ''}
+              >
+                Issues
+              </Link>
+              <Link
+                href={navLinks.pullRequests}
+                className={isActive(navLinks.pullRequests) ? 'active' : ''}
+              >
+                Pull Requests
+              </Link>
+              <Link
+                href={navLinks.docs}
+                className={isActive(navLinks.docs) ? 'active' : ''}
+              >
+                Docs
+              </Link>
+              <Link
+                href={navLinks.assets}
+                className={isActive(navLinks.assets, false) ? 'active' : ''}
+              >
+                Assets
+              </Link>
+              <Link
+                href={navLinks.users}
+                className={isActive(navLinks.users) ? 'active' : ''}
+              >
+                Users
+              </Link>
+              <Link
+                href={navLinks.config}
+                className={isActive(navLinks.config, false) ? 'active' : ''}
+              >
+                Project Config
+              </Link>
+            </div>
 
-        {/* Visual divider */}
-        <div className="nav-divider" aria-hidden="true" />
+            {/* Visual divider */}
+            <div className="nav-divider" aria-hidden="true" />
+          </>
+        )}
 
         {/* General pages */}
         <div className="nav-group nav-group-general">
@@ -246,48 +240,52 @@ export function Header() {
           <ProjectSelector />
         </div>
         <nav className="mobile-menu-nav">
-          {/* Project-dependent items */}
-          <div className="mobile-nav-group">
-            <Link
-              href={navLinks.issues}
-              className={isActive(navLinks.issues) ? 'active' : ''}
-            >
-              Issues
-            </Link>
-            <Link
-              href={navLinks.pullRequests}
-              className={isActive(navLinks.pullRequests) ? 'active' : ''}
-            >
-              Pull Requests
-            </Link>
-            <Link
-              href={navLinks.docs}
-              className={isActive(navLinks.docs) ? 'active' : ''}
-            >
-              Docs
-            </Link>
-            <Link
-              href={navLinks.assets}
-              className={isActive(navLinks.assets, false) ? 'active' : ''}
-            >
-              Assets
-            </Link>
-            <Link
-              href={navLinks.users}
-              className={isActive(navLinks.users) ? 'active' : ''}
-            >
-              Users
-            </Link>
-            <Link
-              href={navLinks.config}
-              className={isActive(navLinks.config, false) ? 'active' : ''}
-            >
-              Project Config
-            </Link>
-          </div>
+          {/* Project-dependent items - only show when project context exists */}
+          {navLinks && (
+            <>
+              <div className="mobile-nav-group">
+                <Link
+                  href={navLinks.issues}
+                  className={isActive(navLinks.issues) ? 'active' : ''}
+                >
+                  Issues
+                </Link>
+                <Link
+                  href={navLinks.pullRequests}
+                  className={isActive(navLinks.pullRequests) ? 'active' : ''}
+                >
+                  Pull Requests
+                </Link>
+                <Link
+                  href={navLinks.docs}
+                  className={isActive(navLinks.docs) ? 'active' : ''}
+                >
+                  Docs
+                </Link>
+                <Link
+                  href={navLinks.assets}
+                  className={isActive(navLinks.assets, false) ? 'active' : ''}
+                >
+                  Assets
+                </Link>
+                <Link
+                  href={navLinks.users}
+                  className={isActive(navLinks.users) ? 'active' : ''}
+                >
+                  Users
+                </Link>
+                <Link
+                  href={navLinks.config}
+                  className={isActive(navLinks.config, false) ? 'active' : ''}
+                >
+                  Project Config
+                </Link>
+              </div>
 
-          {/* Horizontal divider */}
-          <div className="mobile-nav-divider" aria-hidden="true" />
+              {/* Horizontal divider */}
+              <div className="mobile-nav-divider" aria-hidden="true" />
+            </>
+          )}
 
           {/* General pages */}
           <div className="mobile-nav-group">

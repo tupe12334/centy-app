@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
@@ -10,16 +10,39 @@ import {
   IsInitializedRequestSchema,
 } from '@/gen/centy_pb'
 import { useProject } from '@/components/providers/ProjectProvider'
+import { useProjectPathToUrl } from '@/components/providers/PathContextProvider'
 import { TextEditor } from '@/components/shared/TextEditor'
 
 export function CreateDoc() {
   const router = useRouter()
+  const params = useParams()
   const { projectPath, isInitialized, setIsInitialized } = useProject()
+  const projectPathToUrl = useProjectPathToUrl()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [slug, setSlug] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Get the project URL base from params or resolve from projectPath
+  const getProjectBase = useCallback(async () => {
+    const org = params.organization as string | undefined
+    const project = params.project as string | undefined
+
+    if (org && project) {
+      return `/${org}/${project}`
+    }
+
+    // Fall back to resolving from projectPath
+    if (projectPath) {
+      const result = await projectPathToUrl(projectPath)
+      if (result) {
+        return `/${result.orgSlug}/${result.projectName}`
+      }
+    }
+
+    return null
+  }, [params, projectPath, projectPathToUrl])
 
   const checkInitialized = useCallback(
     async (path: string) => {
@@ -66,7 +89,14 @@ export function CreateDoc() {
         const response = await centyClient.createDoc(request)
 
         if (response.success) {
-          router.push(`/docs/${response.slug}`)
+          // Navigate to the project-scoped doc detail page
+          const base = await getProjectBase()
+          if (base) {
+            router.push(`${base}/docs/${response.slug}`)
+          } else {
+            // Fallback to home if we can't determine project base
+            router.push('/')
+          }
         } else {
           setError(response.error || 'Failed to create document')
         }
@@ -78,7 +108,7 @@ export function CreateDoc() {
         setLoading(false)
       }
     },
-    [projectPath, title, content, slug, router]
+    [projectPath, title, content, slug, router, getProjectBase]
   )
 
   if (!projectPath) {
@@ -151,7 +181,10 @@ export function CreateDoc() {
         <div className="actions">
           <button
             type="button"
-            onClick={() => router.push('/docs')}
+            onClick={async () => {
+              const base = await getProjectBase()
+              router.push(base ? `${base}/docs` : '/')
+            }}
             className="secondary"
           >
             Cancel
