@@ -1,13 +1,33 @@
+# Dependencies (will be installed fresh)
 node_modules
+
+# Build outputs
 dist
+out
+.next
 coverage
+
+# Git and CI
 .git
 .gitignore
 .github
 .husky
+
+# IDE and tool configs
 .claude
 .kiro
-*.md
+.vscode
+.idea
+
+# Logs and environment files
 *.log
 .env*
 .DS_Store
+
+# Documentation (not needed for tests)
+*.md
+!README.md
+
+# Test artifacts (will be generated fresh)
+playwright-report
+test-results

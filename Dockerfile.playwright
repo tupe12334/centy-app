@@ -1,0 +1,24 @@
+# Dockerfile for running Playwright visual tests in a consistent Linux environment
+# This matches the CI environment (ubuntu-latest) for consistent font rendering
+FROM mcr.microsoft.com/playwright:v1.57.0-noble
+
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copy package files first for better caching
+COPY package.json pnpm-lock.yaml ./
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy the rest of the application
+COPY . .
+
+# Set environment variable to indicate we're in a consistent environment
+ENV PLAYWRIGHT_VISUAL=1
+ENV CI=1
+
+# Default command runs visual tests
+CMD ["pnpm", "e2e"]

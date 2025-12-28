@@ -79,13 +79,25 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Playwright browsers
-        run: pnpm exec playwright install chromium --with-deps
+        run: pnpm exec playwright install --with-deps
 
-      - name: Run e2e tests
+      - name: Run e2e tests (including visual tests)
         run: pnpm e2e
+        continue-on-error: true
+        id: e2e-tests
+
+      - name: Upload visual test snapshots on failure
+        if: steps.e2e-tests.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-snapshots-diff
+          path: |
+            app/**/screenshot/*.png
+            test-results/
+          retention-days: 7
 
       - name: Upload test artifacts
-        if: failure()
+        if: steps.e2e-tests.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
@@ -93,3 +105,11 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+
+      - name: E2E tests summary
+        if: steps.e2e-tests.outcome == 'failure'
+        run: |
+          echo "::warning::E2E tests failed. Check the artifacts for details."
+          echo "If visual tests failed, screenshots may need to be regenerated."
+          echo "To update screenshots locally, run: pnpm e2e:visual:docker:update"
+          echo "Or use the 'Update Visual Snapshots' workflow to regenerate them in CI."

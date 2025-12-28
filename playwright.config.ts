@@ -43,35 +43,17 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
 
+  // Visual tests require consistent environment (Linux).
+  // CI is authoritative for screenshots. Local devs should use Docker via `pnpm e2e:visual:docker`
   projects: process.env.CI
     ? [
-        // CI: Chromium only for faster builds, skip visual tests
-        // Visual tests are skipped in CI due to OS-level font rendering differences
-        // (macOS vs Linux produce different page heights even with identical fonts)
+        // CI: Run regular e2e tests (Chromium)
         {
           name: 'chromium',
           use: { ...devices['Desktop Chrome'] },
           ...regularTestConfig,
         },
-      ]
-    : [
-        // Regular e2e tests - all browsers
-        {
-          name: 'chromium',
-          use: { ...devices['Desktop Chrome'] },
-          ...regularTestConfig,
-        },
-        {
-          name: 'firefox',
-          use: { ...devices['Desktop Firefox'] },
-          ...regularTestConfig,
-        },
-        {
-          name: 'webkit',
-          use: { ...devices['Desktop Safari'] },
-          ...regularTestConfig,
-        },
-        // Visual tests - desktop browsers
+        // CI: Run visual tests (Linux is authoritative for screenshots)
         {
           name: 'chromium',
           use: { ...devices['Desktop Chrome'] },
@@ -87,12 +69,55 @@ export default defineConfig({
           use: { ...devices['Desktop Safari'] },
           ...visualTestConfig,
         },
-        // Visual tests - mobile viewport
         {
           name: 'mobile-chrome',
           use: { ...devices['Pixel 5'] },
           ...visualTestConfig,
         },
+      ]
+    : [
+        // Local: Regular e2e tests - all browsers
+        {
+          name: 'chromium',
+          use: { ...devices['Desktop Chrome'] },
+          ...regularTestConfig,
+        },
+        {
+          name: 'firefox',
+          use: { ...devices['Desktop Firefox'] },
+          ...regularTestConfig,
+        },
+        {
+          name: 'webkit',
+          use: { ...devices['Desktop Safari'] },
+          ...regularTestConfig,
+        },
+        // Local: Visual tests only when PLAYWRIGHT_VISUAL=1
+        // Use `pnpm e2e:visual:docker` for consistent results matching CI
+        ...(process.env.PLAYWRIGHT_VISUAL
+          ? [
+              {
+                name: 'chromium',
+                use: { ...devices['Desktop Chrome'] },
+                ...visualTestConfig,
+              },
+              {
+                name: 'firefox',
+                use: { ...devices['Desktop Firefox'] },
+                ...visualTestConfig,
+              },
+              {
+                name: 'webkit',
+                use: { ...devices['Desktop Safari'] },
+                ...visualTestConfig,
+              },
+              {
+                name: 'mobile-chrome',
+                use: { ...devices['Pixel 5'] },
+                ...visualTestConfig,
+              },
+            ]
+          : []),
       ],
 
   webServer: {

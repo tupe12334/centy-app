@@ -31,6 +31,9 @@ pnpm test --run || {
 }
 
 echo "Running e2e tests..."
+# Note: Visual tests are skipped locally due to OS font rendering differences.
+# Visual tests run in CI (Linux) which is the authoritative environment.
+# To run visual tests locally, use: pnpm e2e:visual:docker
 pnpm e2e || {
   echo "E2E tests failed. Please fix failing tests before pushing."
   exit 1

@@ -26,8 +26,10 @@
     "e2e:ui": "playwright test --ui",
     "e2e:headed": "playwright test --headed",
     "e2e:debug": "playwright test --debug",
-    "e2e:visual": "playwright test --grep @visual",
-    "e2e:visual:update": "playwright test --grep @visual --update-snapshots"
+    "e2e:visual": "PLAYWRIGHT_VISUAL=1 playwright test e2e/tests/visual/",
+    "e2e:visual:update": "PLAYWRIGHT_VISUAL=1 playwright test e2e/tests/visual/ --update-snapshots",
+    "e2e:visual:docker": "docker build -f Dockerfile.playwright -t centy-playwright . && docker run --rm -v $(pwd)/app:/app/app -v $(pwd)/playwright-report:/app/playwright-report centy-playwright pnpm e2e:visual",
+    "e2e:visual:docker:update": "docker build -f Dockerfile.playwright -t centy-playwright . && docker run --rm -v $(pwd)/app:/app/app centy-playwright pnpm e2e:visual:update"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.10.1",
