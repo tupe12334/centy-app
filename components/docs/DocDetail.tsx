@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useCallback, useEffect, useMemo } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useState, useCallback, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
@@ -12,7 +12,9 @@ import {
   type Doc,
 } from '@/gen/centy_pb'
 import { useProject } from '@/components/providers/ProjectProvider'
+import { useProjectPathToUrl } from '@/components/providers/PathContextProvider'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
+import { useAppLink } from '@/hooks/useAppLink'
 import { TextEditor } from '@/components/shared/TextEditor'
 import { LinkSection } from '@/components/shared/LinkSection'
 import { MoveModal } from '@/components/shared/MoveModal'
@@ -24,19 +26,13 @@ interface DocDetailProps {
 
 export function DocDetail({ slug }: DocDetailProps) {
   const router = useRouter()
-  const params = useParams()
   const { projectPath } = useProject()
   const { copyToClipboard } = useCopyToClipboard()
+  const { createLink, createProjectLink } = useAppLink()
+  const resolvePathToUrl = useProjectPathToUrl()
 
   // Get the project-scoped docs URL
-  const docsListUrl = useMemo(() => {
-    const org = params.organization as string | undefined
-    const project = params.project as string | undefined
-    if (org && project) {
-      return `/${org}/${project}/docs`
-    }
-    return '/'
-  }, [params])
+  const docsListUrl = createLink('/docs')
 
   const [doc, setDoc] = useState<Doc | null>(null)
   const [loading, setLoading] = useState(true)
@@ -104,7 +100,7 @@ export function DocDetail({ slug }: DocDetailProps) {
         setDoc(response.doc)
         setIsEditing(false)
         if (editSlug && editSlug !== slug) {
-          router.replace(`/docs/${editSlug}`)
+          router.replace(createLink(`/docs/${editSlug}`))
         }
       } else {
         setError(response.error || 'Failed to update document')
@@ -116,7 +112,7 @@ export function DocDetail({ slug }: DocDetailProps) {
     } finally {
       setSaving(false)
     }
-  }, [projectPath, slug, editTitle, editContent, editSlug, router])
+  }, [projectPath, slug, editTitle, editContent, editSlug, router, createLink])
 
   const handleDelete = useCallback(async () => {
     if (!projectPath || !slug) return
@@ -156,23 +152,55 @@ export function DocDetail({ slug }: DocDetailProps) {
     }
   }
 
-  const handleMoved = useCallback((targetProjectPath: string) => {
-    // Redirect to the target project
-    window.location.href = `/?project=${encodeURIComponent(targetProjectPath)}`
-  }, [])
+  const handleMoved = useCallback(
+    async (targetProjectPath: string) => {
+      // Resolve path to org/project for URL navigation
+      const result = await resolvePathToUrl(targetProjectPath)
+      if (result) {
+        const url = createProjectLink(
+          result.orgSlug,
+          result.projectName,
+          'docs'
+        )
+        router.push(url)
+      } else {
+        // Fallback to current project docs if resolution fails
+        router.push(docsListUrl)
+      }
+    },
+    [resolvePathToUrl, createProjectLink, router, docsListUrl]
+  )
 
   const handleDuplicated = useCallback(
-    (newSlug: string, targetProjectPath: string) => {
+    async (newSlug: string, targetProjectPath: string) => {
       if (targetProjectPath === projectPath) {
         // Same project - navigate to the new doc
-        router.push(`${docsListUrl}/${newSlug}`)
+        router.push(createLink(`/docs/${newSlug}`))
       } else {
-        // Different project - redirect to target project
-        window.location.href = `/?project=${encodeURIComponent(targetProjectPath)}`
+        // Different project - resolve and redirect
+        const result = await resolvePathToUrl(targetProjectPath)
+        if (result) {
+          const url = createProjectLink(
+            result.orgSlug,
+            result.projectName,
+            `docs/${newSlug}`
+          )
+          router.push(url)
+        } else {
+          // Fallback to current project if resolution fails
+          router.push(docsListUrl)
+        }
       }
       setShowDuplicateModal(false)
     },
-    [projectPath, router, docsListUrl]
+    [
+      projectPath,
+      router,
+      createLink,
+      resolvePathToUrl,
+      createProjectLink,
+      docsListUrl,
+    ]
   )
 
   if (!projectPath) {

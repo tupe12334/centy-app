@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useState, useCallback, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
@@ -19,6 +19,7 @@ import {
   type LlmWorkSession,
 } from '@/gen/centy_pb'
 import { useProject } from '@/components/providers/ProjectProvider'
+import { useProjectPathToUrl } from '@/components/providers/PathContextProvider'
 import { useDaemonStatus } from '@/components/providers/DaemonStatusProvider'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { useLastSeenIssues } from '@/hooks/useLastSeenIssues'
@@ -30,6 +31,7 @@ import { MoveModal } from '@/components/shared/MoveModal'
 import { DuplicateModal } from '@/components/shared/DuplicateModal'
 import { StatusConfigDialog } from '@/components/shared/StatusConfigDialog'
 import { useSaveShortcut } from '@/hooks/useSaveShortcut'
+import { useAppLink } from '@/hooks/useAppLink'
 import { AssigneeSelector } from '@/components/users/AssigneeSelector'
 
 interface IssueDetailProps {
@@ -38,23 +40,17 @@ interface IssueDetailProps {
 
 export function IssueDetail({ issueNumber }: IssueDetailProps) {
   const router = useRouter()
-  const params = useParams()
   const { projectPath } = useProject()
   const { vscodeAvailable } = useDaemonStatus()
   const { copyToClipboard } = useCopyToClipboard()
   const { recordLastSeen } = useLastSeenIssues()
   const stateManager = useStateManager()
   const stateOptions = stateManager.getStateOptions()
+  const { createLink, createProjectLink } = useAppLink()
+  const resolvePathToUrl = useProjectPathToUrl()
 
   // Get the project-scoped issues URL
-  const issuesListUrl = useMemo(() => {
-    const org = params.organization as string | undefined
-    const project = params.project as string | undefined
-    if (org && project) {
-      return `/${org}/${project}/issues`
-    }
-    return '/'
-  }, [params])
+  const issuesListUrl = createLink('/issues')
 
   const [issue, setIssue] = useState<Issue | null>(null)
   const [loading, setLoading] = useState(true)
@@ -353,23 +349,55 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
     }
   }, [projectPath, issue])
 
-  const handleMoved = useCallback((targetProjectPath: string) => {
-    // Redirect to the issue in the target project
-    window.location.href = `/?project=${encodeURIComponent(targetProjectPath)}`
-  }, [])
+  const handleMoved = useCallback(
+    async (targetProjectPath: string) => {
+      // Resolve path to org/project for URL navigation
+      const result = await resolvePathToUrl(targetProjectPath)
+      if (result) {
+        const url = createProjectLink(
+          result.orgSlug,
+          result.projectName,
+          'issues'
+        )
+        router.push(url)
+      } else {
+        // Fallback to current project issues if resolution fails
+        router.push(issuesListUrl)
+      }
+    },
+    [resolvePathToUrl, createProjectLink, router, issuesListUrl]
+  )
 
   const handleDuplicated = useCallback(
-    (newIssueId: string, targetProjectPath: string) => {
+    async (newIssueId: string, targetProjectPath: string) => {
       if (targetProjectPath === projectPath) {
         // Same project - navigate to the new issue
-        router.push(`/issues/${newIssueId}`)
+        router.push(createLink(`/issues/${newIssueId}`))
       } else {
-        // Different project - redirect to target project
-        window.location.href = `/?project=${encodeURIComponent(targetProjectPath)}`
+        // Different project - resolve and redirect
+        const result = await resolvePathToUrl(targetProjectPath)
+        if (result) {
+          const url = createProjectLink(
+            result.orgSlug,
+            result.projectName,
+            `issues/${newIssueId}`
+          )
+          router.push(url)
+        } else {
+          // Fallback to current project if resolution fails
+          router.push(issuesListUrl)
+        }
       }
       setShowDuplicateModal(false)
     },
-    [projectPath, router]
+    [
+      projectPath,
+      router,
+      createLink,
+      resolvePathToUrl,
+      createProjectLink,
+      issuesListUrl,
+    ]
   )
 
   const handleStatusConfigured = useCallback(() => {

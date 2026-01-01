@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useState, useCallback, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
@@ -14,6 +14,7 @@ import {
 } from '@/gen/centy_pb'
 import { useProject } from '@/components/providers/ProjectProvider'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
+import { useAppLink } from '@/hooks/useAppLink'
 import { AssetUploader } from '@/components/assets/AssetUploader'
 import { TextEditor } from '@/components/shared/TextEditor'
 import { LinkSection } from '@/components/shared/LinkSection'
@@ -27,19 +28,12 @@ interface PRDetailProps {
 
 export function PRDetail({ prNumber }: PRDetailProps) {
   const router = useRouter()
-  const params = useParams()
   const { projectPath } = useProject()
   const { copyToClipboard } = useCopyToClipboard()
+  const { createLink } = useAppLink()
 
   // Get the project-scoped pull requests URL
-  const prListUrl = useMemo(() => {
-    const org = params.organization as string | undefined
-    const project = params.project as string | undefined
-    if (org && project) {
-      return `/${org}/${project}/pull-requests`
-    }
-    return '/'
-  }, [params])
+  const prListUrl = createLink('/pull-requests')
 
   const [pr, setPr] = useState<PullRequest | null>(null)
   const [loading, setLoading] = useState(true)
