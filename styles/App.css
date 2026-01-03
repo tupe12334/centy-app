@@ -36,22 +36,8 @@
   letter-spacing: -0.025em;
 }
 
-.app-header h1 a {
-  color: white;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  transition: opacity var(--transition-fast);
-}
-
-.app-header h1 a:hover {
-  opacity: 0.9;
-  color: white;
-}
-
-.app-header h1 a::before {
-  content: '';
+/* Home link (icon only) */
+.header-home-link {
   display: inline-block;
   width: 32px;
   height: 32px;
@@ -61,6 +47,35 @@
   background-repeat: no-repeat;
   background-position: center;
   background-size: 20px;
+  vertical-align: middle;
+  transition: opacity var(--transition-fast);
+}
+
+.header-home-link:hover {
+  opacity: 0.9;
+}
+
+/* Header context (org / project display) */
+.header-context {
+  margin-left: var(--space-3);
+  font-size: 1.25rem;
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+.header-context-link {
+  color: white;
+  text-decoration: none;
+  transition: opacity var(--transition-fast);
+}
+
+.header-context-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.header-context-separator {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .app-header p {
@@ -136,8 +151,15 @@ main {
     font-size: 1.5rem;
   }
 
-  .app-header h1 a::before {
-    display: none;
+  .header-home-link {
+    width: 28px;
+    height: 28px;
+    background-size: 18px;
+  }
+
+  .header-context {
+    font-size: 1rem;
+    margin-left: var(--space-2);
   }
 
   .app-header p {
