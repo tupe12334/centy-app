@@ -115,35 +115,27 @@ export function Header() {
     }
   }, [mobileMenuOpen])
 
-  // Display the current project context with clickable links
+  // Display the current project context with link to organization page
   const contextDisplay =
     hasProjectContext && effectiveOrg && effectiveProject ? (
-      <span className="header-context">
-        {effectiveOrg !== UNGROUPED_ORG_MARKER && (
-          <>
-            <Link
-              href={`/organizations/${effectiveOrg}`}
-              className="header-context-link"
-            >
-              {effectiveOrg}
-            </Link>
-            <span className="header-context-separator"> / </span>
-          </>
-        )}
-        <Link
-          href={`/${effectiveOrg}/${effectiveProject}/issues`}
-          className="header-context-link"
-        >
-          {effectiveProject}
-        </Link>
-      </span>
+      <Link
+        href={
+          effectiveOrg === UNGROUPED_ORG_MARKER
+            ? '/organizations'
+            : `/organizations/${effectiveOrg}`
+        }
+        className="header-context-link"
+      >
+        {effectiveOrg === UNGROUPED_ORG_MARKER ? '' : `${effectiveOrg} / `}
+        {effectiveProject}
+      </Link>
     ) : null
 
   return (
     <header className="app-header">
       <div className="header-top">
         <h1>
-          <Link href="/" aria-label="Home" className="header-home-link" />
+          <Link href="/">Centy</Link>
           {contextDisplay}
         </h1>
         <div className="header-controls">
