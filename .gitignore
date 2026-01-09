@@ -72,3 +72,6 @@ eslint-report.json
 # Temporary files
 *.tmp
 .cache/
+
+# Sentry Config File
+.env.sentry-build-plugin

@@ -39,6 +39,7 @@
     "@floating-ui/react": "^0.27.16",
     "@fontsource/noto-sans": "^5.2.10",
     "@radix-ui/react-popover": "^1.1.15",
+    "@sentry/nextjs": "^10.32.1",
     "@tanstack/react-table": "^8.21.3",
     "@tauri-apps/plugin-dialog": "^2.2.0",
     "@tiptap/extension-code-block-lowlight": "^3.12.1",
