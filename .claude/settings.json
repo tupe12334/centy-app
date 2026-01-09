@@ -77,5 +77,18 @@
       "WebSearch",
       "Skill(tupe:ultrathink)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "block-no-verify"
+          }
+        ]
+      }
+    ]
   }
 }
