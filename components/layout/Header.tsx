@@ -135,7 +135,17 @@ export function Header() {
     <header className="app-header">
       <div className="header-top">
         <h1>
-          <Link href="/">Centy</Link>
+          <Link href="/" className="header-logo-link">
+            <img
+              src="/logo.svg"
+              alt=""
+              className="header-logo-icon"
+              width={28}
+              height={28}
+              aria-hidden="true"
+            />
+            <span>Centy</span>
+          </Link>
           {contextDisplay}
         </h1>
         <div className="header-controls">

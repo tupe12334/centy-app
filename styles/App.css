@@ -50,6 +50,17 @@
   color: white;
 }
 
+/* Header Logo */
+.header-logo-link {
+  display: inline-flex !important;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.header-logo-icon {
+  flex-shrink: 0;
+}
+
 .app-header h1 .header-context-link {
   color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
@@ -67,19 +78,6 @@
 .app-header h1 .header-context-link:hover {
   color: white;
   text-decoration: underline;
-}
-
-.app-header h1 a::before {
-  content: '';
-  display: inline-block;
-  width: 32px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-md);
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white' stroke-width='2'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'/%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 20px;
 }
 
 .app-header p {
@@ -155,8 +153,9 @@ main {
     font-size: 1.5rem;
   }
 
-  .app-header h1 a::before {
-    display: none;
+  .header-logo-icon {
+    width: 24px;
+    height: 24px;
   }
 
   .app-header p {
