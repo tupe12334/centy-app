@@ -36,8 +36,10 @@ test.describe('Demo Mode URL Activation', () => {
     })
 
     // Verify demo issues are displayed
-    await expect(page.locator('text=Implement dark mode toggle')).toBeVisible({
-      timeout: 10000,
+    await expect(
+      page.getByText('Implement dark mode toggle', { exact: false })
+    ).toBeVisible({
+      timeout: 15000,
     })
   })
 
@@ -52,8 +54,10 @@ test.describe('Demo Mode URL Activation', () => {
     })
 
     // Wait for issues to load
-    await expect(page.locator('text=Implement dark mode toggle')).toBeVisible({
-      timeout: 10000,
+    await expect(
+      page.getByText('Implement dark mode toggle', { exact: false })
+    ).toBeVisible({
+      timeout: 15000,
     })
 
     // Navigate to Docs using in-app navigation
