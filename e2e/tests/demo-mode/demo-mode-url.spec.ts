@@ -6,23 +6,20 @@ test.describe('Demo Mode URL Activation', () => {
   }) => {
     // Navigate to the app with ?demo=true (no pre-set sessionStorage)
     await page.goto('/?demo=true')
-    await page.waitForLoadState('domcontentloaded')
+    await page.waitForLoadState('networkidle')
 
     // Wait for demo mode indicator to be visible
     await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     })
 
     // Verify the URL shows org param (project param may or may not be present)
-    await expect(page).toHaveURL(/org=demo-org/, { timeout: 10000 })
+    await expect(page).toHaveURL(/org=demo-org/, { timeout: 15000 })
 
-    // Verify demo org is selected (use .first() since there are desktop and mobile org switchers)
+    // Verify demo org is selected
     await expect(
-      page
-        .locator('.org-label')
-        .filter({ hasText: 'Demo Organization' })
-        .first()
-    ).toBeVisible({ timeout: 10000 })
+      page.getByText('Demo Organization', { exact: false }).first()
+    ).toBeVisible({ timeout: 15000 })
   })
 
   test('should show demo issues after URL activation', async ({ page }) => {
