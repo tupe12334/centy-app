@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640">
+  <!-- Background -->
+  <rect width="1280" height="640" fill="#6366f1"/>
+
+  <!-- Neural Network Logo -->
+  <g transform="translate(320, 250)">
+    <!-- Connections -->
+    <g stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round">
+      <!-- Input to hidden -->
+      <line x1="0" y1="12" x2="19" y2="2"/>
+      <line x1="0" y1="12" x2="19" y2="20"/>
+      <line x1="0" y1="12" x2="19" y2="38"/>
+      <line x1="0" y1="28" x2="19" y2="2"/>
+      <line x1="0" y1="28" x2="19" y2="20"/>
+      <line x1="0" y1="28" x2="19" y2="38"/>
+      <!-- Hidden to output -->
+      <line x1="19" y1="2" x2="38" y2="20"/>
+      <line x1="19" y1="20" x2="38" y2="20"/>
+      <line x1="19" y1="38" x2="38" y2="20"/>
+    </g>
+    <!-- Input layer (2 nodes) -->
+    <circle cx="0" cy="12" r="5" fill="#60A5FA"/>
+    <circle cx="0" cy="28" r="5" fill="#60A5FA"/>
+    <!-- Hidden layer (3 nodes) -->
+    <circle cx="19" cy="2" r="5" fill="#4ADE80"/>
+    <circle cx="19" cy="20" r="5" fill="#4ADE80"/>
+    <circle cx="19" cy="38" r="5" fill="#4ADE80"/>
+    <!-- Output layer (1 node) -->
+    <circle cx="38" cy="20" r="5" fill="#FB923C"/>
+  </g>
+
+  <!-- Centy Text -->
+  <text x="380" y="295" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="56" font-weight="700" fill="white">Centy</text>
+
+  <!-- Separator slash -->
+  <text x="550" y="295" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="40" font-weight="400" fill="rgba(255,255,255,0.7)">/</text>
+
+  <!-- Repository badge -->
+  <g transform="translate(580, 250)">
+    <!-- Badge background -->
+    <rect x="0" y="0" width="280" height="50" rx="25" ry="25" fill="rgba(255,255,255,0.2)"/>
+    <!-- Small neural network icon in badge -->
+    <g transform="translate(12, 10)">
+      <!-- Connections -->
+      <g stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round">
+        <line x1="0" y1="9" x2="12" y2="3"/>
+        <line x1="0" y1="9" x2="12" y2="15"/>
+        <line x1="0" y1="21" x2="12" y2="15"/>
+        <line x1="0" y1="21" x2="12" y2="27"/>
+        <line x1="12" y1="3" x2="24" y2="15"/>
+        <line x1="12" y1="15" x2="24" y2="15"/>
+        <line x1="12" y1="27" x2="24" y2="15"/>
+      </g>
+      <!-- Nodes -->
+      <circle cx="0" cy="9" r="3" fill="#60A5FA"/>
+      <circle cx="0" cy="21" r="3" fill="#60A5FA"/>
+      <circle cx="12" cy="3" r="3" fill="#4ADE80"/>
+      <circle cx="12" cy="15" r="3" fill="#4ADE80"/>
+      <circle cx="12" cy="27" r="3" fill="#4ADE80"/>
+      <circle cx="24" cy="15" r="3" fill="#FB923C"/>
+    </g>
+    <!-- Repository path text -->
+    <text x="50" y="33" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="500" fill="white">centy-io / centy-app</text>
+  </g>
+
+  <!-- Tagline -->
+  <text x="640" y="380" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="400" fill="rgba(255,255,255,0.85)" text-anchor="middle">Local first issue and documentation tracker</text>
+</svg>
