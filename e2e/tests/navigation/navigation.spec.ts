@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test'
-import { setupDemoMode, navigateTo } from '../../utils/test-helpers'
+import {
+  setupDemoMode,
+  navigateTo,
+  navigateToDemoProject,
+} from '../../utils/test-helpers'
 
 test.describe('Navigation', () => {
   test('should load the app in demo mode', async ({ page }) => {
@@ -12,7 +16,7 @@ test.describe('Navigation', () => {
 
   test('should navigate to issues page', async ({ page }) => {
     await setupDemoMode(page)
-    await navigateTo(page, '/issues')
+    await navigateToDemoProject(page, '/issues')
 
     // Should display the issues page
     await expect(page.getByRole('heading', { name: /issues/i })).toBeVisible({
@@ -22,7 +26,7 @@ test.describe('Navigation', () => {
 
   test('should navigate to docs page', async ({ page }) => {
     await setupDemoMode(page)
-    await navigateTo(page, '/docs')
+    await navigateToDemoProject(page, '/docs')
 
     // Should display the docs page
     await expect(
@@ -32,7 +36,7 @@ test.describe('Navigation', () => {
 
   test('should navigate between pages using navigation', async ({ page }) => {
     await setupDemoMode(page)
-    await navigateTo(page, '/')
+    await navigateToDemoProject(page, '/')
 
     // Click on Issues in navigation
     await page.click('a[href*="/issues"]')
