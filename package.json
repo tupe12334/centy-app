@@ -33,6 +33,7 @@
     "e2e:visual:pre-push": "PLAYWRIGHT_VISUAL=1 playwright test e2e/tests/visual/screenshot/root-page.pre-push.visual.spec.ts"
   },
   "dependencies": {
+    "@centy-io/assets": "^0.0.1",
     "@bufbuild/protobuf": "^2.10.1",
     "@connectrpc/connect": "^2.1.1",
     "@connectrpc/connect-web": "^2.1.1",

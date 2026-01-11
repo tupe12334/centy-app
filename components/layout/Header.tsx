@@ -137,7 +137,7 @@ export function Header() {
         <h1>
           <Link href="/" className="header-logo-link">
             <img
-              src="/centy-logo.svg"
+              src="/logo.svg"
               alt=""
               className="header-logo-icon"
               width={28}
