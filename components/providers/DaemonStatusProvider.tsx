@@ -15,6 +15,7 @@ import {
   isDemoMode,
 } from '@/lib/grpc/client'
 import { DEMO_ORG_SLUG, DEMO_PROJECT_PATH } from '@/lib/grpc/demo-data'
+import { EditorType, type EditorInfo } from '@/gen/centy_pb'
 
 type DaemonStatus = 'connected' | 'disconnected' | 'checking' | 'demo'
 
@@ -26,11 +27,32 @@ interface DaemonStatusContextType {
   exitDemoMode: () => void
   demoProjectPath: string
   vscodeAvailable: boolean | null // null = not yet checked
+  editors: EditorInfo[] // List of supported editors with availability
 }
 
 const DaemonStatusContext = createContext<DaemonStatusContextType | null>(null)
 
 const CHECK_INTERVAL_MS = 10000 // Check every 10 seconds
+
+// Helper to create mock editors for demo mode
+function createDemoEditors(): EditorInfo[] {
+  return [
+    {
+      $typeName: 'centy.EditorInfo',
+      editorType: EditorType.VSCODE,
+      name: 'VS Code',
+      description: 'Open in temporary VS Code workspace with AI agent',
+      available: true,
+    },
+    {
+      $typeName: 'centy.EditorInfo',
+      editorType: EditorType.TERMINAL,
+      name: 'Terminal',
+      description: 'Open in terminal with AI agent',
+      available: true,
+    },
+  ]
+}
 
 export function DaemonStatusProvider({ children }: { children: ReactNode }) {
   // Always start with 'checking' to avoid hydration mismatch
@@ -39,6 +61,7 @@ export function DaemonStatusProvider({ children }: { children: ReactNode }) {
   const [lastChecked, setLastChecked] = useState<Date | null>(null)
   const [hasMounted, setHasMounted] = useState(false)
   const [vscodeAvailable, setVscodeAvailable] = useState<boolean | null>(null)
+  const [editors, setEditors] = useState<EditorInfo[]>([])
 
   // Check for demo mode after mount to avoid hydration mismatch
   // Also check for ?demo=true URL param to auto-enable demo mode
@@ -55,6 +78,7 @@ export function DaemonStatusProvider({ children }: { children: ReactNode }) {
           window as Window & { __TEST_VSCODE_AVAILABLE__?: boolean }
         ).__TEST_VSCODE_AVAILABLE__
         setVscodeAvailable(testOverride ?? true)
+        setEditors(createDemoEditors())
         // Clean up URL by removing demo param and adding org/project (preserve current path)
         const newUrl = `${window.location.pathname}?org=${DEMO_ORG_SLUG}&project=${encodeURIComponent(DEMO_PROJECT_PATH)}`
         window.history.replaceState({}, '', newUrl)
@@ -65,6 +89,7 @@ export function DaemonStatusProvider({ children }: { children: ReactNode }) {
           window as Window & { __TEST_VSCODE_AVAILABLE__?: boolean }
         ).__TEST_VSCODE_AVAILABLE__
         setVscodeAvailable(testOverride ?? true)
+        setEditors(createDemoEditors())
       }
       setHasMounted(true)
     }, 0)
@@ -80,6 +105,7 @@ export function DaemonStatusProvider({ children }: { children: ReactNode }) {
         window as Window & { __TEST_VSCODE_AVAILABLE__?: boolean }
       ).__TEST_VSCODE_AVAILABLE__
       setVscodeAvailable(testOverride ?? true)
+      setEditors(createDemoEditors())
       return
     }
 
@@ -89,9 +115,34 @@ export function DaemonStatusProvider({ children }: { children: ReactNode }) {
       const daemonInfo = await centyClient.getDaemonInfo({})
       setStatus('connected')
       setVscodeAvailable(daemonInfo.vscodeAvailable)
+
+      // Fetch supported editors for the editor selector
+      try {
+        const editorsResponse = await centyClient.getSupportedEditors({})
+        setEditors(editorsResponse.editors)
+      } catch {
+        // Fallback: create basic editor list based on vscodeAvailable
+        setEditors([
+          {
+            $typeName: 'centy.EditorInfo',
+            editorType: EditorType.VSCODE,
+            name: 'VS Code',
+            description: 'Open in temporary VS Code workspace with AI agent',
+            available: daemonInfo.vscodeAvailable,
+          },
+          {
+            $typeName: 'centy.EditorInfo',
+            editorType: EditorType.TERMINAL,
+            name: 'Terminal',
+            description: 'Open in terminal with AI agent',
+            available: true, // Terminal is always available
+          },
+        ])
+      }
     } catch {
       setStatus('disconnected')
       setVscodeAvailable(null)
+      setEditors([])
     }
     setLastChecked(new Date())
   }, [])
@@ -147,6 +198,7 @@ export function DaemonStatusProvider({ children }: { children: ReactNode }) {
         exitDemoMode,
         demoProjectPath: DEMO_PROJECT_PATH,
         vscodeAvailable,
+        editors,
       }}
     >
       {children}

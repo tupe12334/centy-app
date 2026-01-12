@@ -13,6 +13,7 @@ import {
   SpawnAgentRequestSchema,
   GetLlmWorkRequestSchema,
   OpenInTempVscodeRequestSchema,
+  OpenInTempTerminalRequestSchema,
   LlmAction,
   type Issue,
   type Asset,
@@ -30,6 +31,7 @@ import { LinkSection } from '@/components/shared/LinkSection'
 import { MoveModal } from '@/components/shared/MoveModal'
 import { DuplicateModal } from '@/components/shared/DuplicateModal'
 import { StatusConfigDialog } from '@/components/shared/StatusConfigDialog'
+import { EditorSelector } from '@/components/shared/EditorSelector'
 import { useSaveShortcut } from '@/hooks/useSaveShortcut'
 import { useAppLink } from '@/hooks/useAppLink'
 import { AssigneeSelector } from '@/components/users/AssigneeSelector'
@@ -41,7 +43,7 @@ interface IssueDetailProps {
 export function IssueDetail({ issueNumber }: IssueDetailProps) {
   const router = useRouter()
   const { projectPath } = useProject()
-  const { vscodeAvailable } = useDaemonStatus()
+  useDaemonStatus() // Used for editor state via EditorSelector
   const { copyToClipboard } = useCopyToClipboard()
   const { recordLastSeen } = useLastSeenIssues()
   const stateManager = useStateManager()
@@ -352,6 +354,45 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
     }
   }, [projectPath, issue])
 
+  const handleOpenInTerminal = useCallback(async () => {
+    if (!projectPath || !issue) return
+
+    setOpeningInVscode(true) // Reuse state for loading indicator
+    setError(null)
+
+    try {
+      const request = create(OpenInTempTerminalRequestSchema, {
+        projectPath,
+        issueId: issue.id,
+        action: LlmAction.PLAN,
+        agentName: '',
+        ttlHours: 0,
+      })
+      const response = await centyClient.openInTempTerminal(request)
+
+      if (response.success) {
+        if (!response.terminalOpened) {
+          const actionWord = response.workspaceReused
+            ? 'Reopened workspace'
+            : 'Workspace created'
+          setError(
+            `${actionWord} at ${response.workspacePath} but terminal could not be opened automatically`
+          )
+        }
+      } else if (response.requiresStatusConfig) {
+        setShowStatusConfigDialog(true)
+      } else {
+        setError(response.error || 'Failed to open in Terminal')
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to connect to daemon'
+      )
+    } finally {
+      setOpeningInVscode(false)
+    }
+  }, [projectPath, issue])
+
   const handleMoved = useCallback(
     async (targetProjectPath: string) => {
       // Resolve path to org/project for URL navigation
@@ -499,23 +540,12 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
               >
                 {spawningAgent ? 'Spawning...' : 'AI Plan'}
               </button>
-              {vscodeAvailable ? (
-                <button
-                  onClick={handleOpenInVscode}
-                  disabled={openingInVscode}
-                  className="vscode-btn"
-                  title="Open in a temporary VS Code workspace with AI agent"
-                >
-                  {openingInVscode ? 'Opening...' : 'Open in VS Code'}
-                </button>
-              ) : vscodeAvailable === false ? (
-                <span
-                  className="vscode-unavailable-hint"
-                  title="VS Code workspace feature requires code command in PATH"
-                >
-                  VS Code not found
-                </span>
-              ) : null}
+              <EditorSelector
+                onOpenInVscode={handleOpenInVscode}
+                onOpenInTerminal={handleOpenInTerminal}
+                disabled={!!activeWork}
+                loading={openingInVscode}
+              />
               <button onClick={() => setIsEditing(true)} className="edit-btn">
                 Edit
               </button>

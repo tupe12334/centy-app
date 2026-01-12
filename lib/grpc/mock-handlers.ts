@@ -671,6 +671,58 @@ export const mockHandlers: MockHandlers = {
     }
   },
 
+  async openInTempTerminal(): Promise<{
+    success: boolean
+    error: string
+    workspacePath: string
+    issueId: string
+    displayNumber: number
+    expiresAt: string
+    terminalOpened: boolean
+  }> {
+    console.warn(
+      '[Demo Mode] openInTempTerminal called - not available in demo mode'
+    )
+    return {
+      success: false,
+      error: 'Opening Terminal workspaces is not available in demo mode',
+      workspacePath: '',
+      issueId: '',
+      displayNumber: 0,
+      expiresAt: '',
+      terminalOpened: false,
+    }
+  },
+
+  async getSupportedEditors(): Promise<{
+    editors: Array<{
+      $typeName: 'centy.EditorInfo'
+      editorType: number
+      name: string
+      description: string
+      available: boolean
+    }>
+  }> {
+    return {
+      editors: [
+        {
+          $typeName: 'centy.EditorInfo',
+          editorType: 1, // VSCODE
+          name: 'VS Code',
+          description: 'Open in temporary VS Code workspace with AI agent',
+          available: true,
+        },
+        {
+          $typeName: 'centy.EditorInfo',
+          editorType: 2, // TERMINAL
+          name: 'Terminal',
+          description: 'Open in terminal with AI agent',
+          available: true,
+        },
+      ],
+    }
+  },
+
   async getLlmWork(): Promise<{ hasWork: boolean }> {
     return { hasWork: false }
   },

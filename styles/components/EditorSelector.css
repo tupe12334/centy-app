@@ -1,0 +1,231 @@
+/* Editor Selector Component */
+.editor-selector {
+  position: relative;
+  display: inline-flex;
+}
+
+.editor-selector-button-group {
+  display: flex;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Primary button (left side) */
+.editor-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+/* VS Code theme (blue) */
+.editor-primary-btn.vscode {
+  background: linear-gradient(135deg, #007acc, #0098ff);
+  color: white;
+}
+
+.editor-primary-btn.vscode:hover:not(:disabled) {
+  background: linear-gradient(135deg, #005a9e, #007acc);
+}
+
+/* Terminal theme (green) */
+.editor-primary-btn.terminal {
+  background: linear-gradient(135deg, #10b981, #34d399);
+  color: white;
+}
+
+.editor-primary-btn.terminal:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669, #10b981);
+}
+
+.editor-primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Dropdown toggle button (right side) */
+.editor-dropdown-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.editor-dropdown-btn.vscode {
+  background: linear-gradient(135deg, #007acc, #0098ff);
+  color: white;
+}
+
+.editor-dropdown-btn.vscode:hover:not(:disabled) {
+  background: linear-gradient(135deg, #005a9e, #007acc);
+}
+
+.editor-dropdown-btn.terminal {
+  background: linear-gradient(135deg, #10b981, #34d399);
+  color: white;
+}
+
+.editor-dropdown-btn.terminal:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669, #10b981);
+}
+
+.editor-dropdown-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.editor-dropdown-arrow {
+  font-size: 0.625rem;
+  transition: transform var(--transition-fast);
+}
+
+.editor-dropdown-arrow.open {
+  transform: rotate(180deg);
+}
+
+/* Editor icon */
+.editor-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Dropdown menu */
+.editor-dropdown {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  z-index: 50;
+  min-width: 200px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  list-style: none;
+  padding: var(--space-2);
+  margin: 0;
+  animation: editorDropdownFadeIn 0.15s ease-out;
+}
+
+@keyframes editorDropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Editor option */
+.editor-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-bottom: var(--space-1);
+}
+
+.editor-option:last-child {
+  margin-bottom: 0;
+}
+
+.editor-option:hover:not(.disabled) {
+  background: var(--color-gray-100);
+}
+
+.editor-option.selected:not(.disabled) {
+  background: var(--color-primary-light, #eef2ff);
+}
+
+.editor-option.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.editor-option-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--color-gray-100);
+  border-radius: var(--radius-md);
+  color: var(--color-gray-600);
+}
+
+.editor-option:not(.disabled) .editor-option-icon {
+  background: var(--color-primary-light, #eef2ff);
+  color: var(--color-primary);
+}
+
+.editor-option-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-option-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+.editor-option.disabled .editor-option-name {
+  color: var(--color-gray-500);
+}
+
+.editor-option-unavailable {
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+}
+
+.editor-option-check {
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
+/* Unavailable hint (fallback when no editors available) */
+.editor-unavailable-hint {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-warning-dark, #92400e);
+  background-color: var(--color-warning-light, #fef3c7);
+  border-radius: var(--radius-md);
+  cursor: help;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .editor-selector-button-group {
+    width: 100%;
+  }
+
+  .editor-primary-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .editor-dropdown {
+    left: 0;
+    right: 0;
+  }
+}
