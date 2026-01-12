@@ -543,7 +543,6 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
               <EditorSelector
                 onOpenInVscode={handleOpenInVscode}
                 onOpenInTerminal={handleOpenInTerminal}
-                disabled={!!activeWork}
                 loading={openingInVscode}
               />
               <button onClick={() => setIsEditing(true)} className="edit-btn">
