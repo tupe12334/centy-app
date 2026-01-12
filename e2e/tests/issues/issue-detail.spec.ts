@@ -55,3 +55,177 @@ test.describe('Issue Detail', () => {
     await expect(backNav.first()).toBeVisible({ timeout: 10000 })
   })
 })
+
+test.describe('Editor Selector', () => {
+  test('should display editor selector button', async ({ page }) => {
+    await setupDemoMode(page)
+    await navigateToDemoProject(page, `/issues/${DEMO_ISSUE.id}`)
+
+    // Wait for demo mode to be fully initialized
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
+      timeout: 10000,
+    })
+
+    // Editor selector should be visible
+    await expect(page.locator('.editor-selector')).toBeVisible({
+      timeout: 10000,
+    })
+
+    // Primary button should show "Open in VS Code" by default
+    await expect(page.locator('.editor-primary-btn')).toContainText(
+      /Open in VS Code/i
+    )
+  })
+
+  test('should open dropdown when clicking dropdown button', async ({
+    page,
+  }) => {
+    await setupDemoMode(page)
+    await navigateToDemoProject(page, `/issues/${DEMO_ISSUE.id}`)
+
+    // Wait for demo mode to be fully initialized
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
+      timeout: 10000,
+    })
+
+    // Wait for editor selector
+    await expect(page.locator('.editor-selector')).toBeVisible({
+      timeout: 10000,
+    })
+
+    // Click dropdown button
+    await page.locator('.editor-dropdown-btn').click()
+
+    // Dropdown should be visible
+    await expect(page.locator('.editor-dropdown')).toBeVisible()
+
+    // Should show both VS Code and Terminal options
+    await expect(
+      page.locator('.editor-option').filter({ hasText: 'VS Code' })
+    ).toBeVisible()
+    await expect(
+      page.locator('.editor-option').filter({ hasText: 'Terminal' })
+    ).toBeVisible()
+  })
+
+  test('should close dropdown when clicking outside', async ({ page }) => {
+    await setupDemoMode(page)
+    await navigateToDemoProject(page, `/issues/${DEMO_ISSUE.id}`)
+
+    // Wait for demo mode to be fully initialized
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
+      timeout: 10000,
+    })
+
+    // Wait for editor selector and open dropdown
+    await expect(page.locator('.editor-selector')).toBeVisible({
+      timeout: 10000,
+    })
+    await page.locator('.editor-dropdown-btn').click()
+    await expect(page.locator('.editor-dropdown')).toBeVisible()
+
+    // Click outside the dropdown
+    await page.locator('.issue-content').click()
+
+    // Dropdown should be hidden
+    await expect(page.locator('.editor-dropdown')).not.toBeVisible()
+  })
+
+  test('should show VS Code as selected by default', async ({ page }) => {
+    await setupDemoMode(page)
+    await navigateToDemoProject(page, `/issues/${DEMO_ISSUE.id}`)
+
+    // Wait for demo mode to be fully initialized
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
+      timeout: 10000,
+    })
+
+    // Wait for editor selector and open dropdown
+    await expect(page.locator('.editor-selector')).toBeVisible({
+      timeout: 10000,
+    })
+    await page.locator('.editor-dropdown-btn').click()
+
+    // VS Code option should be selected
+    await expect(
+      page.locator('.editor-option.selected').filter({ hasText: 'VS Code' })
+    ).toBeVisible()
+  })
+
+  test('should show Terminal as selected when preference is set', async ({
+    page,
+  }) => {
+    // Set Terminal as preferred editor before navigation
+    await page.addInitScript(() => {
+      localStorage.setItem('centy-preferred-editor', '2') // EditorType.TERMINAL = 2
+    })
+
+    await setupDemoMode(page)
+    await navigateToDemoProject(page, `/issues/${DEMO_ISSUE.id}`)
+
+    // Wait for demo mode to be fully initialized
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
+      timeout: 10000,
+    })
+
+    // Wait for editor selector
+    await expect(page.locator('.editor-selector')).toBeVisible({
+      timeout: 10000,
+    })
+
+    // Primary button should show Terminal
+    await expect(page.locator('.editor-primary-btn.terminal')).toBeVisible()
+    await expect(page.locator('.editor-primary-btn')).toContainText(
+      /Open in Terminal/i
+    )
+
+    // Open dropdown and verify Terminal is selected
+    await page.locator('.editor-dropdown-btn').click()
+    await expect(
+      page.locator('.editor-option.selected').filter({ hasText: 'Terminal' })
+    ).toBeVisible()
+  })
+
+  test('should have correct button styling for VS Code', async ({ page }) => {
+    await setupDemoMode(page)
+    await navigateToDemoProject(page, `/issues/${DEMO_ISSUE.id}`)
+
+    // Wait for demo mode to be fully initialized
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
+      timeout: 10000,
+    })
+
+    // Wait for editor selector
+    await expect(page.locator('.editor-selector')).toBeVisible({
+      timeout: 10000,
+    })
+
+    // Verify VS Code styling (blue theme)
+    await expect(page.locator('.editor-primary-btn.vscode')).toBeVisible()
+    await expect(page.locator('.editor-dropdown-btn.vscode')).toBeVisible()
+  })
+
+  test('should have correct button styling for Terminal', async ({ page }) => {
+    // Set Terminal as preferred editor
+    await page.addInitScript(() => {
+      localStorage.setItem('centy-preferred-editor', '2')
+    })
+
+    await setupDemoMode(page)
+    await navigateToDemoProject(page, `/issues/${DEMO_ISSUE.id}`)
+
+    // Wait for demo mode to be fully initialized
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
+      timeout: 10000,
+    })
+
+    // Wait for editor selector
+    await expect(page.locator('.editor-selector')).toBeVisible({
+      timeout: 10000,
+    })
+
+    // Verify Terminal styling (green theme)
+    await expect(page.locator('.editor-primary-btn.terminal')).toBeVisible()
+    await expect(page.locator('.editor-dropdown-btn.terminal')).toBeVisible()
+  })
+})
