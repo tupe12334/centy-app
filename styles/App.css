@@ -174,3 +174,46 @@ main {
     font-size: 0.875rem;
   }
 }
+
+/* Project Context Required */
+.project-context-required {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-12) var(--space-6);
+  text-align: center;
+  min-height: 50vh;
+}
+
+.project-context-required h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+}
+
+.project-context-required p {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+  max-width: 400px;
+}
+
+.project-context-required .select-project-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: var(--radius-lg);
+  font-weight: 500;
+  text-decoration: none;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.project-context-required .select-project-link:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  color: white;
+}

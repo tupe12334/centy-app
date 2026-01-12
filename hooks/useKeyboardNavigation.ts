@@ -1,41 +1,89 @@
 'use client'
 
-import { useEffect, useCallback } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useCallback, useMemo } from 'react'
+import { usePathname, useRouter, useParams } from 'next/navigation'
 
-const NAVIGATION_PAGES = [
-  '/issues',
-  '/docs',
-  '/assets',
-  '/project/config',
-  '/settings',
-] as const
+// Project-scoped pages (require project context)
+// These are relative paths that will be prefixed with /org/project/
+const PROJECT_SCOPED_PAGES = ['issues', 'docs', 'assets', 'config'] as const
+
+// Root-level routes that don't require project context
+const ROOT_ROUTES = new Set([
+  'organizations',
+  'settings',
+  'archived',
+  'assets',
+  'project',
+])
 
 export function useKeyboardNavigation() {
   const pathname = usePathname()
   const router = useRouter()
+  const params = useParams()
 
-  const getCurrentPageIndex = useCallback(() => {
-    return NAVIGATION_PAGES.findIndex(page => pathname.startsWith(page))
+  // Extract org and project from URL
+  const org = params.organization as string | undefined
+  const project = params.project as string | undefined
+
+  // Parse path segments from pathname as fallback
+  const pathSegments = useMemo(() => {
+    return pathname.split('/').filter(Boolean)
   }, [pathname])
+
+  // Determine if we're in a project context
+  const hasProjectContext = useMemo(() => {
+    if (org && project) return true
+    if (pathSegments.length >= 2 && !ROOT_ROUTES.has(pathSegments[0])) {
+      return true
+    }
+    return false
+  }, [org, project, pathSegments])
+
+  // Get effective org and project
+  const effectiveOrg =
+    org || (hasProjectContext ? pathSegments[0] : undefined)
+  const effectiveProject =
+    project || (hasProjectContext ? pathSegments[1] : undefined)
+
+  // Get current page within project context
+  const getCurrentPageIndex = useCallback(() => {
+    if (!hasProjectContext) return -1
+
+    // Current page is the third segment (after org/project)
+    const currentPage = pathSegments[2] || 'issues'
+    return PROJECT_SCOPED_PAGES.findIndex(page => currentPage.startsWith(page))
+  }, [hasProjectContext, pathSegments])
 
   const navigateToPage = useCallback(
     (direction: 'prev' | 'next') => {
+      if (!hasProjectContext || !effectiveOrg || !effectiveProject) return
+
       const currentIndex = getCurrentPageIndex()
       if (currentIndex === -1) return
 
       let newIndex: number
       if (direction === 'prev') {
         newIndex =
-          currentIndex > 0 ? currentIndex - 1 : NAVIGATION_PAGES.length - 1
+          currentIndex > 0
+            ? currentIndex - 1
+            : PROJECT_SCOPED_PAGES.length - 1
       } else {
         newIndex =
-          currentIndex < NAVIGATION_PAGES.length - 1 ? currentIndex + 1 : 0
+          currentIndex < PROJECT_SCOPED_PAGES.length - 1
+            ? currentIndex + 1
+            : 0
       }
 
-      router.push(NAVIGATION_PAGES[newIndex])
+      const newPage = PROJECT_SCOPED_PAGES[newIndex]
+      router.push(`/${effectiveOrg}/${effectiveProject}/${newPage}`)
     },
-    [getCurrentPageIndex, router]
+    [
+      hasProjectContext,
+      effectiveOrg,
+      effectiveProject,
+      getCurrentPageIndex,
+      router,
+    ]
   )
 
   useEffect(() => {
@@ -55,6 +103,9 @@ export function useKeyboardNavigation() {
         return
       }
 
+      // Only enable keyboard navigation when we have project context
+      if (!hasProjectContext) return
+
       if (event.key === 'ArrowLeft') {
         event.preventDefault()
         navigateToPage('prev')
@@ -66,5 +117,5 @@ export function useKeyboardNavigation() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [navigateToPage])
+  }, [navigateToPage, hasProjectContext])
 }

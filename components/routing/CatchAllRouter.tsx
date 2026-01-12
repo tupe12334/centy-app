@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation'
 import { useMemo, useEffect } from 'react'
+import Link from 'next/link'
 import { PathContextProvider } from '@/components/providers/PathContextProvider'
 
 // Components for different route types
@@ -20,11 +21,51 @@ import { CreatePR } from '@/components/pull-requests/CreatePR'
 import { SharedAssets } from '@/components/assets/SharedAssets'
 import { ProjectConfig } from '@/components/settings/ProjectConfig'
 
+// Routes that require project context (no longer accessible at root level)
+const PROJECT_SCOPED_ROUTES = new Set([
+  'issues',
+  'docs',
+  'pull-requests',
+  'users',
+])
+
+/**
+ * Component displayed when a project-scoped route is accessed without project context
+ */
+function ProjectContextRequired({ requestedPage }: { requestedPage: string }) {
+  const pageLabel =
+    requestedPage === 'issues'
+      ? 'Issues'
+      : requestedPage === 'docs'
+        ? 'Docs'
+        : requestedPage === 'pull-requests'
+          ? 'Pull Requests'
+          : requestedPage === 'users'
+            ? 'Users'
+            : requestedPage
+
+  return (
+    <div className="project-context-required">
+      <h2>Project Required</h2>
+      <p>
+        {pageLabel} are project-scoped. Please select a project to view its{' '}
+        {pageLabel.toLowerCase()}.
+      </p>
+      <Link href="/organizations" className="select-project-link">
+        Select a Project
+      </Link>
+    </div>
+  )
+}
+
 /**
  * Client-side router for catch-all paths
  *
  * Parses the pathname and renders the appropriate component for
  * [organization]/[project]/... paths that don't match explicit routes.
+ *
+ * Routes like /issues, /docs, /pull-requests, /users require project context
+ * and will show a message directing users to select a project.
  */
 export function CatchAllRouter() {
   const pathname = usePathname()
@@ -32,6 +73,15 @@ export function CatchAllRouter() {
 
   const { content, shouldRedirect, redirectTo } = useMemo(() => {
     const segments = pathname.split('/').filter(Boolean)
+
+    // Check if this is a single-segment project-scoped route (e.g., /issues, /docs)
+    if (segments.length === 1 && PROJECT_SCOPED_ROUTES.has(segments[0])) {
+      return {
+        content: <ProjectContextRequired requestedPage={segments[0]} />,
+        shouldRedirect: false,
+        redirectTo: '',
+      }
+    }
 
     // Need at least org/project to be a project-scoped route
     if (segments.length < 2) {

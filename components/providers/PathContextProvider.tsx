@@ -50,11 +50,9 @@ const PathContext = createContext<PathContextType | null>(null)
 const LAST_PROJECT_STORAGE_KEY = 'centy-last-project-path'
 
 // Known root-level routes that are NOT org/project paths
+// Note: 'issues', 'docs', 'pull-requests', 'users' are NOT in this list
+// because they require project context and are handled by project-scoped routes
 const ROOT_ROUTES = new Set([
-  'issues',
-  'docs',
-  'pull-requests',
-  'users',
   'organizations',
   'settings',
   'archived',
@@ -66,8 +64,8 @@ const ROOT_ROUTES = new Set([
  * Provider that extracts org/project from URL path and resolves to project info
  *
  * Expected route structure:
- * - /[organization]/[project]/... - Project-scoped pages
- * - /issues, /docs, etc. - Aggregate views (no org/project in path)
+ * - /[organization]/[project]/... - Project-scoped pages (issues, docs, pull-requests, users)
+ * - /organizations, /settings, etc. - Root-level pages that don't require project context
  */
 export function PathContextProvider({ children }: { children: ReactNode }) {
   const params = useParams()

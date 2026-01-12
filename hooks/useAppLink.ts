@@ -5,11 +5,9 @@ import { useParams, usePathname } from 'next/navigation'
 import { UNGROUPED_ORG_MARKER } from '@/lib/project-resolver'
 
 // Known root-level routes that are NOT org/project paths
+// Note: 'issues', 'docs', 'pull-requests', 'users' are NOT in this list
+// because they require project context and are handled by project-scoped routes
 const ROOT_ROUTES = new Set([
-  'issues',
-  'docs',
-  'pull-requests',
-  'users',
   'organizations',
   'settings',
   'archived',
