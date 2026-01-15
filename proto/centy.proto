@@ -252,6 +252,12 @@ service CentyDaemon {
   // Open a project in a temporary Terminal workspace
   rpc OpenInTempTerminal(OpenInTempTerminalRequest) returns (OpenInTempTerminalResponse);
 
+  // Open a standalone workspace (no issue required) in VS Code
+  rpc OpenStandaloneVscode(OpenStandaloneVscodeRequest) returns (OpenStandaloneVscodeResponse);
+
+  // Open a standalone workspace (no issue required) in Terminal
+  rpc OpenStandaloneTerminal(OpenStandaloneTerminalRequest) returns (OpenStandaloneTerminalResponse);
+
   // ============ Link RPCs ============
 
   // Create a link between two entities (bidirectional)
@@ -1538,6 +1544,48 @@ message OpenInTempTerminalResponse {
   bool requires_status_config = 8;      // True if user must configure update_status_on_start setting
   bool workspace_reused = 9;            // True if an existing workspace was reopened instead of creating new
   string original_created_at = 10;      // Original creation timestamp (only set if workspace_reused is true)
+}
+
+// ============ Standalone Workspace Messages ============
+
+// Request to open a standalone workspace (no issue) in VS Code
+message OpenStandaloneVscodeRequest {
+  string project_path = 1;              // Source project path
+  string name = 2;                      // Optional workspace name/label
+  string description = 3;               // Optional description/goal for the AI
+  string agent_name = 4;                // Agent to use (empty = default)
+  uint32 ttl_hours = 5;                 // Custom TTL in hours (0 = use default 12h)
+}
+
+message OpenStandaloneVscodeResponse {
+  bool success = 1;
+  string error = 2;
+  string workspace_path = 3;            // Path to the temp workspace
+  string workspace_id = 4;              // Unique workspace identifier
+  string expires_at = 5;                // ISO timestamp when workspace expires
+  bool vscode_opened = 6;               // Whether VS Code was successfully opened
+  bool workspace_reused = 7;            // True if an existing workspace was reopened
+  string original_created_at = 8;       // Original creation timestamp (only set if workspace_reused)
+}
+
+// Request to open a standalone workspace (no issue) in Terminal
+message OpenStandaloneTerminalRequest {
+  string project_path = 1;              // Source project path
+  string name = 2;                      // Optional workspace name/label
+  string description = 3;               // Optional description/goal for the AI
+  string agent_name = 4;                // Agent to use (empty = default)
+  uint32 ttl_hours = 5;                 // Custom TTL in hours (0 = use default 12h)
+}
+
+message OpenStandaloneTerminalResponse {
+  bool success = 1;
+  string error = 2;
+  string workspace_path = 3;            // Path to the temp workspace
+  string workspace_id = 4;              // Unique workspace identifier
+  string expires_at = 5;                // ISO timestamp when workspace expires
+  bool terminal_opened = 6;             // Whether terminal was successfully opened
+  bool workspace_reused = 7;            // True if an existing workspace was reopened
+  string original_created_at = 8;       // Original creation timestamp (only set if workspace_reused)
 }
 
 // ============ Link Messages ============
