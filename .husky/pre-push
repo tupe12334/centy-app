@@ -30,17 +30,50 @@ pnpm test --run || {
   exit 1
 }
 
-echo "Running e2e tests..."
-pnpm e2e || {
+# Run e2e and visual tests in parallel for faster execution
+echo "Running e2e tests and visual screenshot tests in parallel..."
+
+# Create temp files for exit codes
+E2E_EXIT_FILE=$(mktemp)
+VISUAL_EXIT_FILE=$(mktemp)
+
+# Run e2e tests in background
+(
+  pnpm e2e
+  echo $? > "$E2E_EXIT_FILE"
+) &
+E2E_PID=$!
+
+# Run ALL visual tests in background
+(
+  pnpm e2e:visual
+  echo $? > "$VISUAL_EXIT_FILE"
+) &
+VISUAL_PID=$!
+
+# Wait for both to complete
+wait $E2E_PID
+wait $VISUAL_PID
+
+# Read exit codes
+E2E_EXIT=$(cat "$E2E_EXIT_FILE")
+VISUAL_EXIT=$(cat "$VISUAL_EXIT_FILE")
+
+# Cleanup temp files
+rm -f "$E2E_EXIT_FILE" "$VISUAL_EXIT_FILE"
+
+# Check results
+if [ "$E2E_EXIT" != "0" ]; then
   echo "E2E tests failed. Please fix failing tests before pushing."
   exit 1
-}
+fi
 
-echo "Running visual screenshot tests..."
-pnpm e2e:visual:pre-push || {
+if [ "$VISUAL_EXIT" != "0" ]; then
   echo "Visual tests failed. Please review screenshot changes."
-  echo "To update screenshots: pnpm e2e:visual:pre-push -- --update-snapshots"
+  echo "To update screenshots: pnpm e2e:visual:update"
   exit 1
-}
+fi
+
+echo "E2e and visual tests passed!"
 
 echo "All pre-push checks passed!"
