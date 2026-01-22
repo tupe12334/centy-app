@@ -134,10 +134,11 @@ test.describe('Standalone Workspace Modal', () => {
     // Modal should be visible
     await expect(page.getByText('New Standalone Workspace')).toBeVisible()
 
-    // Click on the overlay (outside the modal)
+    // Click on the overlay (outside the modal) - use bottom left to avoid demo-mode-indicator
+    const viewport = page.viewportSize() || { height: 600 }
     await page
       .locator('.standalone-modal-overlay')
-      .click({ position: { x: 10, y: 10 } })
+      .click({ position: { x: 10, y: viewport.height - 50 } })
 
     // Modal should be hidden
     await expect(page.getByText('New Standalone Workspace')).not.toBeVisible()
