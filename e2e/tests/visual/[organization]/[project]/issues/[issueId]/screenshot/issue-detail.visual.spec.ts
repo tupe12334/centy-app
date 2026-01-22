@@ -180,7 +180,10 @@ test.describe('Editor Selector Visual Tests @visual', () => {
       await expect(page.locator('.editor-dropdown')).toBeVisible()
 
       // Click on Terminal option
-      await page.locator('.editor-option').filter({ hasText: 'Terminal' }).click()
+      await page
+        .locator('.editor-option')
+        .filter({ hasText: 'Terminal' })
+        .click()
 
       // Dropdown should close and Terminal should be selected
       await expect(page.locator('.editor-dropdown')).not.toBeVisible()
