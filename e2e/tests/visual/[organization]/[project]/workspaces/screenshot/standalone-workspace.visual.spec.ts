@@ -1,18 +1,32 @@
 import { test, expect } from '@playwright/test'
-import {
-  setupDemoMode,
-  navigateToDemoProject,
-} from '../../../../../../utils/test-helpers'
+
+// Helper to set up demo mode with project context
+async function setupDemoWithProject(page: import('@playwright/test').Page) {
+  // Set up demo mode before navigating
+  await page.addInitScript(() => {
+    sessionStorage.setItem('centy_demo_mode', 'true')
+    localStorage.setItem('centy-selected-org', 'demo-org')
+    localStorage.setItem('centy-project-path', '/demo/centy-showcase')
+  })
+
+  // Navigate to issues page with project context via query params
+  await page.goto('/issues?org=demo-org&project=%2Fdemo%2Fcenty-showcase')
+  await page.waitForLoadState('domcontentloaded')
+
+  // Wait for demo mode indicator
+  await expect(page.locator('.demo-mode-indicator')).toBeVisible({
+    timeout: 10000,
+  })
+
+  // Wait for demo issues to load (confirms projectPath is set)
+  await expect(page.locator('text=Implement dark mode toggle')).toBeVisible({
+    timeout: 10000,
+  })
+}
 
 test.describe('Standalone Workspace Modal Visual Tests @visual', () => {
   test('issues list with New Workspace button', async ({ page }) => {
-    await setupDemoMode(page)
-    await navigateToDemoProject(page, '/issues')
-
-    // Wait for demo mode indicator to confirm data is loaded
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await setupDemoWithProject(page)
 
     // Wait for content to stabilize
     await page.waitForTimeout(500)
@@ -26,16 +40,15 @@ test.describe('Standalone Workspace Modal Visual Tests @visual', () => {
   })
 
   test('standalone workspace modal - open state', async ({ page }) => {
-    await setupDemoMode(page)
-    await navigateToDemoProject(page, '/issues')
-
-    // Wait for page to load
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await setupDemoWithProject(page)
 
     // Open the modal
     await page.getByRole('button', { name: '+ New Workspace' }).click()
+
+    // Wait for modal to be visible
+    await expect(page.locator('.standalone-modal-overlay')).toBeVisible({
+      timeout: 5000,
+    })
 
     // Wait for modal animation
     await page.waitForTimeout(300)
@@ -46,16 +59,15 @@ test.describe('Standalone Workspace Modal Visual Tests @visual', () => {
   })
 
   test('standalone workspace modal - with filled form', async ({ page }) => {
-    await setupDemoMode(page)
-    await navigateToDemoProject(page, '/issues')
-
-    // Wait for page to load
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await setupDemoWithProject(page)
 
     // Open the modal
     await page.getByRole('button', { name: '+ New Workspace' }).click()
+
+    // Wait for modal to be visible
+    await expect(page.locator('.standalone-modal-overlay')).toBeVisible({
+      timeout: 5000,
+    })
 
     // Fill in the form
     await page.getByLabel('Name (optional)').fill('My Experimental Workspace')
@@ -83,16 +95,34 @@ test.describe('Standalone Workspace Modal Visual Tests @visual', () => {
 test.describe('Standalone Workspace Modal Dark Theme Visual Tests @visual', () => {
   test('standalone workspace modal - dark theme', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'dark' })
-    await setupDemoMode(page)
-    await navigateToDemoProject(page, '/issues')
 
-    // Wait for page to load
+    // Set up demo mode before navigating
+    await page.addInitScript(() => {
+      sessionStorage.setItem('centy_demo_mode', 'true')
+      localStorage.setItem('centy-selected-org', 'demo-org')
+      localStorage.setItem('centy-project-path', '/demo/centy-showcase')
+    })
+
+    await page.goto('/issues?org=demo-org&project=%2Fdemo%2Fcenty-showcase')
+    await page.waitForLoadState('domcontentloaded')
+
+    // Wait for demo mode indicator
     await expect(page.locator('.demo-mode-indicator')).toBeVisible({
+      timeout: 10000,
+    })
+
+    // Wait for demo issues to load (confirms projectPath is set)
+    await expect(page.locator('text=Implement dark mode toggle')).toBeVisible({
       timeout: 10000,
     })
 
     // Open the modal
     await page.getByRole('button', { name: '+ New Workspace' }).click()
+
+    // Wait for modal to be visible
+    await expect(page.locator('.standalone-modal-overlay')).toBeVisible({
+      timeout: 5000,
+    })
 
     // Wait for modal animation
     await page.waitForTimeout(300)
@@ -106,16 +136,34 @@ test.describe('Standalone Workspace Modal Dark Theme Visual Tests @visual', () =
 test.describe('Standalone Workspace Modal Responsive Visual Tests @visual', () => {
   test('standalone workspace modal - mobile viewport', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 })
-    await setupDemoMode(page)
-    await navigateToDemoProject(page, '/issues')
 
-    // Wait for page to load
+    // Set up demo mode before navigating
+    await page.addInitScript(() => {
+      sessionStorage.setItem('centy_demo_mode', 'true')
+      localStorage.setItem('centy-selected-org', 'demo-org')
+      localStorage.setItem('centy-project-path', '/demo/centy-showcase')
+    })
+
+    await page.goto('/issues?org=demo-org&project=%2Fdemo%2Fcenty-showcase')
+    await page.waitForLoadState('domcontentloaded')
+
+    // Wait for demo mode indicator
     await expect(page.locator('.demo-mode-indicator')).toBeVisible({
+      timeout: 10000,
+    })
+
+    // Wait for demo issues to load (confirms projectPath is set)
+    await expect(page.locator('text=Implement dark mode toggle')).toBeVisible({
       timeout: 10000,
     })
 
     // Open the modal
     await page.getByRole('button', { name: '+ New Workspace' }).click()
+
+    // Wait for modal to be visible
+    await expect(page.locator('.standalone-modal-overlay')).toBeVisible({
+      timeout: 5000,
+    })
 
     // Wait for modal animation
     await page.waitForTimeout(300)
@@ -130,16 +178,34 @@ test.describe('Standalone Workspace Modal Responsive Visual Tests @visual', () =
 
   test('standalone workspace modal - tablet viewport', async ({ page }) => {
     await page.setViewportSize({ width: 768, height: 1024 })
-    await setupDemoMode(page)
-    await navigateToDemoProject(page, '/issues')
 
-    // Wait for page to load
+    // Set up demo mode before navigating
+    await page.addInitScript(() => {
+      sessionStorage.setItem('centy_demo_mode', 'true')
+      localStorage.setItem('centy-selected-org', 'demo-org')
+      localStorage.setItem('centy-project-path', '/demo/centy-showcase')
+    })
+
+    await page.goto('/issues?org=demo-org&project=%2Fdemo%2Fcenty-showcase')
+    await page.waitForLoadState('domcontentloaded')
+
+    // Wait for demo mode indicator
     await expect(page.locator('.demo-mode-indicator')).toBeVisible({
+      timeout: 10000,
+    })
+
+    // Wait for demo issues to load (confirms projectPath is set)
+    await expect(page.locator('text=Implement dark mode toggle')).toBeVisible({
       timeout: 10000,
     })
 
     // Open the modal
     await page.getByRole('button', { name: '+ New Workspace' }).click()
+
+    // Wait for modal to be visible
+    await expect(page.locator('.standalone-modal-overlay')).toBeVisible({
+      timeout: 5000,
+    })
 
     // Wait for modal animation
     await page.waitForTimeout(300)
