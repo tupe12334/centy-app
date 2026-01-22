@@ -34,8 +34,14 @@ service CentyDaemon {
   // Update an existing issue
   rpc UpdateIssue(UpdateIssueRequest) returns (UpdateIssueResponse);
 
-  // Delete an issue
+  // Delete an issue (hard delete - permanent removal)
   rpc DeleteIssue(DeleteIssueRequest) returns (DeleteIssueResponse);
+
+  // Soft-delete an issue (set deleted_at timestamp - recoverable)
+  rpc SoftDeleteIssue(SoftDeleteIssueRequest) returns (SoftDeleteIssueResponse);
+
+  // Restore a soft-deleted issue (clear deleted_at timestamp)
+  rpc RestoreIssue(RestoreIssueRequest) returns (RestoreIssueResponse);
 
   // Move an issue to another project
   rpc MoveIssue(MoveIssueRequest) returns (MoveIssueResponse);
@@ -75,8 +81,14 @@ service CentyDaemon {
   // Update an existing doc
   rpc UpdateDoc(UpdateDocRequest) returns (UpdateDocResponse);
 
-  // Delete a doc
+  // Delete a doc (hard delete - permanent removal)
   rpc DeleteDoc(DeleteDocRequest) returns (DeleteDocResponse);
+
+  // Soft-delete a doc (set deleted_at timestamp - recoverable)
+  rpc SoftDeleteDoc(SoftDeleteDocRequest) returns (SoftDeleteDocResponse);
+
+  // Restore a soft-deleted doc (clear deleted_at timestamp)
+  rpc RestoreDoc(RestoreDocRequest) returns (RestoreDocResponse);
 
   // Move a doc to another project
   rpc MoveDoc(MoveDocRequest) returns (MoveDocResponse);
@@ -178,8 +190,14 @@ service CentyDaemon {
   // Update an existing PR
   rpc UpdatePr(UpdatePrRequest) returns (UpdatePrResponse);
 
-  // Delete a PR
+  // Delete a PR (hard delete - permanent removal)
   rpc DeletePr(DeletePrRequest) returns (DeletePrResponse);
+
+  // Soft-delete a PR (set deleted_at timestamp - recoverable)
+  rpc SoftDeletePr(SoftDeletePrRequest) returns (SoftDeletePrResponse);
+
+  // Restore a soft-deleted PR (clear deleted_at timestamp)
+  rpc RestorePr(RestorePrRequest) returns (RestorePrResponse);
 
   // Get the next PR number
   rpc GetNextPrNumber(GetNextPrNumberRequest) returns (GetNextPrNumberResponse);
@@ -234,8 +252,23 @@ service CentyDaemon {
 
   // ============ Temp Workspace RPCs ============
 
+  // Get list of supported workspace editors
+  rpc GetSupportedEditors(GetSupportedEditorsRequest) returns (GetSupportedEditorsResponse);
+
   // Open a project in a temporary VS Code workspace
-  rpc OpenInTempVscode(OpenInTempVscodeRequest) returns (OpenInTempVscodeResponse);
+  rpc OpenInTempVscode(OpenInTempWorkspaceRequest) returns (OpenInTempWorkspaceResponse);
+
+  // Open a project in a temporary terminal workspace
+  rpc OpenInTempTerminal(OpenInTempWorkspaceRequest) returns (OpenInTempWorkspaceResponse);
+
+  // Open an agent in a terminal for working on an issue
+  rpc OpenAgentInTerminal(OpenAgentInTerminalRequest) returns (OpenAgentInTerminalResponse);
+
+  // Open a standalone workspace in VS Code (not tied to an issue)
+  rpc OpenStandaloneWorkspaceVscode(OpenStandaloneWorkspaceRequest) returns (OpenStandaloneWorkspaceResponse);
+
+  // Open a standalone workspace in terminal (not tied to an issue)
+  rpc OpenStandaloneWorkspaceTerminal(OpenStandaloneWorkspaceRequest) returns (OpenStandaloneWorkspaceResponse);
 
   // List all temp workspaces
   rpc ListTempWorkspaces(ListTempWorkspacesRequest) returns (ListTempWorkspacesResponse);
@@ -245,12 +278,6 @@ service CentyDaemon {
 
   // Cleanup all expired workspaces
   rpc CleanupExpiredWorkspaces(CleanupExpiredWorkspacesRequest) returns (CleanupExpiredWorkspacesResponse);
-
-  // Get supported editors (VS Code, Terminal) with availability status
-  rpc GetSupportedEditors(GetSupportedEditorsRequest) returns (GetSupportedEditorsResponse);
-
-  // Open a project in a temporary Terminal workspace
-  rpc OpenInTempTerminal(OpenInTempTerminalRequest) returns (OpenInTempTerminalResponse);
 
   // ============ Link RPCs ============
 
@@ -280,11 +307,42 @@ service CentyDaemon {
   // Update an existing user
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
 
-  // Delete a user
+  // Delete a user (hard delete - permanent removal)
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+
+  // Soft-delete a user (set deleted_at timestamp - recoverable)
+  rpc SoftDeleteUser(SoftDeleteUserRequest) returns (SoftDeleteUserResponse);
+
+  // Restore a soft-deleted user (clear deleted_at timestamp)
+  rpc RestoreUser(RestoreUserRequest) returns (RestoreUserResponse);
 
   // Sync users from git history
   rpc SyncUsers(SyncUsersRequest) returns (SyncUsersResponse);
+
+  // ============ Entity Actions RPCs ============
+
+  // Get available actions for an entity (contextual based on entity state)
+  rpc GetEntityActions(GetEntityActionsRequest) returns (GetEntityActionsResponse);
+
+  // ============ Sync RPCs ============
+
+  // List all sync conflicts for a project
+  rpc ListSyncConflicts(ListSyncConflictsRequest) returns (ListSyncConflictsResponse);
+
+  // Get a specific sync conflict by ID
+  rpc GetSyncConflict(GetSyncConflictRequest) returns (GetSyncConflictResponse);
+
+  // Resolve a sync conflict
+  rpc ResolveSyncConflict(ResolveSyncConflictRequest) returns (ResolveSyncConflictResponse);
+
+  // Get sync status for a project
+  rpc GetSyncStatus(GetSyncStatusRequest) returns (GetSyncStatusResponse);
+
+  // Manually trigger a sync pull
+  rpc SyncPull(SyncPullRequest) returns (SyncPullResponse);
+
+  // Manually trigger a sync push
+  rpc SyncPush(SyncPushRequest) returns (SyncPushResponse);
 }
 
 // ============ Init Messages ============
@@ -365,6 +423,7 @@ message CreateIssueRequest {
   map<string, string> custom_fields = 6;
   string template = 7;  // Optional template name (without .md extension)
   bool draft = 8;       // Create as draft (default: false)
+  bool is_org_issue = 9; // Create as organization-wide issue (syncs to all org projects)
 }
 
 message CreateIssueResponse {
@@ -385,6 +444,12 @@ message CreateIssueResponse {
 
   // The updated manifest
   Manifest manifest = 7;
+
+  // Org-level display number (only for org issues, 0 if not an org issue)
+  uint32 org_display_number = 8;
+
+  // Results from syncing to other org projects (org issues only)
+  repeated OrgDocSyncResult sync_results = 9;
 }
 
 message GetNextIssueNumberRequest {
@@ -423,6 +488,10 @@ message IssueMetadata {
   bool compacted = 8;             // Whether issue has been compacted into features
   string compacted_at = 9;        // ISO timestamp when compacted (empty if not)
   bool draft = 10;                // Whether this issue is a draft
+  string deleted_at = 11;         // ISO timestamp when soft-deleted (empty if not deleted)
+  bool is_org_issue = 12;         // Whether this is an organization-level issue
+  string org_slug = 13;           // Organization slug (empty if not org issue)
+  uint32 org_display_number = 14; // Org-scoped display number (0 if not org issue)
 }
 
 message GetIssueRequest {
@@ -462,6 +531,7 @@ message ListIssuesRequest {
   string status = 2;              // Filter by status (empty = all)
   int32 priority = 3;             // Filter by priority (0 = all)
   optional bool draft = 4;        // Filter by draft status (absent = all, true = drafts only, false = non-drafts only)
+  bool include_deleted = 5;       // Include soft-deleted issues (default: false)
 }
 
 message ListIssuesResponse {
@@ -513,6 +583,7 @@ message UpdateIssueResponse {
   string error = 2;
   Issue issue = 3;                // The updated issue
   Manifest manifest = 4;
+  repeated OrgDocSyncResult sync_results = 5;  // Results from syncing to other org projects (org issues only)
 }
 
 message DeleteIssueRequest {
@@ -524,6 +595,32 @@ message DeleteIssueResponse {
   bool success = 1;
   string error = 2;
   Manifest manifest = 3;          // Updated manifest after deletion
+}
+
+// Soft-delete an issue (set deleted_at timestamp)
+message SoftDeleteIssueRequest {
+  string project_path = 1;
+  string issue_id = 2;            // UUID or legacy issue number
+}
+
+message SoftDeleteIssueResponse {
+  bool success = 1;
+  string error = 2;
+  Issue issue = 3;                // The soft-deleted issue (with deleted_at set)
+  Manifest manifest = 4;          // Updated manifest
+}
+
+// Restore a soft-deleted issue (clear deleted_at timestamp)
+message RestoreIssueRequest {
+  string project_path = 1;
+  string issue_id = 2;            // UUID or legacy issue number
+}
+
+message RestoreIssueResponse {
+  bool success = 1;
+  string error = 2;
+  Issue issue = 3;                // The restored issue (with deleted_at cleared)
+  Manifest manifest = 4;          // Updated manifest
 }
 
 // ============ Issue Move/Duplicate Messages ============
@@ -613,8 +710,9 @@ message CustomFieldDefinition {
 
 message LlmConfig {
   bool auto_close_on_complete = 1;    // Auto-close issues when marked complete by LLM
-  bool update_status_on_start = 2;    // Update status to in-progress when LLM starts work
+  optional bool update_status_on_start = 2;    // Update status to in-progress when LLM starts work (null = prompt user)
   bool allow_direct_edits = 3;        // Allow LLM to directly edit issue files
+  WorkspaceMode default_workspace_mode = 4;  // Default workspace mode for agent operations
 }
 
 // Custom link type definition (for custom relationship types)
@@ -654,6 +752,14 @@ message CreateDocRequest {
   string content = 3;             // Markdown content
   string slug = 4;                // Optional custom slug (auto-generated from title if empty)
   string template = 5;            // Optional template name (without .md extension)
+  bool is_org_doc = 6;            // Create as organization-wide doc (syncs to all org projects)
+}
+
+// Result of syncing an org doc to a project
+message OrgDocSyncResult {
+  string project_path = 1;        // Path of target project
+  bool success = 2;               // Whether sync succeeded
+  string error = 3;               // Error message if failed
 }
 
 message CreateDocResponse {
@@ -662,6 +768,7 @@ message CreateDocResponse {
   string slug = 3;                // The created doc slug
   string created_file = 4;        // Path to created file
   Manifest manifest = 5;
+  repeated OrgDocSyncResult sync_results = 6;  // Results from syncing to other org projects
 }
 
 message GetDocRequest {
@@ -691,6 +798,7 @@ message GetDocsBySlugResponse {
 
 message ListDocsRequest {
   string project_path = 1;
+  bool include_deleted = 2;       // Include soft-deleted docs (default: false)
 }
 
 message ListDocsResponse {
@@ -709,6 +817,9 @@ message Doc {
 message DocMetadata {
   string created_at = 1;          // ISO timestamp
   string updated_at = 2;          // ISO timestamp
+  string deleted_at = 3;          // ISO timestamp when soft-deleted (empty if not deleted)
+  bool is_org_doc = 4;            // Whether this is an organization-level doc
+  string org_slug = 5;            // Organization slug (for org docs)
 }
 
 message UpdateDocRequest {
@@ -726,6 +837,7 @@ message UpdateDocResponse {
   string error = 2;
   Doc doc = 3;                    // The updated doc
   Manifest manifest = 4;
+  repeated OrgDocSyncResult sync_results = 5;  // Results from syncing to other org projects (org docs only)
 }
 
 message DeleteDocRequest {
@@ -737,6 +849,32 @@ message DeleteDocResponse {
   bool success = 1;
   string error = 2;
   Manifest manifest = 3;
+}
+
+// Soft-delete a doc (set deleted_at timestamp)
+message SoftDeleteDocRequest {
+  string project_path = 1;
+  string slug = 2;
+}
+
+message SoftDeleteDocResponse {
+  bool success = 1;
+  string error = 2;
+  Doc doc = 3;                    // The soft-deleted doc (with deleted_at set)
+  Manifest manifest = 4;
+}
+
+// Restore a soft-deleted doc (clear deleted_at timestamp)
+message RestoreDocRequest {
+  string project_path = 1;
+  string slug = 2;
+}
+
+message RestoreDocResponse {
+  bool success = 1;
+  string error = 2;
+  Doc doc = 3;                    // The restored doc (with deleted_at cleared)
+  Manifest manifest = 4;
 }
 
 // ============ Doc Move/Duplicate Messages ============
@@ -1164,6 +1302,7 @@ message PrMetadata {
   string merged_at = 11;              // ISO timestamp (empty if not merged)
   string closed_at = 12;              // ISO timestamp (empty if not closed)
   map<string, string> custom_fields = 13;
+  string deleted_at = 14;             // ISO timestamp when soft-deleted (empty if not deleted)
 }
 
 message GetPrRequest {
@@ -1204,6 +1343,7 @@ message ListPrsRequest {
   string source_branch = 3;           // Filter by source branch (empty = all)
   string target_branch = 4;           // Filter by target branch (empty = all)
   int32 priority = 5;                 // Filter by priority (0 = all)
+  bool include_deleted = 6;           // Include soft-deleted PRs (default: false)
 }
 
 message ListPrsResponse {
@@ -1243,6 +1383,32 @@ message DeletePrResponse {
   bool success = 1;
   string error = 2;
   Manifest manifest = 3;              // Updated manifest after deletion
+}
+
+// Soft-delete a PR (set deleted_at timestamp)
+message SoftDeletePrRequest {
+  string project_path = 1;
+  string pr_id = 2;                   // UUID or display number
+}
+
+message SoftDeletePrResponse {
+  bool success = 1;
+  string error = 2;
+  PullRequest pr = 3;                 // The soft-deleted PR (with deleted_at set)
+  Manifest manifest = 4;
+}
+
+// Restore a soft-deleted PR (clear deleted_at timestamp)
+message RestorePrRequest {
+  string project_path = 1;
+  string pr_id = 2;                   // UUID or display number
+}
+
+message RestorePrResponse {
+  bool success = 1;
+  string error = 2;
+  PullRequest pr = 3;                 // The restored PR (with deleted_at cleared)
+  Manifest manifest = 4;
 }
 
 // ============ Features Messages ============
@@ -1335,6 +1501,14 @@ enum LlmAction {
   LLM_ACTION_UNSPECIFIED = 0;
   LLM_ACTION_PLAN = 1;
   LLM_ACTION_IMPLEMENT = 2;
+  LLM_ACTION_DEEPDIVE = 3;
+}
+
+// Workspace mode for agent operations
+enum WorkspaceMode {
+  WORKSPACE_MODE_UNSPECIFIED = 0;       // Use project default or prompt user
+  WORKSPACE_MODE_TEMP = 1;              // Create temporary worktree
+  WORKSPACE_MODE_CURRENT = 2;           // Use current project directory
 }
 
 // Agent configuration (stored in config.local.json)
@@ -1345,6 +1519,7 @@ message AgentConfig {
   repeated string default_args = 4;     // Default arguments for the CLI
   string plan_template = 5;             // Template name for "plan" action
   string implement_template = 6;        // Template name for "implement" action
+  bool stdin_prompt = 7;                // If true, prompt is passed via stdin instead of as argument
 }
 
 // Local LLM configuration (config.local.json - not version controlled)
@@ -1427,8 +1602,31 @@ message UpdateLocalLlmConfigResponse {
 
 // ============ Temp Workspace Messages ============
 
-// Request to open a project in a temporary VS Code workspace
-message OpenInTempVscodeRequest {
+// Editor type for opening workspaces
+enum EditorType {
+  EDITOR_TYPE_UNSPECIFIED = 0;
+  EDITOR_TYPE_VSCODE = 1;             // VS Code editor
+  EDITOR_TYPE_TERMINAL = 2;           // OS terminal
+}
+
+// Request to get supported editors (empty request)
+message GetSupportedEditorsRequest {}
+
+// Information about a supported editor
+message EditorInfo {
+  EditorType editor_type = 1;         // Editor type enum value
+  string name = 2;                    // Display name (e.g., "VS Code", "Terminal")
+  string description = 3;             // Brief description
+  bool available = 4;                 // Whether this editor is available on the current system
+}
+
+// Response with list of supported editors
+message GetSupportedEditorsResponse {
+  repeated EditorInfo editors = 1;    // List of supported editors
+}
+
+// Shared request for OpenInTempVscode and OpenInTempTerminal
+message OpenInTempWorkspaceRequest {
   string project_path = 1;              // Source project path
   string issue_id = 2;                  // Issue UUID or display number
   LlmAction action = 3;                 // Plan or Implement
@@ -1436,30 +1634,78 @@ message OpenInTempVscodeRequest {
   uint32 ttl_hours = 5;                 // Custom TTL in hours (0 = use default 12h)
 }
 
-message OpenInTempVscodeResponse {
+// Shared response for OpenInTempVscode and OpenInTempTerminal
+message OpenInTempWorkspaceResponse {
   bool success = 1;
   string error = 2;
   string workspace_path = 3;            // Path to the temp workspace
   string issue_id = 4;                  // Resolved issue UUID
   uint32 display_number = 5;            // Issue display number
   string expires_at = 6;                // ISO timestamp when workspace expires
-  bool vscode_opened = 7;               // Whether VS Code was successfully opened
+  bool editor_opened = 7;               // Whether the editor (VS Code or Terminal) was successfully opened
   bool requires_status_config = 8;      // True if user must configure update_status_on_start setting
   bool workspace_reused = 9;            // True if an existing workspace was reopened instead of creating new
   string original_created_at = 10;      // Original creation timestamp (only set if workspace_reused is true)
+}
+
+// Request to open an agent in a terminal
+message OpenAgentInTerminalRequest {
+  string project_path = 1;              // Source project path
+  string issue_id = 2;                  // Issue UUID or display number
+  string agent_name = 3;                // Agent to use (empty = default)
+  WorkspaceMode workspace_mode = 4;     // Temp worktree or current project
+  uint32 ttl_hours = 5;                 // Custom TTL in hours (0 = default, only for temp mode)
+}
+
+message OpenAgentInTerminalResponse {
+  bool success = 1;
+  string error = 2;
+  string working_directory = 3;         // Path where agent was launched
+  string issue_id = 4;                  // Resolved issue UUID
+  uint32 display_number = 5;            // Issue display number
+  string agent_command = 6;             // The agent command that was executed
+  bool terminal_opened = 7;             // Whether terminal was successfully opened
+  string expires_at = 8;                // ISO timestamp (only for temp mode)
+  bool requires_status_config = 9;      // True if user must configure update_status_on_start setting
+}
+
+// Request to open a standalone workspace (not tied to an issue)
+message OpenStandaloneWorkspaceRequest {
+  string project_path = 1;              // Source project path
+  string name = 2;                      // Optional custom name for the workspace
+  string description = 3;               // Optional description/goals for this workspace
+  uint32 ttl_hours = 4;                 // Custom TTL in hours (0 = use default 12h)
+  string agent_name = 5;                // Agent to use (empty = default)
+}
+
+// Response for opening a standalone workspace
+message OpenStandaloneWorkspaceResponse {
+  bool success = 1;
+  string error = 2;
+  string workspace_path = 3;            // Path to the temp workspace
+  string workspace_id = 4;              // Unique workspace identifier (UUID)
+  string name = 5;                      // Workspace name (provided or generated)
+  string expires_at = 6;                // ISO timestamp when workspace expires
+  bool editor_opened = 7;               // Whether the editor was successfully opened
+  bool workspace_reused = 8;            // True if an existing workspace was reopened
+  string original_created_at = 9;       // Original creation timestamp (only set if workspace_reused)
 }
 
 // A temporary workspace entry
 message TempWorkspace {
   string workspace_path = 1;            // Absolute path to temp workspace
   string source_project_path = 2;       // Original project path
-  string issue_id = 3;                  // Issue UUID
-  uint32 issue_display_number = 4;      // Issue display number
-  string issue_title = 5;               // Issue title
+  string issue_id = 3;                  // Issue UUID (empty for standalone workspaces)
+  uint32 issue_display_number = 4;      // Issue display number (0 for standalone)
+  string issue_title = 5;               // Issue title (empty for standalone)
   string agent_name = 6;                // Agent being used
   LlmAction action = 7;                 // Plan or Implement
   string created_at = 8;                // ISO timestamp
   string expires_at = 9;                // ISO timestamp when workspace expires
+  bool is_standalone = 10;              // True if this is a standalone workspace (not tied to an issue)
+  string workspace_id = 11;             // Unique workspace ID (UUID, used for standalone workspaces)
+  string workspace_name = 12;           // Custom workspace name (for standalone)
+  string workspace_description = 13;    // Custom workspace description (for standalone)
 }
 
 message ListTempWorkspacesRequest {
@@ -1493,51 +1739,6 @@ message CleanupExpiredWorkspacesResponse {
   uint32 cleaned_count = 3;             // Number of workspaces cleaned up
   repeated string cleaned_paths = 4;    // Paths that were cleaned
   repeated string failed_paths = 5;     // Paths that failed to clean
-}
-
-// ============ Editor Selection Messages ============
-
-// Editor type enum
-enum EditorType {
-  EDITOR_TYPE_UNSPECIFIED = 0;
-  EDITOR_TYPE_VSCODE = 1;
-  EDITOR_TYPE_TERMINAL = 2;
-}
-
-// Information about a supported editor
-message EditorInfo {
-  EditorType editor_type = 1;           // VSCODE or TERMINAL
-  string name = 2;                      // "VS Code" or "Terminal"
-  string description = 3;               // Brief description of the editor
-  bool available = 4;                   // Whether available on system
-}
-
-message GetSupportedEditorsRequest {}
-
-message GetSupportedEditorsResponse {
-  repeated EditorInfo editors = 1;      // List of supported editors with availability
-}
-
-// Request to open a project in a temporary Terminal workspace
-message OpenInTempTerminalRequest {
-  string project_path = 1;              // Source project path
-  string issue_id = 2;                  // Issue UUID or display number
-  LlmAction action = 3;                 // Plan or Implement
-  string agent_name = 4;                // Agent to use (empty = default)
-  uint32 ttl_hours = 5;                 // Custom TTL in hours (0 = use default 12h)
-}
-
-message OpenInTempTerminalResponse {
-  bool success = 1;
-  string error = 2;
-  string workspace_path = 3;            // Path to the temp workspace
-  string issue_id = 4;                  // Resolved issue UUID
-  uint32 display_number = 5;            // Issue display number
-  string expires_at = 6;                // ISO timestamp when workspace expires
-  bool terminal_opened = 7;             // Whether terminal was successfully opened
-  bool requires_status_config = 8;      // True if user must configure update_status_on_start setting
-  bool workspace_reused = 9;            // True if an existing workspace was reopened instead of creating new
-  string original_created_at = 10;      // Original creation timestamp (only set if workspace_reused is true)
 }
 
 // ============ Link Messages ============
@@ -1630,6 +1831,7 @@ message User {
   repeated string git_usernames = 4;    // Git usernames (e.g., GitHub handles)
   string created_at = 5;                // ISO timestamp
   string updated_at = 6;                // ISO timestamp
+  string deleted_at = 7;                // ISO timestamp when soft-deleted (empty if not deleted)
 }
 
 message CreateUserRequest {
@@ -1655,6 +1857,7 @@ message GetUserRequest {
 message ListUsersRequest {
   string project_path = 1;
   string git_username = 2;              // Optional: filter by git username
+  bool include_deleted = 3;             // Include soft-deleted users (default: false)
 }
 
 message ListUsersResponse {
@@ -1688,6 +1891,32 @@ message DeleteUserResponse {
   Manifest manifest = 3;
 }
 
+// Soft-delete a user (set deleted_at timestamp)
+message SoftDeleteUserRequest {
+  string project_path = 1;
+  string user_id = 2;                   // User ID (slug format)
+}
+
+message SoftDeleteUserResponse {
+  bool success = 1;
+  string error = 2;
+  User user = 3;                        // The soft-deleted user (with deleted_at set)
+  Manifest manifest = 4;
+}
+
+// Restore a soft-deleted user (clear deleted_at timestamp)
+message RestoreUserRequest {
+  string project_path = 1;
+  string user_id = 2;                   // User ID (slug format)
+}
+
+message RestoreUserResponse {
+  bool success = 1;
+  string error = 2;
+  User user = 3;                        // The restored user (with deleted_at cleared)
+  Manifest manifest = 4;
+}
+
 // Git contributor found in history
 message GitContributor {
   string name = 1;
@@ -1708,4 +1937,160 @@ message SyncUsersResponse {
   repeated GitContributor would_create = 6;  // For dry run: users that would be created
   repeated GitContributor would_skip = 7;    // For dry run: users that would be skipped
   Manifest manifest = 8;
+}
+
+// ============ Entity Actions Messages ============
+
+// Entity type for actions
+enum EntityType {
+  ENTITY_TYPE_UNSPECIFIED = 0;
+  ENTITY_TYPE_ISSUE = 1;
+  ENTITY_TYPE_PR = 2;
+  ENTITY_TYPE_DOC = 3;
+}
+
+// Action category for grouping in UI
+enum ActionCategory {
+  ACTION_CATEGORY_UNSPECIFIED = 0;
+  ACTION_CATEGORY_CRUD = 1;             // Create, Delete, Duplicate, Move
+  ACTION_CATEGORY_MODE = 2;             // Plan, Implement (LLM actions)
+  ACTION_CATEGORY_STATUS = 3;           // Status/state changes
+  ACTION_CATEGORY_EXTERNAL = 4;         // Open in VSCode, external tools
+}
+
+// An action that can be performed on an entity
+message EntityAction {
+  string id = 1;                        // Action identifier (e.g., "delete", "duplicate", "status:closed")
+  string label = 2;                     // Human-readable label (e.g., "Delete", "Mark as Closed")
+  ActionCategory category = 3;          // Category for grouping in UI
+  bool enabled = 4;                     // Whether action is available for current entity state
+  string disabled_reason = 5;           // Explanation if action is disabled
+  bool destructive = 6;                 // UI hint: show in red, require confirmation
+  string keyboard_shortcut = 7;         // Optional keyboard shortcut (e.g., "d" for delete)
+}
+
+// Request to get available actions for an entity
+message GetEntityActionsRequest {
+  string project_path = 1;              // Project path for config/state lookup
+  EntityType entity_type = 2;           // Type of entity (issue, PR, doc)
+  string entity_id = 3;                 // Optional: entity ID for contextual actions (empty = general actions like "create")
+}
+
+// Response with available actions
+message GetEntityActionsResponse {
+  repeated EntityAction actions = 1;    // Available actions, ordered by category then priority
+  bool success = 2;
+  string error = 3;
+}
+
+// ============ Sync Messages ============
+
+// Sync conflict information
+message SyncConflict {
+  string id = 1;                        // Unique conflict ID
+  string item_type = 2;                 // Type of item (issue, doc, pr)
+  string item_id = 3;                   // ID of the item with conflict
+  string file_path = 4;                 // Relative file path within .centy
+  string created_at = 5;                // When the conflict was detected
+  string description = 6;               // Description of the conflict
+  string base_content = 7;              // Base content (common ancestor)
+  string ours_content = 8;              // Our version of the content
+  string theirs_content = 9;            // Their version of the content
+}
+
+// Sync mode enum
+enum SyncMode {
+  SYNC_MODE_UNSPECIFIED = 0;
+  SYNC_MODE_FULL = 1;                   // Full sync with remote
+  SYNC_MODE_LOCAL_ONLY = 2;             // Local-only mode (no remote)
+  SYNC_MODE_DISABLED = 3;               // Sync disabled (not a git repo)
+}
+
+// Request to list sync conflicts
+message ListSyncConflictsRequest {
+  string project_path = 1;
+}
+
+// Response with list of sync conflicts
+message ListSyncConflictsResponse {
+  repeated SyncConflict conflicts = 1;
+  bool success = 2;
+  string error = 3;
+}
+
+// Request to get a specific sync conflict
+message GetSyncConflictRequest {
+  string project_path = 1;
+  string conflict_id = 2;
+}
+
+// Response with sync conflict details
+message GetSyncConflictResponse {
+  SyncConflict conflict = 1;
+  bool success = 2;
+  string error = 3;
+}
+
+// Conflict resolution type
+enum ConflictResolutionType {
+  CONFLICT_RESOLUTION_UNSPECIFIED = 0;
+  CONFLICT_RESOLUTION_TAKE_OURS = 1;
+  CONFLICT_RESOLUTION_TAKE_THEIRS = 2;
+  CONFLICT_RESOLUTION_MERGE = 3;
+}
+
+// Request to resolve a sync conflict
+message ResolveSyncConflictRequest {
+  string project_path = 1;
+  string conflict_id = 2;
+  ConflictResolutionType resolution = 3;
+  string merged_content = 4;            // Only used when resolution is MERGE
+}
+
+// Response after resolving a conflict
+message ResolveSyncConflictResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+// Request to get sync status
+message GetSyncStatusRequest {
+  string project_path = 1;
+}
+
+// Response with sync status
+message GetSyncStatusResponse {
+  SyncMode mode = 1;                    // Current sync mode
+  bool has_pending_changes = 2;         // Whether there are uncommitted changes
+  bool has_pending_push = 3;            // Whether there are unpushed commits
+  int32 conflict_count = 4;             // Number of unresolved conflicts
+  string last_sync_time = 5;            // Last successful sync timestamp
+  bool success = 6;
+  string error = 7;
+}
+
+// Request to manually trigger sync pull
+message SyncPullRequest {
+  string project_path = 1;
+}
+
+// Response from sync pull
+message SyncPullResponse {
+  bool success = 1;
+  string error = 2;
+  bool had_changes = 3;                 // Whether any changes were pulled
+  repeated string conflict_files = 4;   // Files with conflicts (if any)
+}
+
+// Request to manually trigger sync push
+message SyncPushRequest {
+  string project_path = 1;
+  string commit_message = 2;            // Optional custom commit message
+}
+
+// Response from sync push
+message SyncPushResponse {
+  bool success = 1;
+  string error = 2;
+  bool had_changes = 3;                 // Whether any changes were pushed
 }

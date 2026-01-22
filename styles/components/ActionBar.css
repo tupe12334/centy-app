@@ -1,0 +1,240 @@
+/* ActionBar Component */
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.action-bar-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Base action button */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  color: var(--color-gray-700);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.action-btn:hover:not(:disabled):not(.disabled) {
+  background: var(--color-gray-100);
+  border-color: var(--color-gray-300);
+}
+
+.action-btn:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Disabled state */
+.action-btn:disabled,
+.action-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Destructive actions (Delete) */
+.action-btn.destructive {
+  color: var(--color-error);
+  border-color: var(--color-error-light, rgba(220, 38, 38, 0.3));
+}
+
+.action-btn.destructive:hover:not(:disabled):not(.disabled) {
+  background: var(--color-error-light, rgba(220, 38, 38, 0.1));
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+/* Save button (primary) */
+.action-btn.save-btn {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.action-btn.save-btn:hover:not(:disabled) {
+  background: var(--color-primary-dark, #4f46e5);
+  border-color: var(--color-primary-dark, #4f46e5);
+}
+
+/* Cancel button */
+.action-btn.cancel-btn {
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+  border-color: var(--color-gray-200);
+}
+
+.action-btn.cancel-btn:hover:not(:disabled) {
+  background: var(--color-gray-200);
+}
+
+/* Confirm delete button */
+.action-btn.confirm-delete-btn {
+  background: var(--color-error);
+  color: white;
+  border-color: var(--color-error);
+}
+
+.action-btn.confirm-delete-btn:hover:not(:disabled) {
+  background: var(--color-error-dark, #b91c1c);
+  border-color: var(--color-error-dark, #b91c1c);
+}
+
+/* Status dropdown trigger */
+.action-btn.status-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.action-bar .status-selector {
+  position: relative;
+  display: inline-flex;
+}
+
+.action-bar .status-dropdown-arrow {
+  font-size: 0.625rem;
+  transition: transform var(--transition-fast);
+}
+
+.action-bar .status-dropdown {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  z-index: 50;
+  min-width: 150px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  list-style: none;
+  padding: var(--space-2);
+  margin: 0;
+  animation: actionDropdownFadeIn 0.15s ease-out;
+}
+
+@keyframes actionDropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.action-bar .status-option {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: 0.875rem;
+}
+
+.action-bar .status-option:hover:not(.disabled) {
+  background: var(--color-gray-100);
+}
+
+.action-bar .status-option.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Confirmation dialog overlay */
+.action-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: overlayFadeIn 0.15s ease-out;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.action-confirm-dialog {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  max-width: 400px;
+  width: 90%;
+  box-shadow: var(--shadow-xl);
+  animation: dialogSlideIn 0.2s ease-out;
+}
+
+@keyframes dialogSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.action-confirm-dialog p {
+  margin: 0 0 var(--space-4);
+  font-size: 1rem;
+  color: var(--color-gray-700);
+  text-align: center;
+}
+
+.action-confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .action-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+
+  .action-bar-group {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .action-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .action-confirm-actions {
+    flex-direction: column;
+  }
+
+  .action-confirm-actions .action-btn {
+    width: 100%;
+  }
+}

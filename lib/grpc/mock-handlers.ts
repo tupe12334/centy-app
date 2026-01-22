@@ -14,45 +14,50 @@ import {
   DEMO_ASSETS,
 } from './demo-data'
 
-import type {
-  ListProjectsRequest,
-  ListProjectsResponse,
-  GetProjectInfoRequest,
-  GetProjectInfoResponse,
-  ListIssuesRequest,
-  ListIssuesResponse,
-  GetIssueRequest,
-  GetIssueByDisplayNumberRequest,
-  Issue,
-  ListDocsRequest,
-  ListDocsResponse,
-  GetDocRequest,
-  Doc,
-  ListPrsRequest,
-  ListPrsResponse,
-  GetPrRequest,
-  GetPrByDisplayNumberRequest,
-  PullRequest,
-  ListUsersRequest,
-  ListUsersResponse,
-  GetUserRequest,
-  User,
-  ListOrganizationsRequest,
-  ListOrganizationsResponse,
-  GetOrganizationRequest,
-  Organization,
-  GetConfigRequest,
-  Config,
-  GetDaemonInfoRequest,
-  DaemonInfo,
-  IsInitializedRequest,
-  IsInitializedResponse,
-  ListLinksRequest,
-  ListLinksResponse,
-  ListAssetsRequest,
-  ListAssetsResponse,
-  GetAvailableLinkTypesRequest,
-  GetAvailableLinkTypesResponse,
+import {
+  EntityType,
+  ActionCategory,
+  type ListProjectsRequest,
+  type ListProjectsResponse,
+  type GetProjectInfoRequest,
+  type GetProjectInfoResponse,
+  type ListIssuesRequest,
+  type ListIssuesResponse,
+  type GetIssueRequest,
+  type GetIssueByDisplayNumberRequest,
+  type Issue,
+  type ListDocsRequest,
+  type ListDocsResponse,
+  type GetDocRequest,
+  type Doc,
+  type ListPrsRequest,
+  type ListPrsResponse,
+  type GetPrRequest,
+  type GetPrByDisplayNumberRequest,
+  type PullRequest,
+  type ListUsersRequest,
+  type ListUsersResponse,
+  type GetUserRequest,
+  type User,
+  type ListOrganizationsRequest,
+  type ListOrganizationsResponse,
+  type GetOrganizationRequest,
+  type Organization,
+  type GetConfigRequest,
+  type Config,
+  type GetDaemonInfoRequest,
+  type DaemonInfo,
+  type IsInitializedRequest,
+  type IsInitializedResponse,
+  type ListLinksRequest,
+  type ListLinksResponse,
+  type ListAssetsRequest,
+  type ListAssetsResponse,
+  type GetAvailableLinkTypesRequest,
+  type GetAvailableLinkTypesResponse,
+  type GetEntityActionsRequest,
+  type GetEntityActionsResponse,
+  type EntityAction,
 } from '@/gen/centy_pb'
 
 // Type for mock handlers - using 'any' to allow different parameter types
@@ -767,5 +772,221 @@ export const mockHandlers: MockHandlers = {
 
   async getPrsByUuid(): Promise<{ prs: PullRequest[] }> {
     return { prs: [] }
+  },
+
+  // Entity Actions
+  async getEntityActions(
+    request: GetEntityActionsRequest
+  ): Promise<GetEntityActionsResponse> {
+    const actions: EntityAction[] = []
+
+    // Common CRUD actions for all entity types
+    const commonCrudActions: EntityAction[] = [
+      {
+        $typeName: 'centy.EntityAction',
+        id: 'edit',
+        label: 'Edit',
+        category: ActionCategory.CRUD,
+        enabled: true,
+        disabledReason: '',
+        destructive: false,
+        keyboardShortcut: 'e',
+      },
+      {
+        $typeName: 'centy.EntityAction',
+        id: 'move',
+        label: 'Move',
+        category: ActionCategory.CRUD,
+        enabled: true,
+        disabledReason: '',
+        destructive: false,
+        keyboardShortcut: 'm',
+      },
+      {
+        $typeName: 'centy.EntityAction',
+        id: 'duplicate',
+        label: 'Duplicate',
+        category: ActionCategory.CRUD,
+        enabled: true,
+        disabledReason: '',
+        destructive: false,
+        keyboardShortcut: '',
+      },
+      {
+        $typeName: 'centy.EntityAction',
+        id: 'delete',
+        label: 'Delete',
+        category: ActionCategory.CRUD,
+        enabled: true,
+        disabledReason: '',
+        destructive: true,
+        keyboardShortcut: '',
+      },
+    ]
+
+    // External actions (for Issues)
+    const externalActions: EntityAction[] = [
+      {
+        $typeName: 'centy.EntityAction',
+        id: 'open-vscode',
+        label: 'Open in VS Code',
+        category: ActionCategory.EXTERNAL,
+        enabled: true,
+        disabledReason: '',
+        destructive: false,
+        keyboardShortcut: '',
+      },
+      {
+        $typeName: 'centy.EntityAction',
+        id: 'open-terminal',
+        label: 'Open in Terminal',
+        category: ActionCategory.EXTERNAL,
+        enabled: true,
+        disabledReason: '',
+        destructive: false,
+        keyboardShortcut: '',
+      },
+    ]
+
+    // Mode actions (AI) for issues
+    const modeActions: EntityAction[] = [
+      {
+        $typeName: 'centy.EntityAction',
+        id: 'ai-plan',
+        label: 'AI Plan',
+        category: ActionCategory.MODE,
+        enabled: false,
+        disabledReason: 'AI features not available in demo mode',
+        destructive: false,
+        keyboardShortcut: '',
+      },
+    ]
+
+    // Status actions for issues
+    const issueStatusActions: EntityAction[] = [
+      {
+        $typeName: 'centy.EntityAction',
+        id: 'status:open',
+        label: 'Open',
+        category: ActionCategory.STATUS,
+        enabled: true,
+        disabledReason: '',
+        destructive: false,
+        keyboardShortcut: '',
+      },
+      {
+        $typeName: 'centy.EntityAction',
+        id: 'status:in-progress',
+        label: 'In Progress',
+        category: ActionCategory.STATUS,
+        enabled: true,
+        disabledReason: '',
+        destructive: false,
+        keyboardShortcut: '',
+      },
+      {
+        $typeName: 'centy.EntityAction',
+        id: 'status:closed',
+        label: 'Closed',
+        category: ActionCategory.STATUS,
+        enabled: true,
+        disabledReason: '',
+        destructive: false,
+        keyboardShortcut: '',
+      },
+    ]
+
+    // PR status actions
+    const prStatusActions: EntityAction[] = [
+      {
+        $typeName: 'centy.EntityAction',
+        id: 'status:draft',
+        label: 'Draft',
+        category: ActionCategory.STATUS,
+        enabled: true,
+        disabledReason: '',
+        destructive: false,
+        keyboardShortcut: '',
+      },
+      {
+        $typeName: 'centy.EntityAction',
+        id: 'status:open',
+        label: 'Open',
+        category: ActionCategory.STATUS,
+        enabled: true,
+        disabledReason: '',
+        destructive: false,
+        keyboardShortcut: '',
+      },
+      {
+        $typeName: 'centy.EntityAction',
+        id: 'status:merged',
+        label: 'Merged',
+        category: ActionCategory.STATUS,
+        enabled: true,
+        disabledReason: '',
+        destructive: false,
+        keyboardShortcut: '',
+      },
+      {
+        $typeName: 'centy.EntityAction',
+        id: 'status:closed',
+        label: 'Closed',
+        category: ActionCategory.STATUS,
+        enabled: true,
+        disabledReason: '',
+        destructive: false,
+        keyboardShortcut: '',
+      },
+    ]
+
+    // PR-specific CRUD actions (no move/duplicate support)
+    const prCrudActions: EntityAction[] = [
+      {
+        $typeName: 'centy.EntityAction',
+        id: 'edit',
+        label: 'Edit',
+        category: ActionCategory.CRUD,
+        enabled: true,
+        disabledReason: '',
+        destructive: false,
+        keyboardShortcut: 'e',
+      },
+      {
+        $typeName: 'centy.EntityAction',
+        id: 'delete',
+        label: 'Delete',
+        category: ActionCategory.CRUD,
+        enabled: true,
+        disabledReason: '',
+        destructive: true,
+        keyboardShortcut: '',
+      },
+    ]
+
+    switch (request.entityType) {
+      case EntityType.ISSUE:
+        actions.push(...modeActions)
+        actions.push(...externalActions)
+        actions.push(...commonCrudActions)
+        actions.push(...issueStatusActions)
+        break
+      case EntityType.PR:
+        actions.push(...prCrudActions)
+        actions.push(...prStatusActions)
+        break
+      case EntityType.DOC:
+        actions.push(...commonCrudActions)
+        break
+      default:
+        actions.push(...commonCrudActions)
+    }
+
+    return {
+      $typeName: 'centy.GetEntityActionsResponse',
+      actions,
+      success: true,
+      error: '',
+    }
   },
 }

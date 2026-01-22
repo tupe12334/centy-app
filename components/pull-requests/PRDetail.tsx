@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { centyClient } from '@/lib/grpc/client'
@@ -18,9 +18,10 @@ import { useAppLink } from '@/hooks/useAppLink'
 import { AssetUploader } from '@/components/assets/AssetUploader'
 import { TextEditor } from '@/components/shared/TextEditor'
 import { LinkSection } from '@/components/shared/LinkSection'
+import { useEntityActions, EntityType } from '@/hooks/useEntityActions'
+import { useActionShortcuts } from '@/hooks/useActionShortcuts'
+import { ActionBar } from '@/components/shared/ActionBar'
 import '@/styles/pages/PRDetail.css'
-
-const STATUS_OPTIONS = ['draft', 'open', 'merged', 'closed'] as const
 
 interface PRDetailProps {
   prNumber: string
@@ -46,12 +47,13 @@ export function PRDetail({ prNumber }: PRDetailProps) {
   const [editSourceBranch, setEditSourceBranch] = useState('')
   const [editTargetBranch, setEditTargetBranch] = useState('')
   const [saving, setSaving] = useState(false)
-  const [deleting, setDeleting] = useState(false)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [showStatusDropdown, setShowStatusDropdown] = useState(false)
-  const [updatingStatus, setUpdatingStatus] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_deleting, setDeleting] = useState(false)
   const [assets, setAssets] = useState<Asset[]>([])
-  const statusDropdownRef = useRef<HTMLDivElement>(null)
+  const [loadingActions, setLoadingActions] = useState<Set<string>>(new Set())
+
+  // Fetch entity actions from daemon
+  const { actions } = useEntityActions(EntityType.PR, prNumber)
 
   const fetchPr = useCallback(async () => {
     if (!projectPath || !prNumber) {
@@ -96,33 +98,11 @@ export function PRDetail({ prNumber }: PRDetailProps) {
     fetchAssets()
   }, [fetchPr, fetchAssets])
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        statusDropdownRef.current &&
-        !statusDropdownRef.current.contains(event.target as Node)
-      ) {
-        setShowStatusDropdown(false)
-      }
-    }
-
-    if (showStatusDropdown) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [showStatusDropdown])
-
   const handleStatusChange = useCallback(
     async (newStatus: string) => {
       if (!projectPath || !prNumber || !pr) return
-      if (newStatus === pr.metadata?.status) {
-        setShowStatusDropdown(false)
-        return
-      }
+      if (newStatus === pr.metadata?.status) return
 
-      setUpdatingStatus(true)
       setError(null)
 
       try {
@@ -143,9 +123,6 @@ export function PRDetail({ prNumber }: PRDetailProps) {
         setError(
           err instanceof Error ? err.message : 'Failed to connect to daemon'
         )
-      } finally {
-        setUpdatingStatus(false)
-        setShowStatusDropdown(false)
       }
     },
     [projectPath, prNumber, pr]
@@ -211,13 +188,11 @@ export function PRDetail({ prNumber }: PRDetailProps) {
         router.push(prListUrl)
       } else {
         setError(response.error || 'Failed to delete PR')
-        setShowDeleteConfirm(false)
       }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Failed to connect to daemon'
       )
-      setShowDeleteConfirm(false)
     } finally {
       setDeleting(false)
     }
@@ -234,6 +209,44 @@ export function PRDetail({ prNumber }: PRDetailProps) {
       setEditTargetBranch(pr.metadata?.targetBranch || '')
     }
   }
+
+  // Handle action from ActionBar
+  const handleAction = useCallback(
+    async (actionId: string) => {
+      setLoadingActions(prev => new Set(prev).add(actionId))
+
+      try {
+        switch (actionId) {
+          case 'edit':
+            setIsEditing(true)
+            break
+          case 'delete':
+            await handleDelete()
+            break
+          default:
+            // Handle status changes (status:draft, status:open, etc.)
+            if (actionId.startsWith('status:')) {
+              const newStatus = actionId.replace('status:', '')
+              await handleStatusChange(newStatus)
+            }
+        }
+      } finally {
+        setLoadingActions(prev => {
+          const next = new Set(prev)
+          next.delete(actionId)
+          return next
+        })
+      }
+    },
+    [handleDelete, handleStatusChange]
+  )
+
+  // Set up keyboard shortcuts
+  useActionShortcuts({
+    actions,
+    onAction: handleAction,
+    enabled: !isEditing,
+  })
 
   const getPriorityClass = (priorityLabel: string) => {
     switch (priorityLabel.toLowerCase()) {
@@ -320,57 +333,19 @@ export function PRDetail({ prNumber }: PRDetailProps) {
         </Link>
 
         <div className="pr-actions">
-          {!isEditing ? (
-            <>
-              <button onClick={() => setIsEditing(true)} className="edit-btn">
-                Edit
-              </button>
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="delete-btn"
-              >
-                Delete
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={handleCancelEdit} className="cancel-btn">
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="save-btn"
-              >
-                {saving ? 'Saving...' : 'Save'}
-              </button>
-            </>
-          )}
+          <ActionBar
+            actions={actions}
+            onAction={handleAction}
+            loadingActions={loadingActions}
+            isEditing={isEditing}
+            onSave={handleSave}
+            onCancel={handleCancelEdit}
+            saving={saving}
+          />
         </div>
       </div>
 
       {error && <div className="error-message">{error}</div>}
-
-      {showDeleteConfirm && (
-        <div className="delete-confirm">
-          <p>Are you sure you want to delete this pull request?</p>
-          <div className="delete-confirm-actions">
-            <button
-              onClick={() => setShowDeleteConfirm(false)}
-              className="cancel-btn"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="confirm-delete-btn"
-            >
-              {deleting ? 'Deleting...' : 'Yes, Delete'}
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="pr-content">
         <button
@@ -475,42 +450,11 @@ export function PRDetail({ prNumber }: PRDetailProps) {
             <h1 className="pr-title">{pr.title}</h1>
 
             <div className="pr-metadata">
-              <div className="status-selector" ref={statusDropdownRef}>
-                <button
-                  className={`status-badge status-badge-clickable ${getStatusClass(pr.metadata?.status || '')} ${updatingStatus ? 'updating' : ''}`}
-                  onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                  disabled={updatingStatus}
-                  aria-label="Change status"
-                  aria-expanded={showStatusDropdown}
-                  aria-haspopup="listbox"
-                >
-                  {updatingStatus
-                    ? 'Updating...'
-                    : pr.metadata?.status || 'unknown'}
-                  <span className="status-dropdown-arrow" aria-hidden="true">
-                    ▼
-                  </span>
-                </button>
-                {showStatusDropdown && (
-                  <ul
-                    className="status-dropdown"
-                    role="listbox"
-                    aria-label="Status options"
-                  >
-                    {STATUS_OPTIONS.map(status => (
-                      <li
-                        key={status}
-                        role="option"
-                        aria-selected={status === pr.metadata?.status}
-                        className={`status-option ${getStatusClass(status)} ${status === pr.metadata?.status ? 'selected' : ''}`}
-                        onClick={() => handleStatusChange(status)}
-                      >
-                        {status}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
+              <span
+                className={`status-badge ${getStatusClass(pr.metadata?.status || '')}`}
+              >
+                {pr.metadata?.status || 'unknown'}
+              </span>
               <span
                 className={`priority-badge ${getPriorityClass(pr.metadata?.priorityLabel || '')}`}
               >

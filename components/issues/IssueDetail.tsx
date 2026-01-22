@@ -31,10 +31,12 @@ import { LinkSection } from '@/components/shared/LinkSection'
 import { MoveModal } from '@/components/shared/MoveModal'
 import { DuplicateModal } from '@/components/shared/DuplicateModal'
 import { StatusConfigDialog } from '@/components/shared/StatusConfigDialog'
-import { EditorSelector } from '@/components/shared/EditorSelector'
 import { useSaveShortcut } from '@/hooks/useSaveShortcut'
 import { useAppLink } from '@/hooks/useAppLink'
 import { AssigneeSelector } from '@/components/users/AssigneeSelector'
+import { useEntityActions, EntityType } from '@/hooks/useEntityActions'
+import { useActionShortcuts } from '@/hooks/useActionShortcuts'
+import { ActionBar } from '@/components/shared/ActionBar'
 
 interface IssueDetailProps {
   issueNumber: string
@@ -63,19 +65,26 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
   const [editStatus, setEditStatus] = useState('')
   const [editPriority, setEditPriority] = useState(0)
   const [saving, setSaving] = useState(false)
-  const [deleting, setDeleting] = useState(false)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_deleting, setDeleting] = useState(false)
   const [showStatusDropdown, setShowStatusDropdown] = useState(false)
   const [updatingStatus, setUpdatingStatus] = useState(false)
   const [assets, setAssets] = useState<Asset[]>([])
   const [showMoveModal, setShowMoveModal] = useState(false)
   const [showDuplicateModal, setShowDuplicateModal] = useState(false)
   const [showStatusConfigDialog, setShowStatusConfigDialog] = useState(false)
-  const [spawningAgent, setSpawningAgent] = useState(false)
-  const [openingInVscode, setOpeningInVscode] = useState(false)
-  const [activeWork, setActiveWork] = useState<LlmWorkSession | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_spawningAgent, setSpawningAgent] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_openingInVscode, setOpeningInVscode] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_activeWork, setActiveWork] = useState<LlmWorkSession | null>(null)
   const [assignees, setAssignees] = useState<string[]>([])
+  const [loadingActions, setLoadingActions] = useState<Set<string>>(new Set())
   const statusDropdownRef = useRef<HTMLDivElement>(null)
+
+  // Fetch entity actions from daemon
+  const { actions } = useEntityActions(EntityType.ISSUE, issueNumber)
 
   const fetchIssue = useCallback(async () => {
     if (!projectPath || !issueNumber) {
@@ -450,6 +459,65 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
     handleOpenInVscode()
   }, [handleOpenInVscode])
 
+  // Handle action from ActionBar
+  const handleAction = useCallback(
+    async (actionId: string) => {
+      setLoadingActions(prev => new Set(prev).add(actionId))
+
+      try {
+        switch (actionId) {
+          case 'edit':
+            setIsEditing(true)
+            break
+          case 'move':
+            setShowMoveModal(true)
+            break
+          case 'duplicate':
+            setShowDuplicateModal(true)
+            break
+          case 'delete':
+            await handleDelete()
+            break
+          case 'open-vscode':
+            await handleOpenInVscode()
+            break
+          case 'open-terminal':
+            await handleOpenInTerminal()
+            break
+          case 'ai-plan':
+            await handleSpawnPlan()
+            break
+          default:
+            // Handle status changes (status:open, status:in-progress, etc.)
+            if (actionId.startsWith('status:')) {
+              const newStatus = actionId.replace('status:', '')
+              await handleStatusChange(newStatus)
+            }
+        }
+      } finally {
+        setLoadingActions(prev => {
+          const next = new Set(prev)
+          next.delete(actionId)
+          return next
+        })
+      }
+    },
+    [
+      handleDelete,
+      handleOpenInVscode,
+      handleOpenInTerminal,
+      handleSpawnPlan,
+      handleStatusChange,
+    ]
+  )
+
+  // Set up keyboard shortcuts
+  useActionShortcuts({
+    actions,
+    onAction: handleAction,
+    enabled: !isEditing,
+  })
+
   useSaveShortcut({
     onSave: handleSave,
     enabled: isEditing && !saving && !!editTitle.trim(),
@@ -525,87 +593,19 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
         </Link>
 
         <div className="issue-actions">
-          {!isEditing ? (
-            <>
-              <button
-                onClick={handleSpawnPlan}
-                disabled={spawningAgent || !!activeWork}
-                className="ai-plan-btn"
-                style={{ display: 'none' }}
-                title={
-                  activeWork
-                    ? `Agent running on #${activeWork.displayNumber}`
-                    : 'Generate AI plan'
-                }
-              >
-                {spawningAgent ? 'Spawning...' : 'AI Plan'}
-              </button>
-              <EditorSelector
-                onOpenInVscode={handleOpenInVscode}
-                onOpenInTerminal={handleOpenInTerminal}
-                loading={openingInVscode}
-              />
-              <button onClick={() => setIsEditing(true)} className="edit-btn">
-                Edit
-              </button>
-              <button
-                onClick={() => setShowMoveModal(true)}
-                className="move-btn"
-              >
-                Move
-              </button>
-              <button
-                onClick={() => setShowDuplicateModal(true)}
-                className="duplicate-btn"
-              >
-                Duplicate
-              </button>
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="delete-btn"
-              >
-                Delete
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={handleCancelEdit} className="cancel-btn">
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="save-btn"
-              >
-                {saving ? 'Saving...' : 'Save'}
-              </button>
-            </>
-          )}
+          <ActionBar
+            actions={actions}
+            onAction={handleAction}
+            loadingActions={loadingActions}
+            isEditing={isEditing}
+            onSave={handleSave}
+            onCancel={handleCancelEdit}
+            saving={saving}
+          />
         </div>
       </div>
 
       {error && <div className="error-message">{error}</div>}
-
-      {showDeleteConfirm && (
-        <div className="delete-confirm">
-          <p>Are you sure you want to delete this issue?</p>
-          <div className="delete-confirm-actions">
-            <button
-              onClick={() => setShowDeleteConfirm(false)}
-              className="cancel-btn"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="confirm-delete-btn"
-            >
-              {deleting ? 'Deleting...' : 'Yes, Delete'}
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="issue-content">
         <button

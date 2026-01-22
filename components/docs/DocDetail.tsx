@@ -19,6 +19,9 @@ import { TextEditor } from '@/components/shared/TextEditor'
 import { LinkSection } from '@/components/shared/LinkSection'
 import { MoveModal } from '@/components/shared/MoveModal'
 import { DuplicateModal } from '@/components/shared/DuplicateModal'
+import { useEntityActions, EntityType } from '@/hooks/useEntityActions'
+import { useActionShortcuts } from '@/hooks/useActionShortcuts'
+import { ActionBar } from '@/components/shared/ActionBar'
 
 interface DocDetailProps {
   slug: string
@@ -42,10 +45,14 @@ export function DocDetail({ slug }: DocDetailProps) {
   const [editContent, setEditContent] = useState('')
   const [editSlug, setEditSlug] = useState('')
   const [saving, setSaving] = useState(false)
-  const [deleting, setDeleting] = useState(false)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_deleting, setDeleting] = useState(false)
   const [showMoveModal, setShowMoveModal] = useState(false)
   const [showDuplicateModal, setShowDuplicateModal] = useState(false)
+  const [loadingActions, setLoadingActions] = useState<Set<string>>(new Set())
+
+  // Fetch entity actions from daemon
+  const { actions } = useEntityActions(EntityType.DOC, slug)
 
   const fetchDoc = useCallback(async () => {
     if (!projectPath || !slug) {
@@ -203,6 +210,44 @@ export function DocDetail({ slug }: DocDetailProps) {
     ]
   )
 
+  // Handle action from ActionBar
+  const handleAction = useCallback(
+    async (actionId: string) => {
+      setLoadingActions(prev => new Set(prev).add(actionId))
+
+      try {
+        switch (actionId) {
+          case 'edit':
+            setIsEditing(true)
+            break
+          case 'move':
+            setShowMoveModal(true)
+            break
+          case 'duplicate':
+            setShowDuplicateModal(true)
+            break
+          case 'delete':
+            await handleDelete()
+            break
+        }
+      } finally {
+        setLoadingActions(prev => {
+          const next = new Set(prev)
+          next.delete(actionId)
+          return next
+        })
+      }
+    },
+    [handleDelete]
+  )
+
+  // Set up keyboard shortcuts
+  useActionShortcuts({
+    actions,
+    onAction: handleAction,
+    enabled: !isEditing,
+  })
+
   if (!projectPath) {
     return (
       <div className="doc-detail">
@@ -253,69 +298,19 @@ export function DocDetail({ slug }: DocDetailProps) {
         </Link>
 
         <div className="doc-actions">
-          {!isEditing ? (
-            <>
-              <button onClick={() => setIsEditing(true)} className="edit-btn">
-                Edit
-              </button>
-              <button
-                onClick={() => setShowMoveModal(true)}
-                className="move-btn"
-              >
-                Move
-              </button>
-              <button
-                onClick={() => setShowDuplicateModal(true)}
-                className="duplicate-btn"
-              >
-                Duplicate
-              </button>
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="delete-btn"
-              >
-                Delete
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={handleCancelEdit} className="cancel-btn">
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="save-btn"
-              >
-                {saving ? 'Saving...' : 'Save'}
-              </button>
-            </>
-          )}
+          <ActionBar
+            actions={actions}
+            onAction={handleAction}
+            loadingActions={loadingActions}
+            isEditing={isEditing}
+            onSave={handleSave}
+            onCancel={handleCancelEdit}
+            saving={saving}
+          />
         </div>
       </div>
 
       {error && <div className="error-message">{error}</div>}
-
-      {showDeleteConfirm && (
-        <div className="delete-confirm">
-          <p>Are you sure you want to delete this document?</p>
-          <div className="delete-confirm-actions">
-            <button
-              onClick={() => setShowDeleteConfirm(false)}
-              className="cancel-btn"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="confirm-delete-btn"
-            >
-              {deleting ? 'Deleting...' : 'Yes, Delete'}
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="doc-content">
         {isEditing ? (
