@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams, usePathname, useRouter } from 'next/navigation'
+import type { Route } from 'next'
 import {
   resolveProjectPath,
   UNGROUPED_ORG_MARKER,
@@ -52,7 +53,7 @@ export function LegacyUrlRedirect() {
           const page = pathname.split('/').filter(Boolean)[0] || 'issues'
 
           // Build new URL
-          const newPath = `/${orgPart}/${result.projectName}/${page}`
+          const newPath = `/${orgPart}/${result.projectName}/${page}` as Route
 
           // Redirect to new URL
           router.replace(newPath)

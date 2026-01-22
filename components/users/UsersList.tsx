@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
+import type { Route } from 'next'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -40,7 +41,7 @@ export function UsersList() {
     const project = params.project as string | undefined
     if (org && project) return `/${org}/${project}/users`
     return '/'
-  }, [params])
+  }, [params]) as string  // Keep as string since it's used in string concatenation
 
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
@@ -68,7 +69,7 @@ export function UsersList() {
         header: 'Name',
         cell: info => (
           <Link
-            href={`${usersBaseUrl}/${info.row.original.id}`}
+            href={`${usersBaseUrl}/${info.row.original.id}` as Route}
             className="user-name-link"
           >
             {info.getValue()}
@@ -243,14 +244,14 @@ export function UsersList() {
         {
           label: 'View',
           onClick: () => {
-            router.push(`${usersBaseUrl}/${contextMenu.user.id}`)
+            router.push(`${usersBaseUrl}/${contextMenu.user.id}` as Route)
             setContextMenu(null)
           },
         },
         {
           label: 'Edit',
           onClick: () => {
-            router.push(`${usersBaseUrl}/${contextMenu.user.id}`)
+            router.push(`${usersBaseUrl}/${contextMenu.user.id}` as Route)
             setContextMenu(null)
           },
         },
@@ -287,7 +288,7 @@ export function UsersList() {
               </button>
             </>
           )}
-          <Link href={`${usersBaseUrl}/new`} className="create-btn">
+          <Link href={`${usersBaseUrl}/new` as Route} className="create-btn">
             + New User
           </Link>
         </div>
@@ -337,7 +338,7 @@ export function UsersList() {
             <div className="empty-state">
               <p>No users found</p>
               <p>
-                <Link href={`${usersBaseUrl}/new`}>Create your first user</Link>{' '}
+                <Link href={`${usersBaseUrl}/new` as Route}>Create your first user</Link>{' '}
                 or{' '}
                 <button
                   onClick={() => setShowSyncModal(true)}

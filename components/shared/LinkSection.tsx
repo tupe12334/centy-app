@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
+import type { Route } from 'next'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -195,7 +196,7 @@ export function LinkSection({
                   return (
                     <li key={linkKey} className="link-item">
                       <Link
-                        href={`${route}/${link.targetId}`}
+                        href={`${route}/${link.targetId}` as Route}
                         className="link-item-link"
                       >
                         <span

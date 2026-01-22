@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import type { Route } from 'next'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -92,7 +93,7 @@ export function CreateDoc() {
           // Navigate to the project-scoped doc detail page
           const base = await getProjectBase()
           if (base) {
-            router.push(`${base}/docs/${response.slug}`)
+            router.push(`${base}/docs/${response.slug}` as Route)
           } else {
             // Fallback to home if we can't determine project base
             router.push('/')
@@ -183,7 +184,7 @@ export function CreateDoc() {
             type="button"
             onClick={async () => {
               const base = await getProjectBase()
-              router.push(base ? `${base}/docs` : '/')
+              router.push((base ? `${base}/docs` : '/') as Route)
             }}
             className="secondary"
           >

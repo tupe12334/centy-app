@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import type { Route } from 'next'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -108,7 +109,7 @@ export function CreateIssue() {
           // Navigate to the project-scoped issue detail page
           const base = await getProjectBase()
           if (base) {
-            router.push(`${base}/issues/${response.issueNumber}`)
+            router.push(`${base}/issues/${response.issueNumber}` as Route)
           } else {
             // Fallback to issues list if we can't determine project base
             router.push('/')
@@ -244,7 +245,7 @@ export function CreateIssue() {
             type="button"
             onClick={async () => {
               const base = await getProjectBase()
-              router.push(base ? `${base}/issues` : '/')
+              router.push((base ? `${base}/issues` : '/') as Route)
             }}
             className="secondary"
           >

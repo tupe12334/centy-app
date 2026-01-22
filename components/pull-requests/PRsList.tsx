@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import type { Route } from 'next'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -333,7 +334,7 @@ export function PRsList() {
               {loading ? 'Loading...' : 'Refresh'}
             </button>
           )}
-          <Link href={`${prBaseUrl}/new`} className="create-btn">
+          <Link href={`${prBaseUrl}/new` as Route} className="create-btn">
             + New PR
           </Link>
         </div>
@@ -361,7 +362,7 @@ export function PRsList() {
           ) : prs.length === 0 ? (
             <div className="empty-state">
               <p>No pull requests found</p>
-              <Link href={`${prBaseUrl}/new`}>Create your first PR</Link>
+              <Link href={`${prBaseUrl}/new` as Route}>Create your first PR</Link>
             </div>
           ) : (
             <div className="prs-table">

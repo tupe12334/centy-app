@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import type { Route } from 'next'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -106,7 +107,7 @@ export function OrganizationDetail({ orgSlug }: OrganizationDetailProps) {
         setIsEditing(false)
         // If slug changed, navigate to new URL
         if (response.organization.slug !== orgSlug) {
-          router.push(`/organizations/${response.organization.slug}`)
+          router.push(`/organizations/${response.organization.slug}` as Route)
         }
       } else {
         setError(response.error || 'Failed to update organization')
