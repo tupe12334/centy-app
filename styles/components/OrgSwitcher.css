@@ -102,6 +102,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  color: #fff;
 }
 
 .org-option:hover {
@@ -122,6 +123,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 500;
+  color: #fff;
 }
 
 .org-project-count {
