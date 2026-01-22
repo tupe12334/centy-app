@@ -34,7 +34,12 @@ export function LegacyUrlRedirect() {
       // Check if this is a root-level route (doesn't require project context)
       // Note: 'issues', 'docs', 'pull-requests', 'users' are NOT in this list
       // because they require project context and are handled by project-scoped routes
-      const rootLevelRoutes = ['organizations', 'settings', 'archived', 'assets']
+      const rootLevelRoutes = [
+        'organizations',
+        'settings',
+        'archived',
+        'assets',
+      ]
       if (!rootLevelRoutes.includes(pathSegments[0])) {
         return // Already on a project path like /org/project/...
       }

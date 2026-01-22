@@ -41,8 +41,7 @@ export function useKeyboardNavigation() {
   }, [org, project, pathSegments])
 
   // Get effective org and project
-  const effectiveOrg =
-    org || (hasProjectContext ? pathSegments[0] : undefined)
+  const effectiveOrg = org || (hasProjectContext ? pathSegments[0] : undefined)
   const effectiveProject =
     project || (hasProjectContext ? pathSegments[1] : undefined)
 
@@ -65,14 +64,10 @@ export function useKeyboardNavigation() {
       let newIndex: number
       if (direction === 'prev') {
         newIndex =
-          currentIndex > 0
-            ? currentIndex - 1
-            : PROJECT_SCOPED_PAGES.length - 1
+          currentIndex > 0 ? currentIndex - 1 : PROJECT_SCOPED_PAGES.length - 1
       } else {
         newIndex =
-          currentIndex < PROJECT_SCOPED_PAGES.length - 1
-            ? currentIndex + 1
-            : 0
+          currentIndex < PROJECT_SCOPED_PAGES.length - 1 ? currentIndex + 1 : 0
       }
 
       const newPage = PROJECT_SCOPED_PAGES[newIndex]

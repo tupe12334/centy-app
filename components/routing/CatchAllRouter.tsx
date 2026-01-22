@@ -134,7 +134,11 @@ export function CatchAllRouter() {
             redirectTo: null,
           }
         }
-        return { content: <DocsList />, shouldRedirect: false, redirectTo: null }
+        return {
+          content: <DocsList />,
+          shouldRedirect: false,
+          redirectTo: null,
+        }
 
       case 'users':
         if (rest[0] === 'new') {
@@ -151,7 +155,11 @@ export function CatchAllRouter() {
             redirectTo: null,
           }
         }
-        return { content: <UsersList />, shouldRedirect: false, redirectTo: null }
+        return {
+          content: <UsersList />,
+          shouldRedirect: false,
+          redirectTo: null,
+        }
 
       case 'pull-requests':
         if (rest[0] === 'new') {

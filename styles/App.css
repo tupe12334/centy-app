@@ -209,7 +209,9 @@ main {
   border-radius: var(--radius-lg);
   font-weight: 500;
   text-decoration: none;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .project-context-required .select-project-link:hover {

@@ -32,7 +32,8 @@ export function CreatePR() {
     if (org && project) return { organization: org, project }
     if (projectPath) {
       const result = await projectPathToUrl(projectPath)
-      if (result) return { organization: result.orgSlug, project: result.projectName }
+      if (result)
+        return { organization: result.orgSlug, project: result.projectName }
     }
     return null
   }, [params, projectPath, projectPathToUrl])

@@ -371,8 +371,7 @@ export function UsersList() {
             <div className="empty-state">
               <p>No users found</p>
               <p>
-                <Link href={newUserRoute}>Create your first user</Link>{' '}
-                or{' '}
+                <Link href={newUserRoute}>Create your first user</Link> or{' '}
                 <button
                   onClick={() => setShowSyncModal(true)}
                   className="sync-link-btn"

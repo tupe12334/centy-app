@@ -87,7 +87,11 @@ export function useAppLink() {
    * @returns Full path like '/my-org/my-project/issues/123'
    */
   const createProjectLink = useCallback(
-    (orgSlug: string | null, projectName: string, path: string): RouteLiteral => {
+    (
+      orgSlug: string | null,
+      projectName: string,
+      path: string
+    ): RouteLiteral => {
       const orgPart = orgSlug || UNGROUPED_ORG_MARKER
       const normalizedPath = path.startsWith('/') ? path.slice(1) : path
       return route({
