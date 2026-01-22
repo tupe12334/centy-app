@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback, useMemo } from 'react'
 import { usePathname, useRouter, useParams } from 'next/navigation'
+import type { Route } from 'next'
 
 // Project-scoped pages (require project context)
 // These are relative paths that will be prefixed with /org/project/
@@ -75,7 +76,7 @@ export function useKeyboardNavigation() {
       }
 
       const newPage = PROJECT_SCOPED_PAGES[newIndex]
-      router.push(`/${effectiveOrg}/${effectiveProject}/${newPage}`)
+      router.push(`/${effectiveOrg}/${effectiveProject}/${newPage}` as Route)
     },
     [
       hasProjectContext,

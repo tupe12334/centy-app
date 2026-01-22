@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useParams } from 'next/navigation'
+import type { Route } from 'next'
 import { useState, useEffect, useMemo } from 'react'
 import { DaemonStatusIndicator } from '@/components/shared/DaemonStatusIndicator'
 import { ThemeToggle } from '@/components/shared/ThemeToggle'
@@ -57,12 +58,12 @@ export function Header() {
     if (hasProjectContext && effectiveOrg && effectiveProject) {
       const base = `/${effectiveOrg}/${effectiveProject}`
       return {
-        issues: `${base}/issues`,
-        pullRequests: `${base}/pull-requests`,
-        docs: `${base}/docs`,
-        assets: `${base}/assets`,
-        users: `${base}/users`,
-        config: `${base}/config`,
+        issues: `${base}/issues` as Route,
+        pullRequests: `${base}/pull-requests` as Route,
+        docs: `${base}/docs` as Route,
+        assets: `${base}/assets` as Route,
+        users: `${base}/users` as Route,
+        config: `${base}/config` as Route,
       }
     }
     // No project context - return null to indicate nav items shouldn't be shown

@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation'
 import { useMemo, useEffect } from 'react'
 import Link from 'next/link'
+import type { Route } from 'next'
 import { PathContextProvider } from '@/components/providers/PathContextProvider'
 
 // Components for different route types
@@ -202,7 +203,7 @@ export function CatchAllRouter() {
 
   useEffect(() => {
     if (shouldRedirect && redirectTo) {
-      router.replace(redirectTo)
+      router.replace(redirectTo as Route)
     }
   }, [shouldRedirect, redirectTo, router])
 

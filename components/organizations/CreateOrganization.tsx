@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import type { Route } from 'next'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import { CreateOrganizationRequestSchema } from '@/gen/centy_pb'
@@ -52,7 +53,7 @@ export function CreateOrganization() {
       const response = await centyClient.createOrganization(request)
 
       if (response.success && response.organization) {
-        router.push(`/organizations/${response.organization.slug}`)
+        router.push(`/organizations/${response.organization.slug}` as Route)
       } else {
         const errorMsg = response.error || 'Failed to create organization'
         if (errorMsg.includes('unimplemented')) {

@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import type { Route } from 'next'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -97,7 +98,7 @@ export function CreatePR() {
           if (pendingAssets.length > 0 && assetUploaderRef.current) {
             await assetUploaderRef.current.uploadAllPending(response.id, true)
           }
-          router.push(`/pull-requests/${response.id}`)
+          router.push(`/pull-requests/${response.id}` as Route)
         } else {
           setError(response.error || 'Failed to create pull request')
         }
@@ -242,7 +243,7 @@ export function CreatePR() {
             type="button"
             onClick={async () => {
               const base = await getProjectBase()
-              router.push(base ? `${base}/pull-requests` : '/')
+              router.push((base ? `${base}/pull-requests` : '/') as Route)
             }}
             className="secondary"
           >

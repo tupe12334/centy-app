@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import type { Route } from 'next'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -26,8 +27,8 @@ export function UserDetail({ userId }: UserDetailProps) {
   const usersListUrl = useMemo(() => {
     const org = params.organization as string | undefined
     const project = params.project as string | undefined
-    if (org && project) return `/${org}/${project}/users`
-    return '/'
+    if (org && project) return `/${org}/${project}/users` as Route
+    return '/' as Route
   }, [params])
 
   const [user, setUser] = useState<User | null>(null)

@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from 'react'
 import { useParams, useRouter, usePathname } from 'next/navigation'
+import type { Route } from 'next'
 import {
   resolveProject,
   resolveProjectPath,
@@ -165,7 +166,7 @@ export function PathContextProvider({ children }: { children: ReactNode }) {
   // Navigate to a different project
   const navigateToProject = useMemo(() => {
     return (orgSlug: string | null, projectName: string, page = 'issues') => {
-      const path = buildProjectPagePath(orgSlug, projectName, page)
+      const path = buildProjectPagePath(orgSlug, projectName, page) as Route
       router.push(path)
     }
   }, [router])

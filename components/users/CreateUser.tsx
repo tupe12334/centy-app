@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import type { Route } from 'next'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import { CreateUserRequestSchema } from '@/gen/centy_pb'
@@ -24,8 +25,8 @@ export function CreateUser() {
   const usersListUrl = useMemo(() => {
     const org = params.organization as string | undefined
     const project = params.project as string | undefined
-    if (org && project) return `/${org}/${project}/users`
-    return '/'
+    if (org && project) return `/${org}/${project}/users` as Route
+    return '/' as Route
   }, [params])
 
   const [name, setName] = useState('')
@@ -79,7 +80,7 @@ export function CreateUser() {
       const response = await centyClient.createUser(request)
 
       if (response.success && response.user) {
-        router.push(`/users/${response.user.id}`)
+        router.push(`/users/${response.user.id}` as Route)
       } else {
         const errorMsg = response.error || 'Failed to create user'
         if (errorMsg.includes('unimplemented')) {

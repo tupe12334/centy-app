@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter, useParams, usePathname } from 'next/navigation'
+import type { Route } from 'next'
 import * as Popover from '@radix-ui/react-popover'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
@@ -116,7 +117,7 @@ export function ProjectSelector() {
     // Build the new URL path
     const orgSlug = project.organizationSlug || UNGROUPED_ORG_MARKER
     const page = getCurrentPage()
-    const newPath = `/${orgSlug}/${project.name}/${page}`
+    const newPath = `/${orgSlug}/${project.name}/${page}` as Route
 
     // Also update the old context for compatibility during migration
     setProjectPath(project.path)
