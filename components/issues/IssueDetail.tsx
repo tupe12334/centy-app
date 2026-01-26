@@ -19,8 +19,10 @@ import {
   type Asset,
   type LlmWorkSession,
 } from '@/gen/centy_pb'
-import { useProject } from '@/components/providers/ProjectProvider'
-import { useProjectPathToUrl } from '@/components/providers/PathContextProvider'
+import {
+  usePathContext,
+  useProjectPathToUrl,
+} from '@/components/providers/PathContextProvider'
 import { useDaemonStatus } from '@/components/providers/DaemonStatusProvider'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { useLastSeenIssues } from '@/hooks/useLastSeenIssues'
@@ -42,7 +44,7 @@ interface IssueDetailProps {
 
 export function IssueDetail({ issueNumber }: IssueDetailProps) {
   const router = useRouter()
-  const { projectPath } = useProject()
+  const { projectPath, isLoading: pathLoading } = usePathContext()
   useDaemonStatus() // Used for editor state via EditorSelector
   const { copyToClipboard } = useCopyToClipboard()
   const { recordLastSeen } = useLastSeenIssues()
@@ -487,7 +489,7 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
     )
   }
 
-  if (loading) {
+  if (pathLoading || loading) {
     return (
       <div className="issue-detail">
         <div className="loading">Loading issue...</div>
