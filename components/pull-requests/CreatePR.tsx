@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import { route } from 'nextjs-routes'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -25,13 +26,14 @@ export function CreatePR() {
   const { projectPath, isInitialized, setIsInitialized } = useProject()
   const projectPathToUrl = useProjectPathToUrl()
 
-  const getProjectBase = useCallback(async () => {
-    const org = params.organization as string | undefined
-    const project = params.project as string | undefined
-    if (org && project) return `/${org}/${project}`
+  const getProjectContext = useCallback(async () => {
+    const org = params?.organization as string | undefined
+    const project = params?.project as string | undefined
+    if (org && project) return { organization: org, project }
     if (projectPath) {
       const result = await projectPathToUrl(projectPath)
-      if (result) return `/${result.orgSlug}/${result.projectName}`
+      if (result)
+        return { organization: result.orgSlug, project: result.projectName }
     }
     return null
   }, [params, projectPath, projectPathToUrl])
@@ -97,7 +99,21 @@ export function CreatePR() {
           if (pendingAssets.length > 0 && assetUploaderRef.current) {
             await assetUploaderRef.current.uploadAllPending(response.id, true)
           }
-          router.push(`/pull-requests/${response.id}`)
+          const ctx = await getProjectContext()
+          if (ctx) {
+            router.push(
+              route({
+                pathname: '/[organization]/[project]/pull-requests/[prNumber]',
+                query: {
+                  organization: ctx.organization,
+                  project: ctx.project,
+                  prNumber: String(response.displayNumber),
+                },
+              })
+            )
+          } else {
+            router.push('/')
+          }
         } else {
           setError(response.error || 'Failed to create pull request')
         }
@@ -119,6 +135,7 @@ export function CreatePR() {
       status,
       pendingAssets,
       router,
+      getProjectContext,
     ]
   )
 
@@ -241,8 +258,20 @@ export function CreatePR() {
           <button
             type="button"
             onClick={async () => {
-              const base = await getProjectBase()
-              router.push(base ? `${base}/pull-requests` : '/')
+              const ctx = await getProjectContext()
+              if (ctx) {
+                router.push(
+                  route({
+                    pathname: '/[organization]/[project]/pull-requests',
+                    query: {
+                      organization: ctx.organization,
+                      project: ctx.project,
+                    },
+                  })
+                )
+              } else {
+                router.push('/')
+              }
             }}
             className="secondary"
           >

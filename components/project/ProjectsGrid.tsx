@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { route } from 'nextjs-routes'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -76,7 +77,12 @@ export function ProjectsGrid() {
 
   const handleProjectClick = (project: ProjectInfo) => {
     const orgSlug = project.organizationSlug || UNGROUPED_ORG_MARKER
-    router.push(`/${orgSlug}/${project.name}/issues`)
+    router.push(
+      route({
+        pathname: '/[organization]/[project]/issues',
+        query: { organization: orgSlug, project: project.name },
+      })
+    )
   }
 
   // Group projects by organization

@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation'
 import { useMemo, useEffect } from 'react'
 import Link from 'next/link'
+import { route } from 'nextjs-routes'
 import { PathContextProvider } from '@/components/providers/PathContextProvider'
 
 // Components for different route types
@@ -79,7 +80,7 @@ export function CatchAllRouter() {
       return {
         content: <ProjectContextRequired requestedPage={segments[0]} />,
         shouldRedirect: false,
-        redirectTo: '',
+        redirectTo: null,
       }
     }
 
@@ -88,7 +89,7 @@ export function CatchAllRouter() {
       return {
         content: <div className="not-found">Page not found</div>,
         shouldRedirect: false,
-        redirectTo: '',
+        redirectTo: null,
       }
     }
 
@@ -102,20 +103,20 @@ export function CatchAllRouter() {
           return {
             content: <CreateIssue />,
             shouldRedirect: false,
-            redirectTo: '',
+            redirectTo: null,
           }
         }
         if (rest[0]) {
           return {
             content: <IssueDetail issueNumber={rest[0]} />,
             shouldRedirect: false,
-            redirectTo: '',
+            redirectTo: null,
           }
         }
         return {
           content: <IssuesList />,
           shouldRedirect: false,
-          redirectTo: '',
+          redirectTo: null,
         }
 
       case 'docs':
@@ -123,64 +124,72 @@ export function CatchAllRouter() {
           return {
             content: <CreateDoc />,
             shouldRedirect: false,
-            redirectTo: '',
+            redirectTo: null,
           }
         }
         if (rest[0]) {
           return {
             content: <DocDetail slug={rest[0]} />,
             shouldRedirect: false,
-            redirectTo: '',
+            redirectTo: null,
           }
         }
-        return { content: <DocsList />, shouldRedirect: false, redirectTo: '' }
+        return {
+          content: <DocsList />,
+          shouldRedirect: false,
+          redirectTo: null,
+        }
 
       case 'users':
         if (rest[0] === 'new') {
           return {
             content: <CreateUser />,
             shouldRedirect: false,
-            redirectTo: '',
+            redirectTo: null,
           }
         }
         if (rest[0]) {
           return {
             content: <UserDetail userId={rest[0]} />,
             shouldRedirect: false,
-            redirectTo: '',
+            redirectTo: null,
           }
         }
-        return { content: <UsersList />, shouldRedirect: false, redirectTo: '' }
+        return {
+          content: <UsersList />,
+          shouldRedirect: false,
+          redirectTo: null,
+        }
 
       case 'pull-requests':
         if (rest[0] === 'new') {
           return {
             content: <CreatePR />,
             shouldRedirect: false,
-            redirectTo: '',
+            redirectTo: null,
           }
         }
         if (rest[0]) {
           return {
             content: <PRDetail prNumber={rest[0]} />,
             shouldRedirect: false,
-            redirectTo: '',
+            redirectTo: null,
           }
         }
-        return { content: <PRsList />, shouldRedirect: false, redirectTo: '' }
+        return { content: <PRsList />, shouldRedirect: false, redirectTo: null }
 
       case 'assets':
         return {
           content: <SharedAssets />,
           shouldRedirect: false,
-          redirectTo: '',
+          redirectTo: null,
         }
 
       case 'config':
         return {
           content: <ProjectConfig />,
           shouldRedirect: false,
-          redirectTo: '',
+          redirectTo: null,
         }
 
       case undefined:
@@ -188,14 +197,17 @@ export function CatchAllRouter() {
         return {
           content: null,
           shouldRedirect: true,
-          redirectTo: `/${org}/${project}/issues`,
+          redirectTo: route({
+            pathname: '/[organization]/[project]/issues',
+            query: { organization: org, project },
+          }),
         }
 
       default:
         return {
           content: <div className="not-found">Page not found</div>,
           shouldRedirect: false,
-          redirectTo: '',
+          redirectTo: null,
         }
     }
   }, [pathname])

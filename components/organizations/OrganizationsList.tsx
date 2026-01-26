@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { route } from 'nextjs-routes'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -55,7 +56,10 @@ export function OrganizationsList() {
         header: 'Name',
         cell: info => (
           <Link
-            href={`/organizations/${info.row.original.slug}`}
+            href={route({
+              pathname: '/organizations/[orgSlug]',
+              query: { orgSlug: info.row.original.slug },
+            })}
             className="org-name-link"
           >
             {info.getValue()}
@@ -184,14 +188,24 @@ export function OrganizationsList() {
         {
           label: 'View',
           onClick: () => {
-            router.push(`/organizations/${contextMenu.org.slug}`)
+            router.push(
+              route({
+                pathname: '/organizations/[orgSlug]',
+                query: { orgSlug: contextMenu.org.slug },
+              })
+            )
             setContextMenu(null)
           },
         },
         {
           label: 'Edit',
           onClick: () => {
-            router.push(`/organizations/${contextMenu.org.slug}`)
+            router.push(
+              route({
+                pathname: '/organizations/[orgSlug]',
+                query: { orgSlug: contextMenu.org.slug },
+              })
+            )
             setContextMenu(null)
           },
         },

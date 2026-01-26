@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useParams } from 'next/navigation'
+import { route } from 'nextjs-routes'
 import { useState, useEffect, useMemo } from 'react'
 import { DaemonStatusIndicator } from '@/components/shared/DaemonStatusIndicator'
 import { ThemeToggle } from '@/components/shared/ThemeToggle'
@@ -25,9 +26,9 @@ export function Header() {
 
   // Extract org and project from URL
   // New route structure: /[organization]/[project]/...
-  // Named params are available as params.organization and params.project
-  const org = params.organization as string | undefined
-  const project = params.project as string | undefined
+  // Named params are available as params?.organization and params?.project
+  const org = params?.organization as string | undefined
+  const project = params?.project as string | undefined
 
   // Fallback: parse pathname for cases where params might not be available
   const pathSegments = useMemo(() => {
@@ -55,14 +56,31 @@ export function Header() {
   // All navigation now requires project context
   const navLinks = useMemo(() => {
     if (hasProjectContext && effectiveOrg && effectiveProject) {
-      const base = `/${effectiveOrg}/${effectiveProject}`
       return {
-        issues: `${base}/issues`,
-        pullRequests: `${base}/pull-requests`,
-        docs: `${base}/docs`,
-        assets: `${base}/assets`,
-        users: `${base}/users`,
-        config: `${base}/config`,
+        issues: route({
+          pathname: '/[organization]/[project]/issues',
+          query: { organization: effectiveOrg, project: effectiveProject },
+        }),
+        pullRequests: route({
+          pathname: '/[organization]/[project]/pull-requests',
+          query: { organization: effectiveOrg, project: effectiveProject },
+        }),
+        docs: route({
+          pathname: '/[organization]/[project]/docs',
+          query: { organization: effectiveOrg, project: effectiveProject },
+        }),
+        assets: route({
+          pathname: '/[organization]/[project]/assets',
+          query: { organization: effectiveOrg, project: effectiveProject },
+        }),
+        users: route({
+          pathname: '/[organization]/[project]/users',
+          query: { organization: effectiveOrg, project: effectiveProject },
+        }),
+        config: route({
+          pathname: '/[organization]/[project]/config',
+          query: { organization: effectiveOrg, project: effectiveProject },
+        }),
       }
     }
     // No project context - return null to indicate nav items shouldn't be shown
@@ -122,7 +140,10 @@ export function Header() {
         href={
           effectiveOrg === UNGROUPED_ORG_MARKER
             ? '/organizations'
-            : `/organizations/${effectiveOrg}`
+            : route({
+                pathname: '/organizations/[orgSlug]',
+                query: { orgSlug: effectiveOrg },
+              })
         }
         className="header-context-link"
       >

@@ -13,7 +13,7 @@ import {
   SpawnAgentRequestSchema,
   GetLlmWorkRequestSchema,
   OpenInTempVscodeRequestSchema,
-  OpenInTempTerminalRequestSchema,
+  OpenInTempWorkspaceRequestSchema,
   LlmAction,
   type Issue,
   type Asset,
@@ -361,7 +361,7 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
     setError(null)
 
     try {
-      const request = create(OpenInTempTerminalRequestSchema, {
+      const request = create(OpenInTempWorkspaceRequestSchema, {
         projectPath,
         issueId: issue.id,
         action: LlmAction.PLAN,
@@ -371,7 +371,7 @@ export function IssueDetail({ issueNumber }: IssueDetailProps) {
       const response = await centyClient.openInTempTerminal(request)
 
       if (response.success) {
-        if (!response.terminalOpened) {
+        if (!response.editorOpened) {
           const actionWord = response.workspaceReused
             ? 'Reopened workspace'
             : 'Workspace created'

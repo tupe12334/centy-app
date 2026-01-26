@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import { route } from 'nextjs-routes'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -36,20 +37,20 @@ export function CreateIssue() {
   const assetUploaderRef = useRef<AssetUploaderHandle>(null)
   const stateOptions = stateManager.getStateOptions()
 
-  // Get the project URL base from params or resolve from projectPath
-  const getProjectBase = useCallback(async () => {
-    const org = params.organization as string | undefined
-    const project = params.project as string | undefined
+  // Get the project context from params or resolve from projectPath
+  const getProjectContext = useCallback(async () => {
+    const org = params?.organization as string | undefined
+    const project = params?.project as string | undefined
 
     if (org && project) {
-      return `/${org}/${project}`
+      return { organization: org, project }
     }
 
     // Fall back to resolving from projectPath
     if (projectPath) {
       const result = await projectPathToUrl(projectPath)
       if (result) {
-        return `/${result.orgSlug}/${result.projectName}`
+        return { organization: result.orgSlug, project: result.projectName }
       }
     }
 
@@ -106,9 +107,18 @@ export function CreateIssue() {
             await assetUploaderRef.current.uploadAllPending(response.id)
           }
           // Navigate to the project-scoped issue detail page
-          const base = await getProjectBase()
-          if (base) {
-            router.push(`${base}/issues/${response.issueNumber}`)
+          const ctx = await getProjectContext()
+          if (ctx) {
+            router.push(
+              route({
+                pathname: '/[organization]/[project]/issues/[issueId]',
+                query: {
+                  organization: ctx.organization,
+                  project: ctx.project,
+                  issueId: String(response.issueNumber),
+                },
+              })
+            )
           } else {
             // Fallback to issues list if we can't determine project base
             router.push('/')
@@ -132,7 +142,7 @@ export function CreateIssue() {
       status,
       pendingAssets,
       router,
-      getProjectBase,
+      getProjectContext,
     ]
   )
 
@@ -243,8 +253,20 @@ export function CreateIssue() {
           <button
             type="button"
             onClick={async () => {
-              const base = await getProjectBase()
-              router.push(base ? `${base}/issues` : '/')
+              const ctx = await getProjectContext()
+              if (ctx) {
+                router.push(
+                  route({
+                    pathname: '/[organization]/[project]/issues',
+                    query: {
+                      organization: ctx.organization,
+                      project: ctx.project,
+                    },
+                  })
+                )
+              } else {
+                router.push('/')
+              }
             }}
             className="secondary"
           >

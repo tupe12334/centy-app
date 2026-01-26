@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import type { RouteLiteral } from 'nextjs-routes'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import { ListIssuesRequestSchema, type Issue } from '@/gen/centy_pb'
@@ -133,7 +134,7 @@ export function IssuesList() {
         header: 'Title',
         cell: info => {
           const meta = info.table.options.meta as {
-            createLink: (path: string) => string
+            createLink: (path: string) => RouteLiteral
           }
           return (
             <Link

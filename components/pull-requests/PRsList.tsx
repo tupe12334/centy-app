@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { route, type RouteLiteral } from 'nextjs-routes'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -87,15 +88,40 @@ export function PRsList() {
   const [error, setError] = useState<string | null>(null)
   const { copyToClipboard } = useCopyToClipboard()
 
-  // Get the project-scoped PR URL
-  const prBaseUrl = useMemo(() => {
-    const org = params.organization as string | undefined
-    const project = params.project as string | undefined
+  // Get the project context for routing
+  const projectContext = useMemo(() => {
+    const org = params?.organization as string | undefined
+    const project = params?.project as string | undefined
     if (org && project) {
-      return `/${org}/${project}/pull-requests`
+      return { organization: org, project }
+    }
+    return null
+  }, [params])
+
+  // Get the new PR route
+  const newPrRoute: RouteLiteral | '/' = useMemo(() => {
+    if (projectContext) {
+      return route({
+        pathname: '/[organization]/[project]/pull-requests/new',
+        query: projectContext,
+      })
     }
     return '/'
-  }, [params])
+  }, [projectContext])
+
+  // Helper to get PR detail route
+  const getPrRoute = useCallback(
+    (prNumber: number): RouteLiteral | '/' => {
+      if (projectContext) {
+        return route({
+          pathname: '/[organization]/[project]/pull-requests/[prNumber]',
+          query: { ...projectContext, prNumber: String(prNumber) },
+        })
+      }
+      return '/'
+    },
+    [projectContext]
+  )
 
   // TanStack Table state - default sort by createdAt descending (newest first)
   const [sorting, setSorting] = useState<SortingState>([
@@ -136,14 +162,19 @@ export function PRsList() {
       }),
       columnHelper.accessor('title', {
         header: 'Title',
-        cell: info => (
-          <Link
-            href={`/pull-requests/${info.row.original.id}`}
-            className="pr-title-link"
-          >
-            {info.getValue()}
-          </Link>
-        ),
+        cell: info => {
+          const meta = info.table.options.meta as {
+            getPrRoute: (prNumber: number) => RouteLiteral | '/'
+          }
+          return (
+            <Link
+              href={meta.getPrRoute(info.row.original.displayNumber)}
+              className="pr-title-link"
+            >
+              {info.getValue()}
+            </Link>
+          )
+        },
         enableColumnFilter: true,
         filterFn: 'includesString',
       }),
@@ -262,6 +293,7 @@ export function PRsList() {
     getFilteredRowModel: getFilteredRowModel(),
     meta: {
       copyToClipboard,
+      getPrRoute,
     },
   })
 
@@ -333,7 +365,7 @@ export function PRsList() {
               {loading ? 'Loading...' : 'Refresh'}
             </button>
           )}
-          <Link href={`${prBaseUrl}/new`} className="create-btn">
+          <Link href={newPrRoute} className="create-btn">
             + New PR
           </Link>
         </div>
@@ -361,7 +393,7 @@ export function PRsList() {
           ) : prs.length === 0 ? (
             <div className="empty-state">
               <p>No pull requests found</p>
-              <Link href={`${prBaseUrl}/new`}>Create your first PR</Link>
+              <Link href={newPrRoute}>Create your first PR</Link>
             </div>
           ) : (
             <div className="prs-table">

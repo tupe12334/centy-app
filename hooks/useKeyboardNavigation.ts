@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback, useMemo } from 'react'
 import { usePathname, useRouter, useParams } from 'next/navigation'
+import { route } from 'nextjs-routes'
 
 // Project-scoped pages (require project context)
 // These are relative paths that will be prefixed with /org/project/
@@ -22,8 +23,8 @@ export function useKeyboardNavigation() {
   const params = useParams()
 
   // Extract org and project from URL
-  const org = params.organization as string | undefined
-  const project = params.project as string | undefined
+  const org = params?.organization as string | undefined
+  const project = params?.project as string | undefined
 
   // Parse path segments from pathname as fallback
   const pathSegments = useMemo(() => {
@@ -70,7 +71,12 @@ export function useKeyboardNavigation() {
       }
 
       const newPage = PROJECT_SCOPED_PAGES[newIndex]
-      router.push(`/${effectiveOrg}/${effectiveProject}/${newPage}`)
+      router.push(
+        route({
+          pathname: '/[...path]',
+          query: { path: [effectiveOrg, effectiveProject, newPage] },
+        })
+      )
     },
     [
       hasProjectContext,

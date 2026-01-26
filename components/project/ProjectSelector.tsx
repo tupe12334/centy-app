@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter, useParams, usePathname } from 'next/navigation'
+import { route } from 'nextjs-routes'
 import * as Popover from '@radix-ui/react-popover'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
@@ -60,8 +61,8 @@ export function ProjectSelector() {
   // Get current page from URL for navigation
   const getCurrentPage = () => {
     // Extract org and project from named route params
-    const org = params.organization as string | undefined
-    const project = params.project as string | undefined
+    const org = params?.organization as string | undefined
+    const project = params?.project as string | undefined
 
     // Parse pathname segments
     const pathSegments = pathname.split('/').filter(Boolean)
@@ -116,14 +117,18 @@ export function ProjectSelector() {
     // Build the new URL path
     const orgSlug = project.organizationSlug || UNGROUPED_ORG_MARKER
     const page = getCurrentPage()
-    const newPath = `/${orgSlug}/${project.name}/${page}`
 
     // Also update the old context for compatibility during migration
     setProjectPath(project.path)
     setIsInitialized(project.initialized)
 
     // Navigate to the new URL
-    router.push(newPath)
+    router.push(
+      route({
+        pathname: '/[...path]',
+        query: { path: [orgSlug, project.name, page] },
+      })
+    )
 
     setIsOpen(false)
     setSearchQuery('')

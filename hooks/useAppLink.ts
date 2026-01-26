@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from 'react'
 import { useParams, usePathname } from 'next/navigation'
+import { route, type RouteLiteral } from 'nextjs-routes'
 import { UNGROUPED_ORG_MARKER } from '@/lib/project-resolver'
 
 // Known root-level routes that are NOT org/project paths
@@ -24,8 +25,8 @@ export function useAppLink() {
   const pathname = usePathname()
 
   // Extract org and project from named route params
-  const paramOrg = params.organization as string | undefined
-  const paramProject = params.project as string | undefined
+  const paramOrg = params?.organization as string | undefined
+  const paramProject = params?.project as string | undefined
 
   // Parse path segments from pathname as fallback
   const pathSegments = useMemo(() => {
@@ -59,16 +60,19 @@ export function useAppLink() {
    * @returns Full path like '/my-org/my-project/issues/123'
    */
   const createLink = useCallback(
-    (path: string): string => {
+    (path: string): RouteLiteral => {
       // If we have project context, prepend org/project to path
       if (org && project) {
         // Normalize path to not start with /
         const normalizedPath = path.startsWith('/') ? path.slice(1) : path
-        return `/${org}/${project}/${normalizedPath}`
+        return route({
+          pathname: '/[...path]',
+          query: { path: [org, project, ...normalizedPath.split('/')] },
+        })
       }
 
       // No project context (aggregate view) - return path as-is
-      return path
+      return path as RouteLiteral
     },
     [org, project]
   )
@@ -83,10 +87,17 @@ export function useAppLink() {
    * @returns Full path like '/my-org/my-project/issues/123'
    */
   const createProjectLink = useCallback(
-    (orgSlug: string | null, projectName: string, path: string): string => {
+    (
+      orgSlug: string | null,
+      projectName: string,
+      path: string
+    ): RouteLiteral => {
       const orgPart = orgSlug || UNGROUPED_ORG_MARKER
       const normalizedPath = path.startsWith('/') ? path.slice(1) : path
-      return `/${orgPart}/${projectName}/${normalizedPath}`
+      return route({
+        pathname: '/[...path]',
+        query: { path: [orgPart, projectName, ...normalizedPath.split('/')] },
+      })
     },
     []
   )
@@ -98,8 +109,8 @@ export function useAppLink() {
    * @param path - Root path like '/settings' or '/organizations'
    * @returns The path as-is
    */
-  const createRootLink = useCallback((path: string): string => {
-    return path.startsWith('/') ? path : `/${path}`
+  const createRootLink = useCallback((path: string): RouteLiteral => {
+    return (path.startsWith('/') ? path : `/${path}`) as RouteLiteral
   }, [])
 
   /**

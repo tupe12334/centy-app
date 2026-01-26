@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import { route } from 'nextjs-routes'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -24,20 +25,20 @@ export function CreateDoc() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Get the project URL base from params or resolve from projectPath
-  const getProjectBase = useCallback(async () => {
-    const org = params.organization as string | undefined
-    const project = params.project as string | undefined
+  // Get the project context from params or resolve from projectPath
+  const getProjectContext = useCallback(async () => {
+    const org = params?.organization as string | undefined
+    const project = params?.project as string | undefined
 
     if (org && project) {
-      return `/${org}/${project}`
+      return { organization: org, project }
     }
 
     // Fall back to resolving from projectPath
     if (projectPath) {
       const result = await projectPathToUrl(projectPath)
       if (result) {
-        return `/${result.orgSlug}/${result.projectName}`
+        return { organization: result.orgSlug, project: result.projectName }
       }
     }
 
@@ -90,9 +91,18 @@ export function CreateDoc() {
 
         if (response.success) {
           // Navigate to the project-scoped doc detail page
-          const base = await getProjectBase()
-          if (base) {
-            router.push(`${base}/docs/${response.slug}`)
+          const ctx = await getProjectContext()
+          if (ctx) {
+            router.push(
+              route({
+                pathname: '/[organization]/[project]/docs/[slug]',
+                query: {
+                  organization: ctx.organization,
+                  project: ctx.project,
+                  slug: response.slug,
+                },
+              })
+            )
           } else {
             // Fallback to home if we can't determine project base
             router.push('/')
@@ -108,7 +118,7 @@ export function CreateDoc() {
         setLoading(false)
       }
     },
-    [projectPath, title, content, slug, router, getProjectBase]
+    [projectPath, title, content, slug, router, getProjectContext]
   )
 
   if (!projectPath) {
@@ -182,8 +192,20 @@ export function CreateDoc() {
           <button
             type="button"
             onClick={async () => {
-              const base = await getProjectBase()
-              router.push(base ? `${base}/docs` : '/')
+              const ctx = await getProjectContext()
+              if (ctx) {
+                router.push(
+                  route({
+                    pathname: '/[organization]/[project]/docs',
+                    query: {
+                      organization: ctx.organization,
+                      project: ctx.project,
+                    },
+                  })
+                )
+              } else {
+                router.push('/')
+              }
             }}
             className="secondary"
           >

@@ -1,4 +1,5 @@
 import { withSentryConfig } from '@sentry/nextjs'
+import withRoutes from 'nextjs-routes/config'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -9,7 +10,7 @@ const nextConfig = {
   },
 }
 
-export default withSentryConfig(nextConfig, {
+export default withSentryConfig(withRoutes(nextConfig), {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 

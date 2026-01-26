@@ -18,28 +18,27 @@ Visual tests for specific pages (issues, docs, PRs, etc.) are NOT run on pre-pus
 Make the pre-push testing more comprehensive by:
 
 1. **Option A: Run all visual tests on pre-push**
-   
-   * Pros: Catches all visual regressions before push
-   * Cons: Slower pre-push (may add 30-60 seconds)
+   - Pros: Catches all visual regressions before push
+   - Cons: Slower pre-push (may add 30-60 seconds)
+
 1. **Option B: Smart visual test selection**
-   
-   * Only run visual tests for files that changed
-   * Use git diff to detect which pages were modified
-   * Run corresponding visual tests
+   - Only run visual tests for files that changed
+   - Use git diff to detect which pages were modified
+   - Run corresponding visual tests
+
 1. **Option C: Parallel visual test execution**
-   
-   * Run visual tests in parallel with functional tests
-   * Use background processes to speed up overall time
+   - Run visual tests in parallel with functional tests
+   - Use background processes to speed up overall time
 
 ## Acceptance Criteria
 
-* [ ] All visual regression tests run before code is pushed
-* [ ] Pre-push time remains reasonable (\< 2 minutes total)
-* [ ] Clear feedback when visual tests fail
-* [ ] Easy to update screenshots when intentional changes are made
-* [ ] Works consistently across macOS and Linux
+- [ ] All visual regression tests run before code is pushed
+- [ ] Pre-push time remains reasonable (\< 2 minutes total)
+- [ ] Clear feedback when visual tests fail
+- [ ] Easy to update screenshots when intentional changes are made
+- [ ] Works consistently across macOS and Linux
 
 ## Related
 
-* Issue #100: Visual tests fail locally but pass in CI (cross-platform consistency)
-* Current pre-push only tests: `header.pre-push.visual.spec.ts`, `root-page.pre-push.visual.spec.ts`
+- Issue #100: Visual tests fail locally but pass in CI (cross-platform consistency)
+- Current pre-push only tests: `header.pre-push.visual.spec.ts`, `root-page.pre-push.visual.spec.ts`

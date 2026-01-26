@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import { route, type RouteLiteral } from 'nextjs-routes'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import { CreateUserRequestSchema } from '@/gen/centy_pb'
@@ -21,12 +22,22 @@ export function CreateUser() {
   const params = useParams()
   const { projectPath, isInitialized } = useProject()
 
-  const usersListUrl = useMemo(() => {
-    const org = params.organization as string | undefined
-    const project = params.project as string | undefined
-    if (org && project) return `/${org}/${project}/users`
-    return '/'
+  const projectContext = useMemo(() => {
+    const org = params?.organization as string | undefined
+    const project = params?.project as string | undefined
+    if (org && project) return { organization: org, project }
+    return null
   }, [params])
+
+  const usersListUrl: RouteLiteral | '/' = useMemo(() => {
+    if (projectContext) {
+      return route({
+        pathname: '/[organization]/[project]/users',
+        query: projectContext,
+      })
+    }
+    return '/'
+  }, [projectContext])
 
   const [name, setName] = useState('')
   const [userId, setUserId] = useState('')
@@ -79,7 +90,16 @@ export function CreateUser() {
       const response = await centyClient.createUser(request)
 
       if (response.success && response.user) {
-        router.push(`/users/${response.user.id}`)
+        if (projectContext) {
+          router.push(
+            route({
+              pathname: '/[organization]/[project]/users/[userId]',
+              query: { ...projectContext, userId: response.user.id },
+            })
+          )
+        } else {
+          router.push('/')
+        }
       } else {
         const errorMsg = response.error || 'Failed to create user'
         if (errorMsg.includes('unimplemented')) {

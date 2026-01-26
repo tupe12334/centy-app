@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
+import { route, type RouteLiteral } from 'nextjs-routes'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -35,12 +36,37 @@ export function UsersList() {
   const params = useParams()
   const { projectPath, isInitialized, setIsInitialized } = useProject()
 
-  const usersBaseUrl = useMemo(() => {
-    const org = params.organization as string | undefined
-    const project = params.project as string | undefined
-    if (org && project) return `/${org}/${project}/users`
-    return '/'
+  const projectContext = useMemo(() => {
+    const org = params?.organization as string | undefined
+    const project = params?.project as string | undefined
+    if (org && project) return { organization: org, project }
+    return null
   }, [params])
+
+  // Helper to create user detail route
+  const getUserRoute = useCallback(
+    (userId: string): RouteLiteral | '/' => {
+      if (projectContext) {
+        return route({
+          pathname: '/[organization]/[project]/users/[userId]',
+          query: { ...projectContext, userId },
+        })
+      }
+      return '/'
+    },
+    [projectContext]
+  )
+
+  // Helper for new user route
+  const newUserRoute: RouteLiteral | '/' = useMemo(() => {
+    if (projectContext) {
+      return route({
+        pathname: '/[organization]/[project]/users/new',
+        query: projectContext,
+      })
+    }
+    return '/'
+  }, [projectContext])
 
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
@@ -66,14 +92,19 @@ export function UsersList() {
     () => [
       columnHelper.accessor('name', {
         header: 'Name',
-        cell: info => (
-          <Link
-            href={`${usersBaseUrl}/${info.row.original.id}`}
-            className="user-name-link"
-          >
-            {info.getValue()}
-          </Link>
-        ),
+        cell: info => {
+          const meta = info.table.options.meta as {
+            getUserRoute: (userId: string) => RouteLiteral | '/'
+          }
+          return (
+            <Link
+              href={meta.getUserRoute(info.row.original.id)}
+              className="user-name-link"
+            >
+              {info.getValue()}
+            </Link>
+          )
+        },
         enableColumnFilter: true,
         filterFn: 'includesString',
       }),
@@ -114,7 +145,7 @@ export function UsersList() {
         },
       }),
     ],
-    [usersBaseUrl]
+    []
   )
 
   const table = useReactTable({
@@ -129,6 +160,9 @@ export function UsersList() {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    meta: {
+      getUserRoute,
+    },
   })
 
   const checkInitialized = useCallback(
@@ -243,14 +277,14 @@ export function UsersList() {
         {
           label: 'View',
           onClick: () => {
-            router.push(`${usersBaseUrl}/${contextMenu.user.id}`)
+            router.push(getUserRoute(contextMenu.user.id))
             setContextMenu(null)
           },
         },
         {
           label: 'Edit',
           onClick: () => {
-            router.push(`${usersBaseUrl}/${contextMenu.user.id}`)
+            router.push(getUserRoute(contextMenu.user.id))
             setContextMenu(null)
           },
         },
@@ -287,7 +321,7 @@ export function UsersList() {
               </button>
             </>
           )}
-          <Link href={`${usersBaseUrl}/new`} className="create-btn">
+          <Link href={newUserRoute} className="create-btn">
             + New User
           </Link>
         </div>
@@ -337,8 +371,7 @@ export function UsersList() {
             <div className="empty-state">
               <p>No users found</p>
               <p>
-                <Link href={`${usersBaseUrl}/new`}>Create your first user</Link>{' '}
-                or{' '}
+                <Link href={newUserRoute}>Create your first user</Link> or{' '}
                 <button
                   onClick={() => setShowSyncModal(true)}
                   className="sync-link-btn"

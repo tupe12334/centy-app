@@ -1,7 +1,9 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
+import { route, type RouteLiteral } from 'nextjs-routes'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import {
@@ -33,23 +35,54 @@ const protoToTargetType: Record<LinkTargetType, string> = {
   [LinkTargetType.PR]: 'pr',
 }
 
-const targetTypeRoutes: Record<string, string> = {
-  issue: '/issues',
-  doc: '/docs',
-  pr: '/pull-requests',
-}
-
 export function LinkSection({
   entityId,
   entityType,
   editable = true,
 }: LinkSectionProps) {
   const { projectPath } = useProject()
+  const params = useParams()
   const [links, setLinks] = useState<LinkType[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [deletingLinkId, setDeletingLinkId] = useState<string | null>(null)
+
+  // Get project context for building routes
+  const projectContext = useMemo(() => {
+    const org = params?.organization as string | undefined
+    const project = params?.project as string | undefined
+    if (org && project) return { organization: org, project }
+    return null
+  }, [params])
+
+  // Helper to build route for linked item
+  const buildLinkRoute = useCallback(
+    (targetType: LinkTargetType, targetId: string): RouteLiteral | '/' => {
+      if (!projectContext) return '/'
+      const targetTypeName = protoToTargetType[targetType]
+      switch (targetTypeName) {
+        case 'issue':
+          return route({
+            pathname: '/[organization]/[project]/issues/[issueId]',
+            query: { ...projectContext, issueId: targetId },
+          })
+        case 'doc':
+          return route({
+            pathname: '/[organization]/[project]/docs/[slug]',
+            query: { ...projectContext, slug: targetId },
+          })
+        case 'pr':
+          return route({
+            pathname: '/[organization]/[project]/pull-requests/[prNumber]',
+            query: { ...projectContext, prNumber: targetId },
+          })
+        default:
+          return '/'
+      }
+    },
+    [projectContext]
+  )
 
   const fetchLinks = useCallback(async () => {
     if (!projectPath || !entityId) return
@@ -188,14 +221,13 @@ export function LinkSection({
               <ul className="link-list">
                 {typeLinks.map(link => {
                   const targetTypeName = protoToTargetType[link.targetType]
-                  const route = targetTypeRoutes[targetTypeName] || '/issues'
                   const linkKey = `${link.targetId}-${link.linkType}`
                   const isDeleting = deletingLinkId === linkKey
 
                   return (
                     <li key={linkKey} className="link-item">
                       <Link
-                        href={`${route}/${link.targetId}`}
+                        href={buildLinkRoute(link.targetType, link.targetId)}
                         className="link-item-link"
                       >
                         <span

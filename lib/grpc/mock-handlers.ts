@@ -678,7 +678,7 @@ export const mockHandlers: MockHandlers = {
     issueId: string
     displayNumber: number
     expiresAt: string
-    terminalOpened: boolean
+    editorOpened: boolean
   }> {
     console.warn(
       '[Demo Mode] openInTempTerminal called - not available in demo mode'
@@ -690,7 +690,7 @@ export const mockHandlers: MockHandlers = {
       issueId: '',
       displayNumber: 0,
       expiresAt: '',
-      terminalOpened: false,
+      editorOpened: false,
     }
   },
 
