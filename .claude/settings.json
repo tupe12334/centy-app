@@ -3,6 +3,7 @@
     "allow": [
       "Bash(pnpm dev)",
       "Bash(pnpm install)",
+      "Bash(pnpm lint)",
       "Bash(pnpm dlx centy:*)",
       "Bash(centy --help:*)",
       "Bash(centy create:*)",
@@ -77,7 +78,8 @@
       "WebFetch(domain:cli.github.com)",
       "WebSearch",
       "Skill(tupe:ultrathink)"
-    ]
+    ],
+    "deny": ["Bash(npm install)"]
   },
   "hooks": {
     "PreToolUse": [
