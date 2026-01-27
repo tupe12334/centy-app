@@ -1,0 +1,13 @@
+version: 1
+
+rules:
+  # Protect centy configuration
+  - path: '.centy/**'
+    access: read
+    reason: 'Centy configuration folder - modifications may break tooling'
+
+  # Block key files
+  - path: "^.*\\.key$"
+    type: regex
+    access: none
+    reason: 'Key files contain sensitive credentials'
