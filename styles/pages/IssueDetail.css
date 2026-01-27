@@ -13,7 +13,7 @@
   margin-bottom: var(--space-6);
 }
 
-.back-link {
+.issue-detail .back-link {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -23,7 +23,7 @@
   transition: color var(--transition-fast);
 }
 
-.back-link::before {
+.issue-detail .back-link::before {
   content: '';
   width: 20px;
   height: 20px;
@@ -32,11 +32,11 @@
   transition: transform var(--transition-fast);
 }
 
-.back-link:hover {
+.issue-detail .back-link:hover {
   color: var(--color-primary);
 }
 
-.back-link:hover::before {
+.issue-detail .back-link:hover::before {
   transform: translateX(-2px);
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236366f1' stroke-width='2'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M15 19l-7-7 7-7'/%3e%3c/svg%3e");
 }
