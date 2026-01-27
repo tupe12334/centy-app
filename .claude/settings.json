@@ -3,6 +3,7 @@
     "allow": [
       "Bash(pnpm dev)",
       "Bash(pnpm install)",
+      "Bash(pnpm build)",
       "Bash(pnpm lint)",
       "Bash(pnpm dlx centy:*)",
       "Bash(centy --help:*)",
