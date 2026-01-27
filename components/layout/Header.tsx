@@ -8,6 +8,7 @@ import { DaemonStatusIndicator } from '@/components/shared/DaemonStatusIndicator
 import { ThemeToggle } from '@/components/shared/ThemeToggle'
 import { OrgSwitcher } from '@/components/organizations/OrgSwitcher'
 import { ProjectSelector } from '@/components/project/ProjectSelector'
+import { useOrganization } from '@/components/providers/OrganizationProvider'
 import { UNGROUPED_ORG_MARKER } from '@/lib/project-resolver'
 
 // Known root-level routes that are NOT org/project paths
@@ -23,6 +24,7 @@ export function Header() {
   const pathname = usePathname()
   const params = useParams()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { hasExplicitSelection } = useOrganization()
 
   // Extract org and project from URL
   // New route structure: /[organization]/[project]/...
@@ -173,7 +175,7 @@ export function Header() {
           <ThemeToggle />
           <DaemonStatusIndicator />
           <OrgSwitcher />
-          <ProjectSelector />
+          {hasExplicitSelection && <ProjectSelector />}
         </div>
         <button
           className={`mobile-menu-toggle ${mobileMenuOpen ? 'open' : ''}`}
@@ -275,7 +277,7 @@ export function Header() {
         </div>
         <div className="mobile-menu-selectors">
           <OrgSwitcher />
-          <ProjectSelector />
+          {hasExplicitSelection && <ProjectSelector />}
         </div>
         <nav className="mobile-menu-nav">
           {/* Project-dependent items - only show when project context exists */}
