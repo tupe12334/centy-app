@@ -8,6 +8,7 @@ async function setupDemoModeLocal(page: import('@playwright/test').Page) {
   await page.addInitScript(() => {
     sessionStorage.setItem('centy_demo_mode', 'true')
     localStorage.setItem('centy-selected-org', 'demo-org')
+    localStorage.setItem('centy-org-explicit-selection', 'true')
     localStorage.setItem('centy-project-path', '/demo/centy-showcase')
   })
 }
@@ -69,6 +70,7 @@ test.describe('Demo Mode Homepage Visual Tests @visual', () => {
     await page.addInitScript(() => {
       sessionStorage.setItem('centy_demo_mode', 'true')
       localStorage.setItem('centy-selected-org', 'demo-org')
+      localStorage.setItem('centy-org-explicit-selection', 'true')
       localStorage.setItem('centy-project-path', '/demo/centy-showcase')
     })
 
@@ -208,8 +210,11 @@ test.describe('Mobile Navbar Visual Tests @visual', () => {
 
       await expect(page.locator('.mobile-menu.open')).toBeVisible()
 
-      // Click overlay to close
-      await page.locator('.mobile-menu-overlay').click({ force: true })
+      // Click overlay to close (click left side where menu drawer doesn't cover)
+      // Menu drawer is 280px from right, so click at x=50 to ensure we hit overlay
+      await page
+        .locator('.mobile-menu-overlay')
+        .click({ position: { x: 50, y: 300 } })
       await page.waitForTimeout(400)
 
       await expect(page.locator('.mobile-menu.open')).not.toBeVisible()

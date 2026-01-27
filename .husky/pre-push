@@ -30,17 +30,16 @@ pnpm test --run || {
   exit 1
 }
 
-# Run e2e tests first, then visual tests (sequential to avoid port conflicts)
-echo "Running e2e tests..."
-pnpm e2e || {
+# Run e2e tests (chromium only for speed, full browser matrix runs in CI)
+echo "Running e2e tests (chromium)..."
+pnpm exec playwright test e2e/tests --project=chromium || {
   echo "E2E tests failed. Please fix failing tests before pushing."
   exit 1
 }
 
-echo "Running visual screenshot tests (desktop browsers only)..."
-# Skip mobile-chrome in pre-push as it has flaky touch/overlay interactions
-# Full mobile testing is done in CI
-PLAYWRIGHT_VISUAL=1 playwright test e2e/tests/visual/ --project=chromium --project=firefox --project=webkit || {
+echo "Running visual screenshot tests (chromium)..."
+# Full browser matrix runs in CI
+PLAYWRIGHT_VISUAL=1 pnpm exec playwright test e2e/tests/visual/ --project=chromium || {
   echo "Visual tests failed. Please review screenshot changes."
   echo "To update screenshots: pnpm e2e:visual:update"
   exit 1

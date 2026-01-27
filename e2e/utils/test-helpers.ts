@@ -31,6 +31,7 @@ export async function setupDemoMode(page: Page): Promise<void> {
   await page.addInitScript(() => {
     sessionStorage.setItem('centy_demo_mode', 'true')
     localStorage.setItem('centy-selected-org', 'demo-org')
+    localStorage.setItem('centy-org-explicit-selection', 'true')
     localStorage.setItem('centy-project-path', '/demo/centy-showcase')
   })
 }

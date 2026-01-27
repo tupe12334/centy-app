@@ -6,6 +6,7 @@ async function setupDemoWithProject(page: import('@playwright/test').Page) {
   await page.addInitScript(() => {
     sessionStorage.setItem('centy_demo_mode', 'true')
     localStorage.setItem('centy-selected-org', 'demo-org')
+    localStorage.setItem('centy-org-explicit-selection', 'true')
     localStorage.setItem('centy-project-path', '/demo/centy-showcase')
   })
 
@@ -92,6 +93,7 @@ test.describe('Standalone Workspace Modal Dark Theme Visual Tests @visual', () =
     await page.addInitScript(() => {
       sessionStorage.setItem('centy_demo_mode', 'true')
       localStorage.setItem('centy-selected-org', 'demo-org')
+      localStorage.setItem('centy-org-explicit-selection', 'true')
       localStorage.setItem('centy-project-path', '/demo/centy-showcase')
     })
 
@@ -127,6 +129,7 @@ test.describe('Standalone Workspace Modal Responsive Visual Tests @visual', () =
     await page.addInitScript(() => {
       sessionStorage.setItem('centy_demo_mode', 'true')
       localStorage.setItem('centy-selected-org', 'demo-org')
+      localStorage.setItem('centy-org-explicit-selection', 'true')
       localStorage.setItem('centy-project-path', '/demo/centy-showcase')
     })
 
@@ -163,6 +166,7 @@ test.describe('Standalone Workspace Modal Responsive Visual Tests @visual', () =
     await page.addInitScript(() => {
       sessionStorage.setItem('centy_demo_mode', 'true')
       localStorage.setItem('centy-selected-org', 'demo-org')
+      localStorage.setItem('centy-org-explicit-selection', 'true')
       localStorage.setItem('centy-project-path', '/demo/centy-showcase')
     })
 

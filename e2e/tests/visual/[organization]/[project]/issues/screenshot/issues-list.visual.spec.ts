@@ -88,6 +88,7 @@ test.describe('Demo Mode Issues Visual Tests @visual', () => {
     await page.addInitScript(() => {
       sessionStorage.setItem('centy_demo_mode', 'true')
       localStorage.setItem('centy-selected-org', 'demo-org')
+      localStorage.setItem('centy-org-explicit-selection', 'true')
       localStorage.setItem('centy-project-path', '/demo/centy-showcase')
     })
 
