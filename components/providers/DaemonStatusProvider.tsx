@@ -79,6 +79,9 @@ export function DaemonStatusProvider({ children }: { children: ReactNode }) {
         ).__TEST_VSCODE_AVAILABLE__
         setVscodeAvailable(testOverride ?? true)
         setEditors(createDemoEditors())
+        // Set organization context for demo mode
+        localStorage.setItem('centy-selected-org', DEMO_ORG_SLUG)
+        localStorage.setItem('centy-org-explicit-selection', 'true')
         // Clean up URL by removing demo param and adding org/project (preserve current path)
         const newUrl = `${window.location.pathname}?org=${DEMO_ORG_SLUG}&project=${encodeURIComponent(DEMO_PROJECT_PATH)}`
         window.history.replaceState({}, '', newUrl)
