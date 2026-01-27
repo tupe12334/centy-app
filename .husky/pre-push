@@ -37,8 +37,10 @@ pnpm e2e || {
   exit 1
 }
 
-echo "Running visual screenshot tests..."
-pnpm e2e:visual || {
+echo "Running visual screenshot tests (desktop browsers only)..."
+# Skip mobile-chrome in pre-push as it has flaky touch/overlay interactions
+# Full mobile testing is done in CI
+PLAYWRIGHT_VISUAL=1 playwright test e2e/tests/visual/ --project=chromium --project=firefox --project=webkit || {
   echo "Visual tests failed. Please review screenshot changes."
   echo "To update screenshots: pnpm e2e:visual:update"
   exit 1
