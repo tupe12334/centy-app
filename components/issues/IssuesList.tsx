@@ -34,6 +34,7 @@ import {
 } from '@/components/shared/ContextMenu'
 import { MoveModal } from '@/components/shared/MoveModal'
 import { DuplicateModal } from '@/components/shared/DuplicateModal'
+import { StandaloneWorkspaceModal } from '@/components/shared/StandaloneWorkspaceModal'
 
 const PRIORITY_OPTIONS: MultiSelectOption[] = [
   { value: 'high', label: 'High' },
@@ -85,6 +86,7 @@ export function IssuesList() {
   } | null>(null)
   const [showMoveModal, setShowMoveModal] = useState(false)
   const [showDuplicateModal, setShowDuplicateModal] = useState(false)
+  const [showWorkspaceModal, setShowWorkspaceModal] = useState(false)
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null)
 
   // TanStack Table state - persisted per-project
@@ -401,13 +403,21 @@ export function IssuesList() {
         <h2>Issues</h2>
         <div className="header-actions">
           {projectPath && isInitialized === true && (
-            <button
-              onClick={fetchIssues}
-              disabled={loading}
-              className="refresh-btn"
-            >
-              {loading ? 'Loading...' : 'Refresh'}
-            </button>
+            <>
+              <button
+                onClick={() => setShowWorkspaceModal(true)}
+                className="workspace-btn"
+              >
+                + New Workspace
+              </button>
+              <button
+                onClick={fetchIssues}
+                disabled={loading}
+                className="refresh-btn"
+              >
+                {loading ? 'Loading...' : 'Refresh'}
+              </button>
+            </>
           )}
           <Link href={createLink('/issues/new')} className="create-btn">
             + New Issue
@@ -586,6 +596,13 @@ export function IssuesList() {
             setSelectedIssue(null)
           }}
           onDuplicated={handleDuplicated}
+        />
+      )}
+
+      {showWorkspaceModal && (
+        <StandaloneWorkspaceModal
+          projectPath={projectPath}
+          onClose={() => setShowWorkspaceModal(false)}
         />
       )}
     </div>
