@@ -2,6 +2,7 @@
   "permissions": {
     "allow": [
       "Bash(pnpm dev)",
+      "Bash(pnpm install)",
       "Bash(pnpm dlx centy:*)",
       "Bash(centy --help:*)",
       "Bash(centy create:*)",
