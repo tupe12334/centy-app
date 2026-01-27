@@ -12,17 +12,15 @@ test.describe('Demo Mode URL Activation', () => {
     await page.waitForLoadState('networkidle')
 
     // Wait for demo mode indicator to be visible
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 15000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Verify the URL shows demo-org in path (app now uses path-based routing)
-    await expect(page).toHaveURL(/demo-org/, { timeout: 15000 })
+    await expect(page).toHaveURL(/demo-org/)
 
     // Verify demo org is selected
     await expect(
       page.getByText('Demo Organization', { exact: false }).first()
-    ).toBeVisible({ timeout: 15000 })
+    ).toBeVisible()
   })
 
   test('should show demo issues after URL activation', async ({ page }) => {
@@ -31,16 +29,12 @@ test.describe('Demo Mode URL Activation', () => {
     await page.waitForLoadState('domcontentloaded')
 
     // Wait for demo mode to be active
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Verify demo issues are displayed
     await expect(
       page.getByText('Implement dark mode toggle', { exact: false })
-    ).toBeVisible({
-      timeout: 15000,
-    })
+    ).toBeVisible()
   })
 
   test('should persist demo mode after navigation', async ({ page }) => {
@@ -49,33 +43,25 @@ test.describe('Demo Mode URL Activation', () => {
     await page.waitForLoadState('domcontentloaded')
 
     // Wait for demo mode to be active
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Wait for issues to load
     await expect(
       page.getByText('Implement dark mode toggle', { exact: false })
-    ).toBeVisible({
-      timeout: 15000,
-    })
+    ).toBeVisible()
 
     // Navigate to Docs using in-app navigation
     await page.click('a[href*="/docs"]')
     await page.waitForLoadState('domcontentloaded')
 
     // Demo mode indicator should still be visible
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Navigate back to home by clicking the Centy logo
     await page.click('a[href="/"]')
     await page.waitForLoadState('domcontentloaded')
 
     // Demo mode should still be active
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
   })
 })

@@ -15,9 +15,7 @@ test.describe('Issue Detail', () => {
     await setupDemoMode(page)
     await navigateToDemoProject(page, `/issues/${DEMO_ISSUE.id}`)
 
-    await expect(page.getByText(DEMO_ISSUE.title)).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.getByText(DEMO_ISSUE.title)).toBeVisible()
   })
 
   test('should display issue description', async ({ page }) => {
@@ -25,9 +23,7 @@ test.describe('Issue Detail', () => {
     await navigateToDemoProject(page, `/issues/${DEMO_ISSUE.id}`)
 
     // Demo issue has markdown content about dark mode
-    await expect(page.getByText(/add a dark mode toggle/i)).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.getByText(/add a dark mode toggle/i)).toBeVisible()
   })
 
   test('should display issue metadata', async ({ page }) => {
@@ -35,12 +31,10 @@ test.describe('Issue Detail', () => {
     await navigateToDemoProject(page, `/issues/${DEMO_ISSUE.id}`)
 
     // Should display status badge
-    await expect(page.locator('.status-badge')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('.status-badge')).toBeVisible()
 
     // Should display issue number
-    await expect(page.getByRole('button', { name: /#1/ })).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.getByRole('button', { name: /#1/ })).toBeVisible()
   })
 
   test('should display back navigation', async ({ page }) => {
@@ -52,7 +46,7 @@ test.describe('Issue Detail', () => {
       .getByRole('link', { name: /back|issues/i })
       .or(page.getByRole('button', { name: /back/i }))
       .or(page.locator('a[href*="/issues"]'))
-    await expect(backNav.first()).toBeVisible({ timeout: 10000 })
+    await expect(backNav.first()).toBeVisible()
   })
 })
 
@@ -62,14 +56,10 @@ test.describe('Editor Selector', () => {
     await navigateToDemoProject(page, `/issues/${DEMO_ISSUE.id}`)
 
     // Wait for demo mode to be fully initialized
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Editor selector should be visible
-    await expect(page.locator('.editor-selector')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.editor-selector')).toBeVisible()
 
     // Primary button should show "Open in VS Code" by default
     await expect(page.locator('.editor-primary-btn')).toContainText(
@@ -84,14 +74,10 @@ test.describe('Editor Selector', () => {
     await navigateToDemoProject(page, `/issues/${DEMO_ISSUE.id}`)
 
     // Wait for demo mode to be fully initialized
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Wait for editor selector
-    await expect(page.locator('.editor-selector')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.editor-selector')).toBeVisible()
 
     // Click dropdown button
     await page.locator('.editor-dropdown-btn').click()
@@ -113,14 +99,10 @@ test.describe('Editor Selector', () => {
     await navigateToDemoProject(page, `/issues/${DEMO_ISSUE.id}`)
 
     // Wait for demo mode to be fully initialized
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Wait for editor selector and open dropdown
-    await expect(page.locator('.editor-selector')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.editor-selector')).toBeVisible()
     await page.locator('.editor-dropdown-btn').click()
     await expect(page.locator('.editor-dropdown')).toBeVisible()
 
@@ -136,14 +118,10 @@ test.describe('Editor Selector', () => {
     await navigateToDemoProject(page, `/issues/${DEMO_ISSUE.id}`)
 
     // Wait for demo mode to be fully initialized
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Wait for editor selector and open dropdown
-    await expect(page.locator('.editor-selector')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.editor-selector')).toBeVisible()
     await page.locator('.editor-dropdown-btn').click()
 
     // VS Code option should be selected
@@ -164,14 +142,10 @@ test.describe('Editor Selector', () => {
     await navigateToDemoProject(page, `/issues/${DEMO_ISSUE.id}`)
 
     // Wait for demo mode to be fully initialized
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Wait for editor selector
-    await expect(page.locator('.editor-selector')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.editor-selector')).toBeVisible()
 
     // Primary button should show Terminal
     await expect(page.locator('.editor-primary-btn.terminal')).toBeVisible()
@@ -191,14 +165,10 @@ test.describe('Editor Selector', () => {
     await navigateToDemoProject(page, `/issues/${DEMO_ISSUE.id}`)
 
     // Wait for demo mode to be fully initialized
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Wait for editor selector
-    await expect(page.locator('.editor-selector')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.editor-selector')).toBeVisible()
 
     // Verify VS Code styling (blue theme)
     await expect(page.locator('.editor-primary-btn.vscode')).toBeVisible()
@@ -215,14 +185,10 @@ test.describe('Editor Selector', () => {
     await navigateToDemoProject(page, `/issues/${DEMO_ISSUE.id}`)
 
     // Wait for demo mode to be fully initialized
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Wait for editor selector
-    await expect(page.locator('.editor-selector')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.editor-selector')).toBeVisible()
 
     // Verify Terminal styling (green theme)
     await expect(page.locator('.editor-primary-btn.terminal')).toBeVisible()

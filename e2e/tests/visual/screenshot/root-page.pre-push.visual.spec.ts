@@ -24,9 +24,7 @@ test.describe('Root Page Pre-push Visual Test @visual', () => {
     await navigateTo(page, '/')
 
     // Wait for demo mode indicator to confirm app and mock data loaded
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Wait for content to stabilize (animations, lazy loading)
     await page.waitForTimeout(500)

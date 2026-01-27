@@ -14,14 +14,10 @@ async function setupDemoWithProject(page: import('@playwright/test').Page) {
   await page.waitForLoadState('domcontentloaded')
 
   // Wait for demo mode indicator
-  await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-    timeout: 10000,
-  })
+  await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
   // Wait for demo issues to load (confirms projectPath is set)
-  await expect(page.locator('text=Implement dark mode toggle')).toBeVisible({
-    timeout: 10000,
-  })
+  await expect(page.locator('text=Implement dark mode toggle')).toBeVisible()
 }
 
 test.describe('Standalone Workspace Modal Visual Tests @visual', () => {
@@ -46,9 +42,7 @@ test.describe('Standalone Workspace Modal Visual Tests @visual', () => {
     await page.getByRole('button', { name: '+ New Workspace' }).click()
 
     // Wait for modal to be visible
-    await expect(page.locator('.standalone-modal-overlay')).toBeVisible({
-      timeout: 5000,
-    })
+    await expect(page.locator('.standalone-modal-overlay')).toBeVisible()
 
     // Wait for modal animation
     await page.waitForTimeout(300)
@@ -65,9 +59,7 @@ test.describe('Standalone Workspace Modal Visual Tests @visual', () => {
     await page.getByRole('button', { name: '+ New Workspace' }).click()
 
     // Wait for modal to be visible
-    await expect(page.locator('.standalone-modal-overlay')).toBeVisible({
-      timeout: 5000,
-    })
+    await expect(page.locator('.standalone-modal-overlay')).toBeVisible()
 
     // Fill in the form
     await page.getByLabel('Name (optional)').fill('My Experimental Workspace')
@@ -107,22 +99,16 @@ test.describe('Standalone Workspace Modal Dark Theme Visual Tests @visual', () =
     await page.waitForLoadState('domcontentloaded')
 
     // Wait for demo mode indicator
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Wait for demo issues to load (confirms projectPath is set)
-    await expect(page.locator('text=Implement dark mode toggle')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('text=Implement dark mode toggle')).toBeVisible()
 
     // Open the modal
     await page.getByRole('button', { name: '+ New Workspace' }).click()
 
     // Wait for modal to be visible
-    await expect(page.locator('.standalone-modal-overlay')).toBeVisible({
-      timeout: 5000,
-    })
+    await expect(page.locator('.standalone-modal-overlay')).toBeVisible()
 
     // Wait for modal animation
     await page.waitForTimeout(300)
@@ -148,22 +134,16 @@ test.describe('Standalone Workspace Modal Responsive Visual Tests @visual', () =
     await page.waitForLoadState('domcontentloaded')
 
     // Wait for demo mode indicator
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Wait for demo issues to load (confirms projectPath is set)
-    await expect(page.locator('text=Implement dark mode toggle')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('text=Implement dark mode toggle')).toBeVisible()
 
     // Open the modal
     await page.getByRole('button', { name: '+ New Workspace' }).click()
 
     // Wait for modal to be visible
-    await expect(page.locator('.standalone-modal-overlay')).toBeVisible({
-      timeout: 5000,
-    })
+    await expect(page.locator('.standalone-modal-overlay')).toBeVisible()
 
     // Wait for modal animation
     await page.waitForTimeout(300)
@@ -190,22 +170,16 @@ test.describe('Standalone Workspace Modal Responsive Visual Tests @visual', () =
     await page.waitForLoadState('domcontentloaded')
 
     // Wait for demo mode indicator
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Wait for demo issues to load (confirms projectPath is set)
-    await expect(page.locator('text=Implement dark mode toggle')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('text=Implement dark mode toggle')).toBeVisible()
 
     // Open the modal
     await page.getByRole('button', { name: '+ New Workspace' }).click()
 
     // Wait for modal to be visible
-    await expect(page.locator('.standalone-modal-overlay')).toBeVisible({
-      timeout: 5000,
-    })
+    await expect(page.locator('.standalone-modal-overlay')).toBeVisible()
 
     // Wait for modal animation
     await page.waitForTimeout(300)

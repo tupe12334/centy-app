@@ -10,9 +10,7 @@ test.describe('Docs Visual Tests @visual', () => {
     await navigateToDemoProject(page, '/docs')
 
     // Wait for demo mode indicator to confirm data is loaded
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
     await page.waitForTimeout(500)
 
     await expect(page).toHaveScreenshot('docs-list.png', {

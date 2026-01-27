@@ -27,7 +27,7 @@ async function navigateDemoMode(
 
   // Dismiss mobile not supported overlay if present
   const dismissButton = page.locator('.mobile-dismiss-button')
-  if (await dismissButton.isVisible({ timeout: 1000 }).catch(() => false)) {
+  if (await dismissButton.isVisible().catch(() => false)) {
     await dismissButton.click()
     await page.waitForTimeout(300)
   }
@@ -40,9 +40,7 @@ test.describe('Homepage Layout Visual Tests @visual', () => {
     await navigateTo(page, '/')
 
     // Wait for demo mode indicator to confirm data is loaded
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
     await page.waitForTimeout(500)
 
     await expect(page).toHaveScreenshot('homepage-light.png', {
@@ -56,9 +54,7 @@ test.describe('Homepage Layout Visual Tests @visual', () => {
     await navigateTo(page, '/')
 
     // Wait for demo mode indicator to confirm data is loaded
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
     await page.waitForTimeout(500)
 
     await expect(page).toHaveScreenshot('homepage-dark.png', {
@@ -82,19 +78,17 @@ test.describe('Demo Mode Homepage Visual Tests @visual', () => {
 
     // Handle mobile not supported overlay if present
     const continueBtn = page.getByRole('button', { name: 'Continue Anyway' })
-    if (await continueBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+    if (await continueBtn.isVisible().catch(() => false)) {
       await continueBtn.click()
     }
 
     // Verify demo mode indicator is visible
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Verify demo org is shown (check button text which works on both desktop and mobile)
     await expect(
       page.getByRole('button', { name: /Demo Organization/ })
-    ).toBeVisible({ timeout: 10000 })
+    ).toBeVisible()
 
     // Wait for page to stabilize before screenshot
     await page.waitForTimeout(500)
@@ -269,9 +263,7 @@ test.describe('Daemon Disconnected Overlay Visual Tests @visual', () => {
     await page.goto('/')
 
     // Wait for the overlay to appear (daemon check happens after mount)
-    await expect(page.locator('.daemon-disconnected-overlay')).toBeVisible({
-      timeout: 15000,
-    })
+    await expect(page.locator('.daemon-disconnected-overlay')).toBeVisible()
 
     // Wait for animations to settle
     await page.waitForTimeout(500)
@@ -287,9 +279,7 @@ test.describe('Daemon Disconnected Overlay Visual Tests @visual', () => {
     await page.goto('/')
 
     // Wait for the overlay to appear
-    await expect(page.locator('.daemon-disconnected-overlay')).toBeVisible({
-      timeout: 15000,
-    })
+    await expect(page.locator('.daemon-disconnected-overlay')).toBeVisible()
 
     // Wait for animations to settle
     await page.waitForTimeout(500)
@@ -305,9 +295,7 @@ test.describe('Daemon Disconnected Overlay Visual Tests @visual', () => {
     await page.goto('/')
 
     // Wait for the overlay to appear
-    await expect(page.locator('.daemon-disconnected-overlay')).toBeVisible({
-      timeout: 15000,
-    })
+    await expect(page.locator('.daemon-disconnected-overlay')).toBeVisible()
 
     // Wait for animations to settle
     await page.waitForTimeout(500)

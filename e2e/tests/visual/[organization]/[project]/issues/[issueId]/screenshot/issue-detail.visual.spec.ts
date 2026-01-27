@@ -10,9 +10,7 @@ test.describe('Issue Detail Visual Tests @visual', () => {
     await navigateToDemoProject(page, '/issues/demo-issue-1')
 
     // Wait for demo mode indicator to confirm data is loaded
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Wait for content to stabilize
     await page.waitForTimeout(500)
@@ -31,9 +29,7 @@ test.describe('Editor Selector Visual Tests @visual', () => {
       await navigateToDemoProject(page, '/issues/demo-issue-1')
 
       // Verify editor selector is visible
-      await expect(page.locator('.editor-selector')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.editor-selector')).toBeVisible()
       // Verify primary button shows VS Code
       await expect(page.locator('.editor-primary-btn.vscode')).toBeVisible()
       await page.waitForTimeout(500)
@@ -48,9 +44,7 @@ test.describe('Editor Selector Visual Tests @visual', () => {
       await setupDemoMode(page)
       await navigateToDemoProject(page, '/issues/demo-issue-1')
 
-      await expect(page.locator('.editor-selector')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.editor-selector')).toBeVisible()
       await page.waitForTimeout(500)
 
       await expect(page).toHaveScreenshot('editor-selector-vscode-dark.png', {
@@ -66,9 +60,7 @@ test.describe('Editor Selector Visual Tests @visual', () => {
       await navigateToDemoProject(page, '/issues/demo-issue-1')
 
       // Wait for editor selector to be visible
-      await expect(page.locator('.editor-selector')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.editor-selector')).toBeVisible()
 
       // Click the dropdown button to open the menu
       await page.locator('.editor-dropdown-btn').click()
@@ -90,9 +82,7 @@ test.describe('Editor Selector Visual Tests @visual', () => {
       await setupDemoMode(page)
       await navigateToDemoProject(page, '/issues/demo-issue-1')
 
-      await expect(page.locator('.editor-selector')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.editor-selector')).toBeVisible()
 
       // Click the dropdown button to open the menu
       await page.locator('.editor-dropdown-btn').click()
@@ -123,9 +113,7 @@ test.describe('Editor Selector Visual Tests @visual', () => {
       await navigateToDemoProject(page, '/issues/demo-issue-1')
 
       // Wait for editor selector with terminal theme
-      await expect(page.locator('.editor-selector')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.editor-selector')).toBeVisible()
       // Verify primary button shows Terminal styling
       await expect(page.locator('.editor-primary-btn.terminal')).toBeVisible()
       await page.waitForTimeout(500)
@@ -149,9 +137,7 @@ test.describe('Editor Selector Visual Tests @visual', () => {
       await setupDemoMode(page)
       await navigateToDemoProject(page, '/issues/demo-issue-1')
 
-      await expect(page.locator('.editor-selector')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.editor-selector')).toBeVisible()
       await expect(page.locator('.editor-primary-btn.terminal')).toBeVisible()
       await page.waitForTimeout(500)
 
@@ -168,9 +154,7 @@ test.describe('Editor Selector Visual Tests @visual', () => {
       await navigateToDemoProject(page, '/issues/demo-issue-1')
 
       // Wait for editor selector
-      await expect(page.locator('.editor-selector')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.editor-selector')).toBeVisible()
 
       // Initially VS Code should be selected
       await expect(page.locator('.editor-primary-btn.vscode')).toBeVisible()

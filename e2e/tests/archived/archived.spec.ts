@@ -10,9 +10,7 @@ test.describe('Archived Projects Page', () => {
       await navigateTo(page, '/archived')
 
       // Wait for loading to complete
-      await expect(page.locator('.archived-projects')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-projects')).toBeVisible()
 
       // Should show empty state message
       await expect(page.getByText('No archived projects')).toBeVisible()
@@ -67,14 +65,10 @@ test.describe('Archived Projects Page', () => {
       await navigateTo(page, '/archived')
 
       // Wait for loading to complete
-      await expect(page.locator('.archived-projects')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-projects')).toBeVisible()
 
       // Should show the archived project
-      await expect(page.locator('.archived-item')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-item')).toBeVisible()
 
       // Should show project name
       await expect(page.locator('.archived-item-name').first()).toBeVisible()
@@ -84,9 +78,7 @@ test.describe('Archived Projects Page', () => {
       await navigateTo(page, '/archived')
 
       // Wait for archived item to load
-      await expect(page.locator('.archived-item')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-item')).toBeVisible()
 
       // Should show action buttons
       await expect(page.locator('.restore-btn').first()).toBeVisible()
@@ -100,9 +92,7 @@ test.describe('Archived Projects Page', () => {
       await navigateTo(page, '/archived')
 
       // Wait for content to load
-      await expect(page.locator('.archived-item')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-item')).toBeVisible()
 
       // Should show remove all button
       await expect(page.locator('.remove-all-btn')).toBeVisible()
@@ -112,9 +102,7 @@ test.describe('Archived Projects Page', () => {
       await navigateTo(page, '/archived')
 
       // Wait for archived item to load
-      await expect(page.locator('.archived-item')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-item')).toBeVisible()
 
       // Click remove button
       await page.locator('.remove-btn').first().click()
@@ -129,9 +117,7 @@ test.describe('Archived Projects Page', () => {
       await navigateTo(page, '/archived')
 
       // Wait for archived item to load
-      await expect(page.locator('.archived-item')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-item')).toBeVisible()
 
       // Click remove button
       await page.locator('.remove-btn').first().click()
@@ -147,17 +133,13 @@ test.describe('Archived Projects Page', () => {
       await navigateTo(page, '/archived')
 
       // Wait for archived item to load
-      await expect(page.locator('.archived-item')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-item')).toBeVisible()
 
       // Click restore button
       await page.locator('.restore-btn').first().click()
 
       // Project should be removed from archived list (shows empty state)
-      await expect(page.getByText('No archived projects')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.getByText('No archived projects')).toBeVisible()
     })
   })
 
@@ -182,9 +164,7 @@ test.describe('Archived Projects Page', () => {
       await navigateTo(page, '/archived')
 
       // Wait for content to load
-      await expect(page.locator('.archived-item')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-item')).toBeVisible()
 
       // Click remove all button
       await page.locator('.remove-all-btn').click()
@@ -197,9 +177,7 @@ test.describe('Archived Projects Page', () => {
       await navigateTo(page, '/archived')
 
       // Wait for content to load
-      await expect(page.locator('.archived-item')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-item')).toBeVisible()
 
       // Click remove all button
       await page.locator('.remove-all-btn').click()

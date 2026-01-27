@@ -10,9 +10,7 @@ test.describe('Issues List Visual Tests @visual', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Wait for demo mode indicator to confirm data is loaded
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Wait for content to stabilize
     await page.waitForTimeout(500)
@@ -27,9 +25,7 @@ test.describe('Issues List Visual Tests @visual', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Wait for demo mode indicator to confirm data is loaded
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Wait for content to stabilize
     await page.waitForTimeout(500)
@@ -47,9 +43,7 @@ test.describe('Issues Page Layout Visual Tests @visual', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Wait for demo mode indicator to confirm data is loaded
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
     await page.waitForTimeout(500)
 
     await expect(page).toHaveScreenshot('issues-dark.png', {
@@ -65,9 +59,7 @@ test.describe('Issues Page Responsive Visual Tests @visual', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Wait for demo mode indicator to confirm data is loaded
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
     await page.waitForTimeout(500)
 
     await expect(page).toHaveScreenshot('issues-mobile.png', {
@@ -81,9 +73,7 @@ test.describe('Issues Page Responsive Visual Tests @visual', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Wait for demo mode indicator to confirm data is loaded
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
     await page.waitForTimeout(500)
 
     await expect(page).toHaveScreenshot('issues-tablet.png', {
@@ -106,14 +96,10 @@ test.describe('Demo Mode Issues Visual Tests @visual', () => {
     await page.waitForLoadState('domcontentloaded')
 
     // Verify demo mode indicator is visible
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Verify demo issues are displayed
-    await expect(page.locator('text=Implement dark mode toggle')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('text=Implement dark mode toggle')).toBeVisible()
 
     // Wait for page to stabilize before screenshot
     await page.waitForTimeout(500)

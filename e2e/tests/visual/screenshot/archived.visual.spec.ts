@@ -9,9 +9,7 @@ test.describe('Archived Page Visual Tests @visual', () => {
       await navigateTo(page, '/archived')
 
       // Wait for content to load
-      await expect(page.locator('.archived-projects')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-projects')).toBeVisible()
       await expect(page.getByText('No archived projects')).toBeVisible()
       await page.waitForTimeout(500)
 
@@ -26,9 +24,7 @@ test.describe('Archived Page Visual Tests @visual', () => {
       await navigateTo(page, '/archived')
 
       // Wait for content to load
-      await expect(page.locator('.archived-projects')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-projects')).toBeVisible()
       await expect(page.getByText('No archived projects')).toBeVisible()
       await page.waitForTimeout(500)
 
@@ -58,9 +54,7 @@ test.describe('Archived Page Visual Tests @visual', () => {
       await navigateTo(page, '/archived')
 
       // Wait for archived item to load
-      await expect(page.locator('.archived-item')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-item')).toBeVisible()
       await page.waitForTimeout(500)
 
       await expect(page).toHaveScreenshot('archived-with-project-light.png', {
@@ -73,9 +67,7 @@ test.describe('Archived Page Visual Tests @visual', () => {
       await navigateTo(page, '/archived')
 
       // Wait for archived item to load
-      await expect(page.locator('.archived-item')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-item')).toBeVisible()
       await page.waitForTimeout(500)
 
       await expect(page).toHaveScreenshot('archived-with-project-dark.png', {
@@ -106,9 +98,7 @@ test.describe('Archived Page Visual Tests @visual', () => {
       await navigateTo(page, '/archived')
 
       // Wait for archived item to load
-      await expect(page.locator('.archived-item')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-item')).toBeVisible()
 
       // Click remove to show confirmation
       await page.locator('.remove-btn').first().click()
@@ -128,9 +118,7 @@ test.describe('Archived Page Visual Tests @visual', () => {
       await navigateTo(page, '/archived')
 
       // Wait for archived item to load
-      await expect(page.locator('.archived-item')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-item')).toBeVisible()
 
       // Click remove to show confirmation
       await page.locator('.remove-btn').first().click()
@@ -168,9 +156,7 @@ test.describe('Archived Page Visual Tests @visual', () => {
       await navigateTo(page, '/archived')
 
       // Wait for content to load
-      await expect(page.locator('.archived-item')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-item')).toBeVisible()
 
       // Click remove all to show confirmation
       await page.locator('.remove-all-btn').click()
@@ -192,9 +178,7 @@ test.describe('Archived Page Visual Tests @visual', () => {
       await navigateTo(page, '/archived')
 
       // Wait for content to load
-      await expect(page.locator('.archived-item')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-item')).toBeVisible()
 
       // Click remove all to show confirmation
       await page.locator('.remove-all-btn').click()
@@ -221,9 +205,7 @@ test.describe('Archived Page Visual Tests @visual', () => {
       await navigateTo(page, '/archived')
 
       // Wait for content to load
-      await expect(page.locator('.archived-projects')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-projects')).toBeVisible()
       await page.waitForTimeout(500)
 
       await expect(page).toHaveScreenshot('archived-empty-mobile-light.png', {
@@ -246,9 +228,7 @@ test.describe('Archived Page Visual Tests @visual', () => {
       await navigateTo(page, '/archived')
 
       // Wait for archived item to load
-      await expect(page.locator('.archived-item')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-item')).toBeVisible()
       await page.waitForTimeout(500)
 
       await expect(page).toHaveScreenshot(
@@ -280,9 +260,7 @@ test.describe('Archived Page Visual Tests @visual', () => {
       await navigateTo(page, '/archived')
 
       // Wait for archived item to load
-      await expect(page.locator('.archived-item')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.archived-item')).toBeVisible()
       await page.waitForTimeout(500)
 
       await expect(page).toHaveScreenshot(

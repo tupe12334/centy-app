@@ -9,18 +9,18 @@ test.describe('Docs List', () => {
     // Wait for the docs list to load by checking for the heading
     await expect(
       page.getByRole('heading', { name: /documentation/i })
-    ).toBeVisible({ timeout: 10000 })
+    ).toBeVisible()
 
     // Should display demo doc titles (use heading role for specificity)
     await expect(
       page.getByRole('heading', { name: 'Getting Started', level: 3 })
-    ).toBeVisible({ timeout: 10000 })
+    ).toBeVisible()
     await expect(
       page.getByRole('heading', { name: 'API Reference', level: 3 })
-    ).toBeVisible({ timeout: 10000 })
+    ).toBeVisible()
     await expect(
       page.getByRole('heading', { name: 'Contributing Guide', level: 3 })
-    ).toBeVisible({ timeout: 10000 })
+    ).toBeVisible()
   })
 
   test('should navigate to doc detail when clicking on a doc', async ({
@@ -32,7 +32,7 @@ test.describe('Docs List', () => {
     // Wait for docs to load
     await expect(
       page.getByRole('heading', { name: 'Getting Started', level: 3 })
-    ).toBeVisible({ timeout: 10000 })
+    ).toBeVisible()
 
     // Click on the first demo doc link
     await page.getByRole('link', { name: 'Getting Started' }).click()
@@ -48,7 +48,7 @@ test.describe('Doc Detail', () => {
     await navigateToDemoProject(page, '/docs/getting-started')
 
     // Doc title is in the .doc-title class
-    await expect(page.locator('.doc-title')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('.doc-title')).toBeVisible()
     await expect(page.locator('.doc-title')).toHaveText('Getting Started')
   })
 
@@ -57,9 +57,7 @@ test.describe('Doc Detail', () => {
     await navigateToDemoProject(page, '/docs/getting-started')
 
     // Should display some of the demo doc content
-    await expect(page.getByText(/welcome to centy/i)).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.getByText(/welcome to centy/i)).toBeVisible()
   })
 
   test('should render markdown content', async ({ page }) => {
@@ -69,6 +67,6 @@ test.describe('Doc Detail', () => {
     // Should render markdown (check for Installation heading in content)
     await expect(
       page.getByRole('heading', { name: 'Installation' })
-    ).toBeVisible({ timeout: 10000 })
+    ).toBeVisible()
   })
 })

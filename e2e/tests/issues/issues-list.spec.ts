@@ -7,12 +7,8 @@ test.describe('Issues List', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Should display at least the first few demo issue titles
-    await expect(page.getByText('Implement dark mode toggle')).toBeVisible({
-      timeout: 10000,
-    })
-    await expect(page.getByText('Fix login timeout issue')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.getByText('Implement dark mode toggle')).toBeVisible()
+    await expect(page.getByText('Fix login timeout issue')).toBeVisible()
   })
 
   test('should display issue metadata', async ({ page }) => {
@@ -20,9 +16,7 @@ test.describe('Issues List', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Should display status indicators (demo issues have various statuses)
-    await expect(page.getByText(/open/i).first()).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.getByText(/open/i).first()).toBeVisible()
   })
 
   test('should display issue display numbers', async ({ page }) => {
@@ -30,12 +24,8 @@ test.describe('Issues List', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Should display issue numbers (use button role which wraps the issue number)
-    await expect(page.getByRole('button', { name: '#1' })).toBeVisible({
-      timeout: 10000,
-    })
-    await expect(page.getByRole('button', { name: '#2' })).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.getByRole('button', { name: '#1' })).toBeVisible()
+    await expect(page.getByRole('button', { name: '#2' })).toBeVisible()
   })
 
   test('should navigate to issue detail when clicking on an issue', async ({

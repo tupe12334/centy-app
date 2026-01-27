@@ -19,9 +19,7 @@ test.describe('Navigation', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Should display the issues page
-    await expect(page.getByRole('heading', { name: /issues/i })).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.getByRole('heading', { name: /issues/i })).toBeVisible()
   })
 
   test('should navigate to docs page', async ({ page }) => {
@@ -31,7 +29,7 @@ test.describe('Navigation', () => {
     // Should display the docs page
     await expect(
       page.getByRole('heading', { name: /docs|documentation/i })
-    ).toBeVisible({ timeout: 10000 })
+    ).toBeVisible()
   })
 
   test('should navigate between pages using navigation', async ({ page }) => {
@@ -52,9 +50,7 @@ test.describe('Navigation', () => {
     await navigateTo(page, '/')
 
     // Demo mode indicator should be visible
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
   })
 })
 

@@ -9,9 +9,7 @@ test.describe('Standalone Workspace Modal', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Wait for page to load
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Check for New Workspace button
     const workspaceBtn = page.getByRole('button', { name: '+ New Workspace' })
@@ -25,9 +23,7 @@ test.describe('Standalone Workspace Modal', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Wait for page to load
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
     // Click New Workspace button
     await page.getByRole('button', { name: '+ New Workspace' }).click()
@@ -44,9 +40,7 @@ test.describe('Standalone Workspace Modal', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Wait for page to load and click New Workspace
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
     await page.getByRole('button', { name: '+ New Workspace' }).click()
 
     // Check for all form fields
@@ -64,9 +58,7 @@ test.describe('Standalone Workspace Modal', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Wait for page to load and open modal
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
     await page.getByRole('button', { name: '+ New Workspace' }).click()
 
     // Check TTL dropdown options
@@ -86,9 +78,7 @@ test.describe('Standalone Workspace Modal', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Wait for page to load and open modal
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
     await page.getByRole('button', { name: '+ New Workspace' }).click()
 
     // Modal should be visible
@@ -106,9 +96,7 @@ test.describe('Standalone Workspace Modal', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Wait for page to load and open modal
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
     await page.getByRole('button', { name: '+ New Workspace' }).click()
 
     // Modal should be visible
@@ -126,9 +114,7 @@ test.describe('Standalone Workspace Modal', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Wait for page to load and open modal
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
     await page.getByRole('button', { name: '+ New Workspace' }).click()
 
     // Modal should be visible
@@ -151,9 +137,7 @@ test.describe('Standalone Workspace Modal', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Wait for page to load and open modal
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
     await page.getByRole('button', { name: '+ New Workspace' }).click()
 
     // Fill in the form
@@ -176,9 +160,7 @@ test.describe('Standalone Workspace Modal', () => {
     await navigateToDemoProject(page, '/issues')
 
     // Wait for page to load and open modal
-    await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.locator('.demo-mode-indicator')).toBeVisible()
     await page.getByRole('button', { name: '+ New Workspace' }).click()
 
     // Check for Create Workspace button

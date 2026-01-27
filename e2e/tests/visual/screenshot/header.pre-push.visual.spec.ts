@@ -29,9 +29,7 @@ test.describe('Header Pre-push Visual Test @visual', () => {
       await navigateTo(page, '/')
 
       // Wait for demo mode indicator to confirm app and mock data loaded
-      await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
       // Wait for content to stabilize (animations, lazy loading)
       await page.waitForTimeout(500)
@@ -61,9 +59,7 @@ test.describe('Header Pre-push Visual Test @visual', () => {
       await navigateTo(page, '/')
 
       // Wait for demo mode indicator to confirm app and mock data loaded
-      await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
       // Wait for content to stabilize
       await page.waitForTimeout(500)
@@ -90,9 +86,7 @@ test.describe('Header Pre-push Visual Test @visual', () => {
       await navigateTo(page, '/')
 
       // Wait for demo mode indicator
-      await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.demo-mode-indicator')).toBeVisible()
       await page.waitForTimeout(500)
 
       const header = page.locator('.app-header')
@@ -117,9 +111,7 @@ test.describe('Header Pre-push Visual Test @visual', () => {
       await navigateTo(page, '/')
 
       // Wait for demo mode indicator
-      await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.demo-mode-indicator')).toBeVisible()
       await page.waitForTimeout(500)
 
       const header = page.locator('.app-header')
@@ -142,9 +134,7 @@ test.describe('Header Pre-push Visual Test @visual', () => {
       await navigateTo(page, '/')
 
       // Wait for app to load
-      await expect(page.locator('.demo-mode-indicator')).toBeVisible({
-        timeout: 10000,
-      })
+      await expect(page.locator('.demo-mode-indicator')).toBeVisible()
 
       const logo = page.locator('.header-logo-icon')
       await expect(logo).toBeVisible()
