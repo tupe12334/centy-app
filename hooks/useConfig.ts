@@ -4,7 +4,7 @@ import { useEffect, useCallback, useSyncExternalStore } from 'react'
 import { centyClient } from '@/lib/grpc/client'
 import { create } from '@bufbuild/protobuf'
 import { GetConfigRequestSchema, type Config } from '@/gen/centy_pb'
-import { useProject } from '@/components/providers/ProjectProvider'
+import { usePathContext } from '@/components/providers/PathContextProvider'
 
 // Snapshot type for useSyncExternalStore - must be immutable and cached
 interface ConfigSnapshot {
@@ -108,7 +108,7 @@ async function fetchConfig(projectPath: string, force = false): Promise<void> {
 }
 
 export function useConfig() {
-  const { projectPath, isInitialized } = useProject()
+  const { projectPath, isInitialized } = usePathContext()
 
   const snapshot = useSyncExternalStore(
     useCallback(listener => subscribe(projectPath, listener), [projectPath]),

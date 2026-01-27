@@ -11,12 +11,18 @@ export function createMockConfig(overrides: Partial<Config> = {}): Config {
     customFields: overrides.customFields ?? [],
     defaults: overrides.defaults ?? {},
     priorityLevels: overrides.priorityLevels ?? 3,
-    allowedStates: overrides.allowedStates ?? ['open', 'in-progress', 'closed'],
+    allowedStates: overrides.allowedStates ?? [
+      'open',
+      'in-progress',
+      'for-validation',
+      'closed',
+    ],
     defaultState: overrides.defaultState ?? 'open',
     version: overrides.version ?? '1.0.0',
     stateColors: overrides.stateColors ?? {
       open: '#22c55e',
       'in-progress': '#3b82f6',
+      'for-validation': '#f59e0b',
       closed: '#6b7280',
     },
     priorityColors: overrides.priorityColors ?? {

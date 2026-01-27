@@ -1,0 +1,9 @@
+{
+  "displayNumber": 123,
+  "status": "open",
+  "priority": 1,
+  "createdAt": "2026-01-27T06:25:43.715143+00:00",
+  "updatedAt": "2026-01-27T06:25:43.715143+00:00",
+  "compacted": false,
+  "draft": false
+}
